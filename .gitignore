@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment / secrets
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.log
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Personal/browser exports
+*.mhtml
+
+# Local study materials
+study material/
+
+# Local research papers
+Research_Papers/
+# Personal/browser exports
+*.mhtml
+
+# Local study materials
+study material/
+
+# Local research papers
+Research_Papers/
