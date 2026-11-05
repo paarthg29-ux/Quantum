@@ -1,0 +1,7 @@
+  L0 ( 5 blocks): own point lambda 56.23, bias 300 MW | fixed: adeq 99%, mean 2.53%, worst 8.69% | own: adeq 100%, mean 3.39%, worst 18.91%
+  L1 ( 6 blocks): own point lambda 100, bias 250 MW | fixed: adeq 100%, mean 3.98%, worst 19.27% | own: adeq 100%, mean 3.98%, worst 19.27%
+  L2 ( 8 blocks): own point lambda 100, bias 250 MW | fixed: adeq 100%, mean 4.89%, worst 20.67% | own: adeq 100%, mean 4.89%, worst 20.67%
+HighsMipSolverData::transformNewIntegerFeasibleSolution tmpSolver.run();
+  L3 ( 9 blocks): own point lambda 31.62, bias 300 MW | fixed: adeq 100%, mean 4.78%, worst 23.57% | own: adeq 100%, mean 3.15%, worst 15.82%
+  L4 (11 blocks): own point lambda 100, bias 150 MW | fixed: adeq 100%, mean 6.13%, worst 11.81% | own: adeq 100%, mean 1.85%, worst 6.03%
+wrote results/fig_encoding_gap_ladder.png and .pdf

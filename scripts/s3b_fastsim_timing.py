@@ -119,7 +119,7 @@ def count_job(args):
     pb = problem(level, scenario)
     r = arm_a(pb, p, seed)
     return dict(level=level, n=pb.n, scenario=scenario, seed=seed, p=p, evals=r.n_evals, wall=r.wall_s,
-                early=r.stop_reason.startswith("early"), ratio=r.best_ratio, init=r.initial_ratio)
+                early=r.early_stopped, cap=r.cap_hit, ratio=r.best_ratio, init=r.initial_ratio)
 
 
 def sub(*args):

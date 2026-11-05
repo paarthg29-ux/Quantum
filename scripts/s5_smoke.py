@@ -56,27 +56,26 @@ def main():
                 print(f"\n  -- p={p} seed={seed}: {r.n_evals} evals, {r.wall_s:.2f} s, stop: {r.stop_reason}")
                 print(f"     gamma = {np.round(r.gammas, 4).tolist()}, beta = {np.round(r.betas, 4).tolist()}")
                 trace(r)
-        print(f"\n  {'p':>2} {'seed':>4} | {'E init':>8} {'E best':>8} {'decr.':>5} | {'ratio':>6} {'vs base':>7} | "
-              f"{'P(ground)':>9} | {'evals->95% own':>14} {'->95% best-of-seeds':>19} | best sample: "
-              f"{'ratio':>6} {'ground':>6} {'adequate':>8} {'cost gap':>8}")
+        print(f"\n  {'p':>2} {'seed':>4} | {'E init':>8} {'E best':>8} {'decr.':>5} | {'ratio':>6} | "
+              f"{'g init':>6} {'g final':>7} | {'evals to g=.9/.95/.99':>21} | {'cap':>3} | {'P(gnd)':>7} | "
+              f"best-of-1024: {'P(gnd)':>6} {'adeq':>5} {'gap raw':>7} {'repaired':>8}")
         for p in P_VALUES:
-            ref = max(results[(p, sd)].best_ratio for sd in SEEDS)
             for seed in SEEDS:
                 r = results[(p, seed)]
                 dec = r.energies.min() < r.energies[0] - 1e-9
-                closes = (r.best_ratio - base) / (1 - base)
+                ev = "/".join(str(r.evals_to_g(t) or "-") for t in (0.9, 0.95, 0.99))
+                b = r.sampling[1024]
                 print(f"  {p:2d} {seed:4d} | {r.energies[0]:8.4f} {r.energies.min():8.4f} {'yes' if dec else 'NO':>5} | "
-                      f"{r.best_ratio:6.4f} {100 * closes:6.0f}% | {r.p_ground:9.4f} | {r.evals_to(0.95):14d} "
-                      f"{r.evals_to(0.95, ref):19d} | {r.sample_ratio:19.4f} {str(r.sample_is_ground):>6} "
-                      f"{str(r.sample_adequate):>8} {100 * r.sample_gap:7.2f}%")
+                      f"{r.best_ratio:6.4f} | {r.g_init:6.3f} {r.g_final:7.3f} | {ev:>21} | "
+                      f"{'yes' if r.cap_hit else 'no':>3} | {r.p_ground:7.4f} | {b['p_ground']:19.4f} "
+                      f"{b['adequate']:5.2f} {100 * b['gap_raw']:6.2f}% {100 * b['gap_repaired']:7.2f}%")
                 if not dec:
                     failures.append(f"L{lvl} p={p} seed={seed}: energy did not decrease")
-                if closes < 0.5:
-                    failures.append(f"L{lvl} p={p} seed={seed}: ratio {r.best_ratio:.4f} closes only "
-                                    f"{100 * closes:.0f}% of baseline->1")
+                if r.g_final < 0.5:
+                    failures.append(f"L{lvl} p={p} seed={seed}: g = {r.g_final:.3f} < 0.5")
                 if p == 1 and not (base < r.best_ratio < 1 and r.p_ground < 0.5):
                     failures.append(f"L{lvl} p=1 seed={seed}: outside the sane range")
-        print("  note: '% vs base' = share of the distance from the random-state ratio to 1 that is closed")
+        print("  g = (r - r_unif) / (1 - r_unif): share of the distance from the random-state ratio to 1")
 
     print("\nSMOKE TEST:", "PASS" if not failures else "FAIL")
     for f in failures:
