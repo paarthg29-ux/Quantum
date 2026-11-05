@@ -127,7 +127,7 @@ def test_arm_sources_and_pairing():
     assert E1.c.min() >= 0.1 and E1.c.max() <= 0.9 and not np.allclose(E1.c, E2.c)
     np.testing.assert_array_equal(c_random(pb, 0, 0.1).c, E1.c)  # reproducible
     s = OptimiserSettings(cap_per_param=10)
-    runs = {a: run_arm(a, pb, 1, seed=3, settings=s) for a in ARMS}
+    runs = {a: run_arm(a, pb, 1, seed=3, settings=s) for a in ARMS if not a.startswith(('B', 'C'))}
     th, be = initial_parameters(1, 3)
     for a, r in runs.items():
         assert r.n_evals <= s.max_evals(2)
@@ -146,3 +146,26 @@ def test_patience_stop_triggers():
     pb = make_problem(inst)
     r = run_arm("A", pb, 1, seed=0, settings=OptimiserSettings(patience=5, min_delta=0.5))
     assert r.early_stopped and r.n_evals == 6  # best set at eval 1, then 5 evals without +0.5
+
+
+def test_lp_relaxation_at_qubo_target():
+    for inst in make_scenario_set(4, n_hours=2, seed=12, refinement_level=2, demand_bias_mw=250.0):
+        lp_d, lp_q = solve_lp_relaxation(inst, "demand"), solve_lp_relaxation(inst, "qubo")
+        gen_q = inst.capacity @ inst.unflatten(lp_q.x)
+        assert (gen_q >= inst.target_mw - 1e-6).all()
+        assert lp_q.objective >= lp_d.objective - 1e-6  # tighter constraint, higher bound
+    with pytest.raises(ValueError):
+        solve_lp_relaxation(inst, "reserve")
+
+
+def test_learned_arms_at_L2():
+    from qguc.gnn import MODEL_DIR
+
+    if not (MODEL_DIR / "gnn_milp_L2.pt").exists():
+        pytest.skip("GNN models not trained yet")
+    pb = make_problem(make_scenario_set(1, n_hours=2, seed=8, refinement_level=2)[0])
+    s = OptimiserSettings(cap_per_param=10)
+    rB, rC = run_arm("B", pb, 1, seed=3, settings=s), run_arm("C-milp", pb, 1, seed=3, settings=s)
+    np.testing.assert_allclose(rB.extra["c"], rC.extra["c"])  # same warm start, different mixer
+    assert rB.g_state0 == pytest.approx(rC.g_state0)  # identical initial state
+    assert 0 < rC.source_s < 0.05

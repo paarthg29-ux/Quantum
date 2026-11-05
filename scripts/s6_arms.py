@@ -21,10 +21,11 @@ from scipy.stats import wilcoxon
 LEVEL, N_HOURS = 2, 2
 SCEN_SEED, N_SCEN, SEEDS = 7001, 5, (0, 1, 2, 3, 4)
 P_VALUES = (1, 2, 3)
-ARM_NAMES = ("A", "D", "E", "F")
+ARM_NAMES = ("A", "D", "D-dem", "E", "F")
+TAG = "s6b"  # v1 (cap 100, arm D at true demand) is results/s6_arms.*
 G_TARGETS = (0.9, 0.95, 0.99)
 EPS_SWEEP = (0.0, 0.05, 0.1, 0.25)
-EPS_ARMS, EPS_P, EPS_SEEDS = ("D", "E", "F"), (1, 2), (0, 1)
+EPS_ARMS, EPS_P, EPS_SEEDS = ("D", "D-dem", "E", "F"), (1, 2), (0, 1)
 WORKERS = 4
 RESULTS = Path(__file__).resolve().parents[1] / "results"
 THREAD_ENV = dict(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
@@ -86,7 +87,7 @@ def paired(recs, a, b, p, key, sign=1.0):
 def summarise(recs):
     for p in P_VALUES:
         print(f"\n--- p = {p}: mean +/- std over {N_SCEN * len(SEEDS)} paired runs ---")
-        print(f"  {'arm':>3} | {'g state0':>15} | {'g init':>15} | {'g final':>15} | {'evals':>17} | "
+        print(f"  {'arm':>5} | {'g state0':>15} | {'g init':>15} | {'g final':>15} | {'evals':>17} | "
               f"{'cap hit':>7} | " + " | ".join(f"{'evals to g=' + str(t):>18}" for t in G_TARGETS))
         for a in ARM_NAMES:
             rs = [r for r in recs if r["arm"] == a and r["p"] == p]
@@ -94,16 +95,16 @@ def summarise(recs):
             for t in G_TARGETS:
                 v = [r[f"to_{t}"] for r in rs if r[f"to_{t}"] is not None]
                 to.append(f"{np.median(v):6.0f} med ({len(v):2d}/{len(rs)})" if v else f"{'never':>9} (0/{len(rs)})")
-            print(f"  {a:>3} | {ms([r['g_state0'] for r in rs]):>15} | {ms([r['g_init'] for r in rs]):>15} | "
+            print(f"  {a:>5} | {ms([r['g_state0'] for r in rs]):>15} | {ms([r['g_init'] for r in rs]):>15} | "
                   f"{ms([r['g_final'] for r in rs]):>15} | {ms([r['n_evals'] for r in rs]):>17} | "
                   f"{np.mean([r['cap_hit'] for r in rs]):6.0%} | " + " | ".join(f"{x:>18}" for x in to))
-        print(f"  {'arm':>3} | {'P(ground)':>15} | {'P(best1024=gnd)':>15} | {'best1024 adeq':>13} | "
+        print(f"  {'arm':>5} | {'P(ground)':>15} | {'P(best1024=gnd)':>15} | {'1-shot adeq':>11} | "
               f"{'gap raw %':>15} | {'gap repaired %':>15} | {'wall s/run':>15} | {'LP solve ms':>11}")
         for a in ARM_NAMES:
             rs = [r for r in recs if r["arm"] == a and r["p"] == p]
             lp = [1e3 * r["lp_solve_s"] for r in rs if r["lp_solve_s"] is not None]
-            print(f"  {a:>3} | {ms([r['p_ground_K1'] for r in rs]):>15} | {ms([r['p_ground_K1024'] for r in rs]):>15} | "
-                  f"{np.mean([r['adequate_K1024'] for r in rs]):13.3f} | "
+            print(f"  {a:>5} | {ms([r['p_ground_K1'] for r in rs]):>15} | {ms([r['p_ground_K1024'] for r in rs]):>15} | "
+                  f"{np.mean([r['adequate_K1'] for r in rs]):11.3f} | "
                   f"{ms([100 * r['gap_raw_K1024'] for r in rs]):>15} | {ms([100 * r['gap_repaired_K1024'] for r in rs]):>15} | "
                   f"{ms([r['total_s'] for r in rs]):>15} | {(f'{np.mean(lp):.2f}' if lp else '-'):>11}")
         print("  paired differences vs A (arm - A):")
@@ -113,9 +114,9 @@ def summarise(recs):
                              ("gap_repaired_K1024", "gap repaired")):
                 print(f"    {a} {lab:>16}: {paired(recs, a, 'A', p, key)[0]}")
         print("  warm arms against each other:")
-        for a, b in (("D", "E"), ("F", "E"), ("D", "F")):
+        for a, b in (("D", "E"), ("F", "E"), ("D", "F"), ("D", "D-dem")):
             for key, lab in (("g_init", "g init"), ("g_final", "g final"), ("n_evals", "evals"),
-                             ("gap_repaired_K1024", "gap repaired")):
+                             ("p_ground_K1024", "P(b1024=gnd)"), ("gap_repaired_K1024", "gap repaired")):
                 print(f"    {a}-{b} {lab:>14}: {paired(recs, a, b, p, key)[0]}")
 
 
@@ -134,7 +135,7 @@ def main():
     with ProcessPoolExecutor(WORKERS) as pool:
         recs = [r for out in pool.map(job, jobs) for r in out]
     print(f"{len(recs)} runs in {time.perf_counter() - t0:.0f} s")
-    (RESULTS / "s6_arms.json").write_text(json.dumps(recs))
+    (RESULTS / f"{TAG}_arms.json").write_text(json.dumps(recs))
     summarise(recs)
 
     if "--no-eps" in sys.argv:
@@ -145,20 +146,20 @@ def main():
             for p in EPS_P]
     with ProcessPoolExecutor(WORKERS) as pool:
         erecs = [r for out in pool.map(job, jobs) for r in out]
-    (RESULTS / "s6_eps_sweep.json").write_text(json.dumps(erecs))
+    (RESULTS / f"{TAG}_eps_sweep.json").write_text(json.dumps(erecs))
     a_ref = {(r["scenario"], r["seed"], r["p"]): r for r in recs if r["arm"] == "A"}
-    print(f"  {'arm':>3} {'p':>2} {'eps':>5} | {'g state0':>15} | {'g init':>15} | {'g final':>15} | "
+    print(f"  {'arm':>5} {'p':>2} {'eps':>5} | {'g state0':>15} | {'g init':>15} | {'g final':>15} | "
           f"{'evals':>17} | {'cap':>4} | {'P(best1024=gnd)':>15} | {'gap repaired %':>15}")
     for a in EPS_ARMS:
         for p in EPS_P:
             ar = [a_ref[(s, sd, p)] for s in range(N_SCEN) for sd in EPS_SEEDS]
-            print(f"  {'A':>3} {p:2d} {'-':>5} | {ms([r['g_state0'] for r in ar]):>15} | "
+            print(f"  {'A':>5} {p:2d} {'-':>5} | {ms([r['g_state0'] for r in ar]):>15} | "
                   f"{ms([r['g_init'] for r in ar]):>15} | {ms([r['g_final'] for r in ar]):>15} | "
                   f"{ms([r['n_evals'] for r in ar]):>17} | {np.mean([r['cap_hit'] for r in ar]):4.0%} | "
                   f"{ms([r['p_ground_K1024'] for r in ar]):>15} | {ms([100 * r['gap_repaired_K1024'] for r in ar]):>15}")
             for eps in EPS_SWEEP:
                 rs = [r for r in erecs if r["arm"] == a and r["p"] == p and r["eps"] == eps]
-                print(f"  {a:>3} {p:2d} {eps:5.2f} | {ms([r['g_state0'] for r in rs]):>15} | "
+                print(f"  {a:>5} {p:2d} {eps:5.2f} | {ms([r['g_state0'] for r in rs]):>15} | "
                       f"{ms([r['g_init'] for r in rs]):>15} | {ms([r['g_final'] for r in rs]):>15} | "
                       f"{ms([r['n_evals'] for r in rs]):>17} | {np.mean([r['cap_hit'] for r in rs]):4.0%} | "
                       f"{ms([r['p_ground_K1024'] for r in rs]):>15} | {ms([100 * r['gap_repaired_K1024'] for r in rs]):>15}")

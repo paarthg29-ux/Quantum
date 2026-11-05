@@ -125,9 +125,12 @@ class OperationalResult:
     mip_gap: float = float("nan")
 
 
-def _milp_matrices(instance: UCInstance):
+def _milp_matrices(instance: UCInstance, demand=None):
     """Objective c and constraints lb <= A [x; y] <= ub of the operational
-    problem (see :func:`solve_milp`); variables are x (n_vars) then y (n_vars)."""
+    problem (see :func:`solve_milp`); variables are x (n_vars) then y (n_vars).
+    ``demand`` (default: the true demand D_t) is the right-hand side of the
+    hourly adequacy constraints."""
+    demand = instance.demand_mw if demand is None else np.asarray(demand, float)
     n, N, T = instance.n_vars, instance.n_plants, instance.n_hours
     k = instance.var_index
     P = instance.capacity
@@ -137,7 +140,7 @@ def _milp_matrices(instance: UCInstance):
     lb = np.zeros(T + n)
     ub = np.full(T + n, np.inf)
     for t in range(T):
-        lb[t] = instance.demand_mw[t]
+        lb[t] = demand[t]
         for i in range(N):
             c[k(i, t)] = instance.hourly_cost[i]
             c[n + k(i, t)] = instance.startup_cost[i]
@@ -239,18 +242,28 @@ class LPRelaxation:
     build_time_s: float
     status: int = 0
     message: str = ""
+    target: str = "demand"
 
     @property
     def total_time_s(self) -> float:
         return self.solve_time_s + self.build_time_s
 
 
-def solve_lp_relaxation(instance: UCInstance) -> LPRelaxation:
+def solve_lp_relaxation(instance: UCInstance, target: str = "demand") -> LPRelaxation:
     """Continuous relaxation of :func:`solve_milp`: the same objective and
     constraints with x in [0, 1] instead of {0, 1}, by scipy.optimize.linprog
-    (HiGHS). Its optimum is a lower bound on the MILP optimum."""
+    (HiGHS).
+
+    ``target = "demand"``: generation >= D_t, the operational problem; the
+    optimum is a lower bound on the MILP optimum.
+    ``target = "qubo"``: generation >= D_t + demand_bias_mw, the level the
+    QUBO penalty actually targets -- the relaxation of the problem the
+    circuit minimises (up to soft vs hard), which is what a warm start for
+    that circuit should relax."""
+    if target not in ("demand", "qubo"):
+        raise ValueError("target must be 'demand' or 'qubo'")
     t_build = time.perf_counter()
-    c, A, lb, ub = _milp_matrices(instance)
+    c, A, lb, ub = _milp_matrices(instance, instance.demand_mw if target == "demand" else instance.target_mw)
     finite = np.isfinite(ub)
     A_ub = np.vstack([-A, A[finite]])  # lb <= A z  ->  -A z <= -lb ;  A z <= ub where finite
     b_ub = np.r_[-lb, ub[finite]]
@@ -262,4 +275,4 @@ def solve_lp_relaxation(instance: UCInstance) -> LPRelaxation:
         raise RuntimeError(f"LP relaxation failed for {instance.label}: {res.message}")
     return LPRelaxation(x=np.clip(res.x[: instance.n_vars], 0.0, 1.0), objective=float(res.fun),
                         solve_time_s=solve_time, build_time_s=build_time, status=int(res.status),
-                        message=str(res.message))
+                        message=str(res.message), target=target)

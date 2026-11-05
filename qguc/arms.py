@@ -4,14 +4,18 @@ switches (warm initial state? warm mixer?). Adding an arm is supplying a new
 parameters) is shared, and runs are paired on (scenario, seed).
 
     A  cold start      no c: |+>^n and the standard X mixer
-    D  LP relaxation   c = fractional commitments of the MILP's continuous
-                       relaxation (scipy linprog / HiGHS); solve time recorded
+    D  LP relaxation   c = fractional commitments of the continuous relaxation
+                       with generation >= D_t + B, the QUBO's own target
+                       (scipy linprog / HiGHS); solve time recorded
+    D-dem              the same at generation >= D_t (the pilot-v1 arm D,
+                       which relaxed a different problem from the circuit's)
     E  random control  c_i ~ U(eps, 1 - eps), drawn from (scenario, seed)
     F  merit order     greedy per hour: commit by cost per MW until D_t + B
                        is met; committed -> 0.9, uncommitted -> 0.1
-    (next step)
-    B  GNN c + standard X mixer   (washout ablation: warm_mixer=False)
-    C  GNN c + warm mixer
+    B         GNN (MILP labels) c + standard X mixer (washout ablation)
+    C-milp    GNN trained on MILP commitments + warm mixer (scalable labels)
+    C-oracle  GNN trained on exact QUBO ground states + warm mixer (upper
+              bound for a learned start; labels need brute force)
 
 All warm arms regularise c -> clip(c, eps, 1 - eps) before use.
 """
@@ -41,13 +45,15 @@ class CVector:
 CSource = Callable[[QAOAProblem, int, float], CVector]  # (problem, seed, eps) -> c
 
 
-def c_lp_relaxation(problem: QAOAProblem, seed: int, eps: float) -> CVector:
-    """Per-instance LP relaxation (solved once per problem, its time charged to each run)."""
-    if "lp" not in problem.cache:
+def c_lp_relaxation(problem: QAOAProblem, seed: int, eps: float, target: str = "qubo") -> CVector:
+    """Per-instance LP relaxation (solved once per problem, its time charged to
+    each run). Default target: D_t + demand bias, the level the QUBO targets."""
+    key = ("lp", target)
+    if key not in problem.cache:
         t0 = time.perf_counter()
-        lp = solve_lp_relaxation(problem.instance)
-        problem.cache["lp"] = (lp, time.perf_counter() - t0)
-    lp, wall = problem.cache["lp"]
+        lp = solve_lp_relaxation(problem.instance, target=target)
+        problem.cache[key] = (lp, time.perf_counter() - t0)
+    lp, wall = problem.cache[key]
     frac = int(((lp.x > 1e-9) & (lp.x < 1 - 1e-9)).sum())
     return CVector(lp.x, wall, dict(lp_solve_s=lp.solve_time_s, lp_build_s=lp.build_time_s,
                                     lp_bound=lp.objective, n_fractional=frac))
@@ -75,6 +81,40 @@ def c_merit_order(problem: QAOAProblem, seed: int, eps: float, on: float = 0.9, 
     return CVector(np.where(x == 1, on, off), time.perf_counter() - t0, dict(schedule=x))
 
 
+_GNN_CACHE: dict = {}
+
+
+def _gnn_model(variant: str, instance):
+    """The trained GCN for this instance's block set (models/gnn_<variant>_L<k>.pt), cached per process."""
+    from .gnn import MODEL_DIR, WarmStartModel
+    from .instance import REFINEMENT_LEVELS, refinement_fleet
+
+    names = tuple(p.name for p in instance.plants)
+    level = next((k for k in REFINEMENT_LEVELS if tuple(p.name for p in refinement_fleet(k)) == names), None)
+    key = (variant, level)
+    if key not in _GNN_CACHE:
+        import torch
+
+        torch.set_num_threads(1)
+        model = WarmStartModel.load(MODEL_DIR / f"gnn_{variant}_L{level}.pt")
+        model.predict(instance)  # warm-up, so the charged time is steady-state inference
+        _GNN_CACHE[key] = model
+    return _GNN_CACHE[key]
+
+
+def c_gnn(variant: str) -> CSource:
+    """c from the trained GCN (labels: 'milp' or 'oracle'); the charged time is
+    feature construction + forward pass for this instance."""
+
+    def source(problem: QAOAProblem, seed: int, eps: float) -> CVector:
+        model = _gnn_model(variant, problem.instance)
+        t0 = time.perf_counter()
+        c = model.predict_flat(problem.instance)
+        return CVector(c, time.perf_counter() - t0, dict(gnn=variant))
+
+    return source
+
+
 @dataclass(frozen=True)
 class Arm:
     name: str
@@ -86,9 +126,15 @@ class Arm:
 
 ARMS: dict[str, Arm] = {
     "A": Arm("A", "cold start: uniform + X mixer", None, warm_state=False, warm_mixer=False),
-    "D": Arm("D", "LP relaxation + warm mixer", c_lp_relaxation),
+    "D": Arm("D", "LP relaxation at the QUBO target D + B + warm mixer", c_lp_relaxation),
+    "D-dem": Arm("D-dem", "LP relaxation at true demand D (pilot v1; inconsistent target) + warm mixer",
+                 lambda pb, seed, eps: c_lp_relaxation(pb, seed, eps, target="demand")),
     "E": Arm("E", "random c + warm mixer (control)", c_random),
     "F": Arm("F", "merit order + warm mixer", c_merit_order),
+    "B": Arm("B", "GNN (MILP labels) warm state + standard X mixer (washout ablation)", c_gnn("milp"),
+             warm_state=True, warm_mixer=False),
+    "C-milp": Arm("C-milp", "GNN trained on MILP labels + warm mixer", c_gnn("milp")),
+    "C-oracle": Arm("C-oracle", "GNN trained on exact QUBO ground states + warm mixer", c_gnn("oracle")),
 }
 
 

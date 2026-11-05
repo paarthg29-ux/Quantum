@@ -14,8 +14,8 @@ theta_k ~ U(0, 1), beta_k ~ U(-pi/4, pi/4), independently per layer.
 
 Stopping rule (identical for every arm -- a measurement instrument)
 --------------------------------------------------------------------
-COBYLA, rhobeg 0.5, rhoend 1e-3, cap = 100 evaluations per parameter
-(200 p). External patience stop: the run ends once the best APPROXIMATION
+COBYLA, rhobeg 0.5, rhoend 1e-3, cap = 200 evaluations per parameter
+(400 p; raised from 100 to de-censor total evaluation counts). External patience stop: the run ends once the best APPROXIMATION
 RATIO has not improved by >= 1e-4 within the last 50 evaluations. A run
 that ends at the cap is CENSORED ("cap hit") and is counted as such.
 The reported state is the best one seen.
@@ -96,7 +96,7 @@ def make_problem(instance: UCInstance, point: OperatingPoint = FROZEN) -> QAOAPr
 class OptimiserSettings:
     rhobeg: float = 0.5
     rhoend: float = 1e-3
-    cap_per_param: int = 100
+    cap_per_param: int = 200
     patience: int = 50
     min_delta: float = 1e-4  # on the approximation ratio
 
