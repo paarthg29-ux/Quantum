@@ -28,7 +28,7 @@ import time
 from dataclasses import dataclass
 
 import numpy as np
-from scipy.optimize import Bounds, LinearConstraint, milp
+from scipy.optimize import Bounds, LinearConstraint, linprog, milp
 
 from .instance import UCInstance
 from .qubo import QUBO, qubo_energy_batch
@@ -125,19 +125,9 @@ class OperationalResult:
     mip_gap: float = float("nan")
 
 
-def solve_milp(instance: UCInstance, time_limit: float | None = None) -> OperationalResult:
-    """Operational optimum by MILP (scipy.optimize.milp / HiGHS).
-
-        min  sum_{i,t} (a_i + b_i P_i) x[i,t] + S_i y[i,t]
-        s.t. sum_i P_i x[i,t] >= D_t                        for all t
-             y[i,t] >= x[i,t] - x[i,t-1],  x[i,-1] = initial_on[i]
-             x binary, 0 <= y <= 1
-
-    D_t is the true demand; ``demand_bias_mw`` plays no part. y is
-    continuous; it equals the start-up indicator at the optimum because
-    S_i > 0. The relative MIP gap is set to 0, so the result is optimal.
-    """
-    t_build = time.perf_counter()
+def _milp_matrices(instance: UCInstance):
+    """Objective c and constraints lb <= A [x; y] <= ub of the operational
+    problem (see :func:`solve_milp`); variables are x (n_vars) then y (n_vars)."""
     n, N, T = instance.n_vars, instance.n_plants, instance.n_hours
     k = instance.var_index
     P = instance.capacity
@@ -159,6 +149,24 @@ def solve_milp(instance: UCInstance, time_limit: float | None = None) -> Operati
                 lb[row] = -float(instance.initial_on[i])
             else:
                 A[row, k(i, t - 1)] = 1.0  # + x[i,t-1]
+    return c, A, lb, ub
+
+
+def solve_milp(instance: UCInstance, time_limit: float | None = None) -> OperationalResult:
+    """Operational optimum by MILP (scipy.optimize.milp / HiGHS).
+
+        min  sum_{i,t} (a_i + b_i P_i) x[i,t] + S_i y[i,t]
+        s.t. sum_i P_i x[i,t] >= D_t                        for all t
+             y[i,t] >= x[i,t] - x[i,t-1],  x[i,-1] = initial_on[i]
+             x binary, 0 <= y <= 1
+
+    D_t is the true demand; ``demand_bias_mw`` plays no part. y is
+    continuous; it equals the start-up indicator at the optimum because
+    S_i > 0. The relative MIP gap is set to 0, so the result is optimal.
+    """
+    t_build = time.perf_counter()
+    c, A, lb, ub = _milp_matrices(instance)
+    n = instance.n_vars
     integrality = np.r_[np.ones(n), np.zeros(n)]
     options = {"disp": False, "mip_rel_gap": 0.0}
     if time_limit is not None:
@@ -221,3 +229,37 @@ def brute_force_operational(instance: UCInstance, chunk_size: int = 1 << 16) -> 
         startup_cost=float(instance.startup_expense(x)),
         solve_time_s=elapsed,
     )
+
+
+@dataclass
+class LPRelaxation:
+    x: np.ndarray  # (n_vars,) fractional commitments in [0, 1], flat layout
+    objective: float  # LP lower bound on the operating cost, INR
+    solve_time_s: float  # solver call only
+    build_time_s: float
+    status: int = 0
+    message: str = ""
+
+    @property
+    def total_time_s(self) -> float:
+        return self.solve_time_s + self.build_time_s
+
+
+def solve_lp_relaxation(instance: UCInstance) -> LPRelaxation:
+    """Continuous relaxation of :func:`solve_milp`: the same objective and
+    constraints with x in [0, 1] instead of {0, 1}, by scipy.optimize.linprog
+    (HiGHS). Its optimum is a lower bound on the MILP optimum."""
+    t_build = time.perf_counter()
+    c, A, lb, ub = _milp_matrices(instance)
+    finite = np.isfinite(ub)
+    A_ub = np.vstack([-A, A[finite]])  # lb <= A z  ->  -A z <= -lb ;  A z <= ub where finite
+    b_ub = np.r_[-lb, ub[finite]]
+    build_time = time.perf_counter() - t_build
+    t0 = time.perf_counter()
+    res = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=(0.0, 1.0), method="highs")
+    solve_time = time.perf_counter() - t0
+    if res.status != 0:
+        raise RuntimeError(f"LP relaxation failed for {instance.label}: {res.message}")
+    return LPRelaxation(x=np.clip(res.x[: instance.n_vars], 0.0, 1.0), objective=float(res.fun),
+                        solve_time_s=solve_time, build_time_s=build_time, status=int(res.status),
+                        message=str(res.message))
