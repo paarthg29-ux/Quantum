@@ -89,7 +89,11 @@ Limitations (to be stated in the paper)
 Fleet selection
 ---------------
 :func:`select_plants` returns either model or any subset of its blocks; the
-problem size is n_vars = n_blocks * n_hours. Generated loads span
+problem size is n_vars = n_blocks * n_hours. To change the problem size on
+the SAME physical system, use the aggregation ladder
+(:func:`refinement_fleet`, ``refinement_level=`` 0..4: 5, 6, 8, 9, 11
+blocks, always 4442 MW) rather than deleting units, which removes
+capacity and can make peak demand infeasible. Generated loads span
 [2500, 4200] MW for the full 4442 MW fleet and are scaled by capacity
 share for a subset, so every selection sees the same relative loading.
 
@@ -103,6 +107,7 @@ places that know the layout; all other code must go through them.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -169,11 +174,62 @@ def _derive_units(stations, specs) -> tuple[Plant, ...]:
 
 HARYANA_UNITS: tuple[Plant, ...] = _derive_units(HARYANA_STATIONS, _UNIT_SPECS)
 FLEET_CAPACITY_MW = float(sum(p.capacity_mw for p in HARYANA_STATIONS))
-MODELS = {"station": HARYANA_STATIONS, "unit": HARYANA_UNITS}
+
+# ---- aggregation ladder --------------------------------------------------
+#
+# One physical system (all 11 units, 4442 MW) described at five levels of
+# block granularity. Level k splits the first k stations of SPLIT_ORDER into
+# their units and keeps every other station as ONE aggregated block:
+#
+#   L0  5 blocks  stations only                        (= station model)
+#   L1  6 blocks  + Hisar        -> 2 x 600
+#   L2  8 blocks  + Jhajjar      -> 3 x 500
+#   L3  9 blocks  + Yamunanagar  -> 2 x 300
+#   L4 11 blocks  + Panipat      -> 210 + 250 + 250    (= unit model)
+#
+# Faridabad is a single unit and is the same block at every level (named by
+# its station below L4). Capacity is 4442 MW at every level: the ladder
+# changes how finely the fleet can be committed, never what exists.
+SPLIT_ORDER = ("RGTPP", "IGSTPP", "DCRTPP", "PTPS")
+REFINEMENT_LEVELS = tuple(range(len(SPLIT_ORDER) + 1))
+
+
+def aggregate_block(units, name: str, station: str, kind: str) -> Plant:
+    """One block committing all ``units`` together. Its coefficients are the
+    sums of the constituents' (capacity, no-load cost a, start-up cost S);
+    the marginal cost b must be common to all of them, so a committed block
+    costs exactly what committing every constituent costs."""
+    units = tuple(units)
+    bs = {u.b for u in units}
+    if len(bs) != 1:
+        raise ValueError(f"cannot aggregate units with different marginal costs {sorted(bs)}")
+    return Plant(name, station, math.fsum(u.capacity_mw for u in units), math.fsum(u.a for u in units),
+                 bs.pop(), math.fsum(u.startup for u in units), kind)
+
+
+def refinement_fleet(level: int) -> tuple[Plant, ...]:
+    """Blocks of refinement level ``level`` (0..4), in station order."""
+    if level not in REFINEMENT_LEVELS:
+        raise ValueError(f"refinement_level must be one of {REFINEMENT_LEVELS}, got {level!r}")
+    split = set(SPLIT_ORDER[:level]) if level < REFINEMENT_LEVELS[-1] else {s.station for s in HARYANA_STATIONS}
+    blocks = []
+    for st in HARYANA_STATIONS:
+        units = [u for u in HARYANA_UNITS if u.station == st.station]
+        if st.station in split:
+            blocks.extend(units)
+        else:
+            blocks.append(aggregate_block(units, st.name, st.station, st.kind))
+    return tuple(blocks)
+
+
+MODELS = {"station": HARYANA_STATIONS, "unit": HARYANA_UNITS,
+          **{f"L{k}": refinement_fleet(k) for k in REFINEMENT_LEVELS}}
 
 
 def select_plants(model: str = "station", names=None) -> tuple[Plant, ...]:
-    """Blocks of ``model`` ('station' or 'unit'), optionally only those named.
+    """Blocks of ``model`` ('station', 'unit' or a ladder level 'L0'..'L4'),
+    optionally only those named. (A subset removes capacity; to vary the
+    problem size on the same physical system use the ladder instead.)
 
     ``names`` may hold block names (e.g. 'IGSTPP-2', 'Hisar') or station
     codes (e.g. 'IGSTPP', selecting all its blocks). Fleet order is kept.
@@ -191,7 +247,9 @@ def select_plants(model: str = "station", names=None) -> tuple[Plant, ...]:
     return chosen
 
 
-def _resolve_plants(plants) -> tuple[tuple[Plant, ...], str]:
+def _resolve_plants(plants, refinement_level=None) -> tuple[tuple[Plant, ...], str]:
+    if refinement_level is not None:
+        return refinement_fleet(refinement_level), f"L{refinement_level}"
     if isinstance(plants, str):
         return select_plants(plants), plants
     plants = tuple(plants)
@@ -218,6 +276,10 @@ class UCInstance:
     label: str = ""
     meta: dict = field(default_factory=dict)
     demand_bias_mw: float = 0.0
+    # Derived data that is expensive to rebuild (e.g. the 2^n energy vector,
+    # see qguc.fastsim.energy_vector). Not part of the instance's identity;
+    # dataclasses.replace() starts a fresh, empty cache.
+    cache: dict = field(default_factory=dict, init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         self.plants = tuple(self.plants)
@@ -406,14 +468,17 @@ def make_instance(
     seed=None,
     demand_bias_mw: float = 0.0,
     plants="station",
+    refinement_level: int | None = None,
 ) -> UCInstance:
     """Instance with a shaped evening load profile peaking near ``peak_mw``.
 
-    ``plants`` is 'station', 'unit' or a tuple of :class:`Plant` (e.g. from
-    :func:`select_plants`). By default :func:`default_initial_on` sets hour -1.
+    ``plants`` is a model name ('station', 'unit', 'L0'..'L4') or a tuple of
+    :class:`Plant` (e.g. from :func:`select_plants`). ``refinement_level``
+    (0..4), if given, overrides ``plants`` with :func:`refinement_fleet`.
+    By default :func:`default_initial_on` sets hour -1.
     """
     rng = np.random.default_rng(seed)
-    plants, model = _resolve_plants(plants)
+    plants, model = _resolve_plants(plants, refinement_level)
     if initial_on is None:
         initial_on = default_initial_on(plants)
     lo, hi = load_range(plants)
@@ -434,6 +499,7 @@ def make_scenario_set(
     seed: int = 0,
     demand_bias_mw: float = 0.0,
     plants="station",
+    refinement_level: int | None = None,
 ) -> list[UCInstance]:
     """Instances with peaks drawn uniformly over the (scaled) load range.
 
@@ -442,7 +508,7 @@ def make_scenario_set(
     a given seed and horizon, the full station and unit fleets get
     identical demand profiles.
     """
-    plants, _ = _resolve_plants(plants)
+    plants, model = _resolve_plants(plants, refinement_level)
     lo, hi = load_range(plants)
     rng = np.random.default_rng(seed)
     peaks = rng.uniform(lo, hi, size=n_scenarios)
@@ -450,7 +516,8 @@ def make_scenario_set(
     out = []
     for k, (peak, child) in enumerate(zip(peaks, child_seeds)):
         inst = make_instance(
-            float(peak), n_hours=n_hours, seed=int(child), demand_bias_mw=demand_bias_mw, plants=plants
+            float(peak), n_hours=n_hours, seed=int(child), demand_bias_mw=demand_bias_mw,
+            plants=model if model != "custom" else plants,
         )
         inst.label = f"s{k:03d}_{inst.label}"
         inst.meta.update(scenario=k, set_seed=seed, generator="make_scenario_set")

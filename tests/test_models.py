@@ -131,3 +131,81 @@ def test_parallel_sweep_matches_sequential():
     assert seq.labels == par.labels and seq.ground.keys() == par.ground.keys()
     for k in seq.ground:
         np.testing.assert_array_equal(seq.ground[k], par.ground[k])
+
+
+# ---- aggregation ladder ---------------------------------------------------
+
+from qguc import HARYANA_STATIONS, HARYANA_UNITS, REFINEMENT_LEVELS, refinement_fleet  # noqa: E402
+
+
+@pytest.mark.parametrize("level,n_blocks", [(0, 5), (1, 6), (2, 8), (3, 9), (4, 11)])
+def test_ladder_sizes_and_constant_capacity(level, n_blocks):
+    fleet = refinement_fleet(level)
+    assert len(fleet) == n_blocks
+    assert sum(p.capacity_mw for p in fleet) == 4442
+    # every unit is covered exactly once: either as itself, or inside its
+    # station's aggregate block (which then is the only block of that station)
+    covered = []
+    for p in fleet:
+        units = [u for u in HARYANA_UNITS if u.station == p.station]
+        covered += [p.name] if p in units else [u.name for u in units]
+        if p not in units:
+            assert sum(q.station == p.station for q in fleet) == 1
+    assert sorted(covered) == sorted(u.name for u in HARYANA_UNITS)
+
+
+@pytest.mark.parametrize("level", REFINEMENT_LEVELS)
+def test_aggregated_block_coefficients_are_sums_of_constituents(level):
+    for block in refinement_fleet(level):
+        units = [u for u in HARYANA_UNITS if u.station == block.station]
+        if block in units:
+            continue  # a split unit is its own constituent
+        assert block.capacity_mw == pytest.approx(sum(u.capacity_mw for u in units), rel=1e-15)
+        assert block.a == pytest.approx(sum(u.a for u in units), rel=1e-15)
+        assert block.startup == pytest.approx(sum(u.startup for u in units), rel=1e-15)
+        assert all(block.b == u.b for u in units)
+        assert block.hourly_cost == pytest.approx(sum(u.hourly_cost for u in units), rel=1e-12)
+
+
+def test_ladder_endpoints_are_the_station_and_unit_models():
+    assert refinement_fleet(4) == HARYANA_UNITS
+    l0 = refinement_fleet(0)
+    for blk, st in zip(l0, HARYANA_STATIONS):
+        assert (blk.name, blk.station, blk.capacity_mw, blk.b) == (st.name, st.station, st.capacity_mw, st.b)
+        assert blk.a == pytest.approx(st.a, rel=1e-12) and blk.startup == pytest.approx(st.startup, rel=1e-12)
+
+
+def test_ladder_split_order_and_units():
+    names = [{p.name for p in refinement_fleet(k)} for k in REFINEMENT_LEVELS]
+    assert {"RGTPP-1", "RGTPP-2"} <= names[1] and "Jhajjar" in names[1]
+    assert {"IGSTPP-1", "IGSTPP-2", "IGSTPP-3"} <= names[2] and "Yamunanagar" in names[2]
+    assert {"DCRTPP-1", "DCRTPP-2"} <= names[3] and "Panipat" in names[3]
+    assert {"PTPS-6", "PTPS-7", "PTPS-8"} <= names[4]
+
+
+def test_ladder_levels_share_demand_and_initial_state():
+    sets = [make_scenario_set(4, n_hours=3, seed=9, refinement_level=k) for k in REFINEMENT_LEVELS]
+    for k, insts in zip(REFINEMENT_LEVELS, sets):
+        for a, b in zip(sets[0], insts):
+            np.testing.assert_array_equal(a.demand_mw, b.demand_mw)
+            assert b.label.split("_")[1] == f"L{k}"
+            # hour -1: Jhajjar and Hisar on, whatever the granularity
+            on = {p.station for p, s in zip(b.plants, b.initial_on) if s}
+            assert on == {"IGSTPP", "RGTPP"} and all(
+                s == (p.station in on) for p, s in zip(b.plants, b.initial_on))
+
+
+@pytest.mark.parametrize("level", REFINEMENT_LEVELS)
+def test_whole_station_schedules_cost_the_same_at_every_level(level):
+    """Committing whole stations gives identical generation and operating
+    cost at every refinement level."""
+    rng = np.random.default_rng(level)
+    base = make_scenario_set(1, n_hours=3, seed=1, refinement_level=0)[0]
+    inst = make_scenario_set(1, n_hours=3, seed=1, refinement_level=level)[0]
+    for _ in range(20):
+        u0 = rng.integers(0, 2, (base.n_plants, base.n_hours))
+        st = {p.station: u0[i] for i, p in enumerate(base.plants)}
+        u = np.array([st[p.station] for p in inst.plants])
+        x0, x = base.flatten(u0), inst.flatten(u)
+        np.testing.assert_allclose(inst.generation(x), base.generation(x0))
+        assert inst.operating_cost(x) == pytest.approx(base.operating_cost(x0), rel=1e-12)

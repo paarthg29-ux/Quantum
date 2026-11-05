@@ -7,6 +7,8 @@ from .instance import (
     LOAD_MAX_MW,
     LOAD_MIN_MW,
     MODELS,
+    REFINEMENT_LEVELS,
+    SPLIT_ORDER,
     Plant,
     UCInstance,
     default_initial_on,
@@ -15,6 +17,7 @@ from .instance import (
     make_instance,
     make_scenario_set,
     merit_order,
+    refinement_fleet,
     select_plants,
 )
 from .metrics import approximation_ratio, encoding_gap
@@ -27,6 +30,8 @@ __all__ = [
     "LOAD_MAX_MW",
     "LOAD_MIN_MW",
     "MODELS",
+    "REFINEMENT_LEVELS",
+    "SPLIT_ORDER",
     "Plant",
     "UCInstance",
     "default_initial_on",
@@ -35,6 +40,7 @@ __all__ = [
     "make_instance",
     "make_scenario_set",
     "merit_order",
+    "refinement_fleet",
     "select_plants",
     "approximation_ratio",
     "encoding_gap",
