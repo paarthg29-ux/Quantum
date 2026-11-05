@@ -1,7 +1,12 @@
 """Step 2: station (5 blocks) vs unit (11 blocks) model, swept over lambda_D and
 demand bias B at T = 2, measuring the encoding gap. Selects one operating
-point per model on a selection set and validates it on an untouched test set."""
+point per model on a selection set and validates it on an untouched test set.
 
+    python scripts/s2_calibrate.py            # station and unit models
+    python scripts/s2_calibrate.py L2         # any models / ladder levels
+"""
+
+import sys
 import time
 
 import numpy as np
@@ -18,7 +23,7 @@ TEST = (40, 2026)  # fresh; evaluated once, after the selection rule was fixed
 PLATEAU = 1  # frozen rule: the neighbouring lambdas must also be fully adequate
 LAMBDAS = np.logspace(0, 3.5, 29)  # 1 .. 3162 INR/MW^2, 8 per decade
 BIASES = np.array([0, 25, 50, 75, 100, 150, 200, 250, 300, 400], dtype=float)
-MODELS = ("station", "unit")
+MODELS = tuple(sys.argv[1:]) or ("station", "unit")
 
 
 def pct(v):
@@ -93,7 +98,7 @@ def main():
             bias, lam = grid.biases[b], grid.lambdas[li]
             hg = sweep_grid(held, [lam], [bias])
             tag = "frozen rule" if plateau == PLATEAU else "reference, no plateau"
-            chosen[(model, plateau)] = dict(bias=bias, lam=lam, cal=(grid, b, li), held=hg)
+            chosen[(model, plateau)] = dict(bias=bias, lam=lam, cal=(grid, b, li), held=hg, n=cal[0].n_vars)
             print(f"  SELECTED [{tag}, plateau={plateau}]: lambda_D = {lam:.4g}, bias = {bias:.0f} MW -> adequacy "
                   f"{100 * grid.adequacy_rate[b, li]:.0f}%, gap mean {pct(grid.gap_mean[b, li]).strip()}%, "
                   f"worst {pct(grid.gap_worst[b, li]).strip()}%, =MILP {100 * grid.match_rate[b, li]:.0f}%, "
@@ -108,7 +113,7 @@ def main():
     for (model, plateau), c in chosen.items():
         g, b, li = c["cal"]
         h = c["held"]
-        print(f"  {model:>8} {'plateau=' + str(plateau):>10} {N_HOURS * (5 if model == 'station' else 11):5d} "
+        print(f"  {model:>8} {'plateau=' + str(plateau):>10} {c['n']:5d} "
               f"{c['lam']:7.3g} {c['bias']:5.0f} | "
               f"{100 * g.adequacy_rate[b, li]:7.0f}% {pct(g.gap_mean[b, li])} {pct(g.gap_worst[b, li]):>7} "
               f"{100 * g.match_rate[b, li]:6.0f} | {100 * h.adequacy_rate[0, 0]:8.0f}% {pct(h.gap_mean[0, 0])} "
