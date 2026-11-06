@@ -1,0 +1,24 @@
+G4: CLASSICAL SAMPLERS ON THE IDENTICAL QUBO vs QAOA (p = 1, eps = 0.1; per-scenario means; 95% t CI over scenarios). R = 400 independent replicas per (scenario, method, budget).
+  P(ground) = probability that the method's returned (best) state is an exact ground state: for QAOA the best of 1024 samples, for SA / tabu the best state of one run. gap = repaired operating-cost gap vs MILP, %.
+
+--- L2: n = 16 qubits, 30 scenarios ---
+  method                             |              P(ground) |  gap % |   budget (objective evaluations) | time
+  QAOA C-milp (best of 1024)         |   0.990 [0.972, 1.008] |   4.84 |          167 evals + 1024 samples |    1.43 s simulated
+  QAOA D (best of 1024)              |   0.816 [0.695, 0.938] |   4.77 |          154 evals + 1024 samples |    1.29 s simulated
+  QAOA A (best of 1024)              |   0.549 [0.435, 0.663] |   7.56 |           69 evals + 1024 samples |    0.59 s simulated
+  SA (= QAOA evaluations)            |   0.278 [0.190, 0.365] |  10.19 |         1191 flip evaluations               |    30.8 ms per run
+  SA (= QAOA wall time)              |   0.972 [0.950, 0.993] |   4.96 |        57031 flip evaluations               |  1427.8 ms per run
+  TABU (= QAOA evaluations)          |   0.185 [0.096, 0.275] |  11.43 |         1191 flip evaluations               |     0.0 ms per run
+  TABU (= QAOA wall time)            |   0.651 [0.517, 0.786] |   6.44 |        57031 flip evaluations               |     2.3 ms per run
+  SA throughput of this implementation: 40,545 flips/s per chain; QAOA wall time per run 1.43 s
+
+--- L4: n = 22 qubits, 20 scenarios ---
+  method                             |              P(ground) |  gap % |   budget (objective evaluations) | time
+  QAOA C-milp (best of 1024)         |   0.697 [0.545, 0.849] |   7.05 |          150 evals + 1024 samples |   46.90 s simulated
+  QAOA D (best of 1024)              |   0.489 [0.274, 0.704] |   6.61 |          149 evals + 1024 samples |   46.28 s simulated
+  QAOA A (best of 1024)              |   0.153 [0.034, 0.272] |  11.41 |           75 evals + 1024 samples |   24.34 s simulated
+  SA (= QAOA evaluations)            |   0.068 [0.031, 0.104] |  12.29 |         1174 flip evaluations               |    64.5 ms per run
+  SA (= QAOA wall time)              |   0.929 [0.852, 1.006] |   7.42 |       200000 flip evaluations (cap hit in 20) | 11007.5 ms per run
+  TABU (= QAOA evaluations)          |   0.217 [0.159, 0.275] |   9.84 |         1174 flip evaluations               |     0.1 ms per run
+  TABU (= QAOA wall time)            |   0.948 [0.857, 1.039] |   7.65 |       200000 flip evaluations (cap hit in 20) |     4.4 ms per run
+  SA throughput of this implementation: 24,770 flips/s per chain; QAOA wall time per run 46.90 s

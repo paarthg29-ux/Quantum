@@ -26,7 +26,8 @@ from scipy import stats
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-OUT = ROOT / "results" / "s9_analysis.txt"
+OWN_POINT = "--point" in sys.argv and sys.argv[sys.argv.index("--point") + 1] == "own"
+OUT = ROOT / "results" / ("s9_analysis_ownpoint.txt" if OWN_POINT else "s9_analysis.txt")
 RNG = np.random.default_rng(0)
 COMBOS = (("A", 0.1), ("C-milp", 0.1), ("C-milp", 0.15), ("D", 0.1), ("D", 0.25), ("F", 0.1), ("F", 0.25))
 
@@ -117,8 +118,8 @@ def main():
         for (a, e), (b, f) in ((("C-milp", 0.1), ("D", 0.1)), (("C-milp", 0.15), ("D", 0.25))):
             paired(scen(a, e, key), scen(b, f, key), f"{lab:>9} {a}@{e} - {b}@{f}".ljust(26))
 
-    P("\nMECHANISM AT 22 QUBITS: split by how many bits the LP pins wrongly (census definition)")
-    wrongD = np.array([sel[s]["n_wrong"] for s in S])
+    P("\nMECHANISM AT 22 QUBITS: split by how many bits the LP pins wrongly at THIS operating point (from the runs)")
+    wrongD = scen("D", 0.1, "n_pinned_wrong")  # = the census count at the frozen point; differs at the own point
     for lab, m in (("D wrong <= 1", wrongD <= 1), ("D wrong >= 2", wrongD >= 2), ("D wrong >= 3", wrongD >= 3)):
         cm, d1 = scen("C-milp", 0.15, "p_ground_K1024")[m], scen("D", 0.25, "p_ground_K1024")[m]
         cm0, d0 = scen("C-milp", 0.1, "p_ground_K1024")[m], scen("D", 0.1, "p_ground_K1024")[m]
@@ -134,8 +135,38 @@ def main():
     P(f"  {'scen':>4} {'weight':>6} {'D wr':>4} {'Cm wr':>5} | " + " ".join(f"{a + '@' + str(e):>11}" for a, e in COMBOS))
     cols = {c: scen(*c, "p_ground_K1024") for c in COMBOS}
     for i, s in enumerate(S):
-        P(f"  {s:4d} {sel[s]['weight']:6.3f} {sel[s]['n_wrong']:4d} {wc[i]:5.1f} | "
+        P(f"  {s:4d} {sel[s]['weight']:6.3f} {wd[i]:4.0f} {wc[i]:5.1f} | "
           + " ".join(f"{cols[c][i]:11.3f}" for c in COMBOS))
+
+    if OWN_POINT:  # G1: same 20 structures, frozen (L2-calibrated) vs L4's own operating point, paired
+        frozen = [json.loads(l) for l in (ROOT / "results" / "s9_runs.jsonl").read_text().splitlines() if l.strip()]
+
+        def scen_f(arm, eps, key):
+            out = {}
+            for r in frozen:
+                if r["arm"] == arm and r["eps"] == eps and r["p"] == 1:
+                    out.setdefault(r["scenario"], []).append(r[key])
+            return np.array([np.mean(out[s]) for s in S])
+
+        P("\nG1: FROZEN (lambda 100, B 250) vs L4's OWN point (lambda 100, B 150), same 20 structures, paired")
+        P(f"  {'arm':>8} {'eps':>5} | {'P(b1024) frozen':>15} {'own':>7} {'own - frozen':>22}")
+        for a, e in COMBOS:
+            fz, ow = scen_f(a, e, "p_ground_K1024"), scen(a, e, "p_ground_K1024")
+            d = ow - fz
+            h = stats.t.ppf(0.975, d.size - 1) * d.std(ddof=1) / np.sqrt(d.size)
+            P(f"  {a:>8} {e:5.2f} | {fz.mean():15.3f} {ow.mean():7.3f} {d.mean():+.3f} [{d.mean() - h:+.3f}, {d.mean() + h:+.3f}]")
+        P("  the advantage at each point, and its change (difference of paired differences, per structure):")
+        for (a, e), (b, f) in ((("C-milp", 0.1), ("D", 0.1)), (("C-milp", 0.15), ("D", 0.25)),
+                               (("C-milp", 0.1), ("F", 0.1)), (("C-milp", 0.1), ("A", 0.1))):
+            dz = scen_f(a, e, "p_ground_K1024") - scen_f(b, f, "p_ground_K1024")
+            do = scen(a, e, "p_ground_K1024") - scen(b, f, "p_ground_K1024")
+            dd = do - dz
+            h = stats.t.ppf(0.975, dd.size - 1) * dd.std(ddof=1) / np.sqrt(dd.size)
+            P(f"    {a}@{e} - {b}@{f}: frozen {dz.mean():+.3f}, own {do.mean():+.3f}; change {dd.mean():+.3f} "
+              f"[{dd.mean() - h:+.3f}, {dd.mean() + h:+.3f}]")
+        wf = scen_f("D", 0.1, "n_pinned_wrong")
+        P(f"  D wrong pins: frozen {wf.mean():.2f} -> own {wd.mean():.2f} per structure; C-milp: "
+          f"{scen_f('C-milp', 0.1, 'n_pinned_wrong').mean():.2f} -> {wc.mean():.2f}")
     OUT.write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
 

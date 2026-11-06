@@ -16,6 +16,9 @@ when its next job is a different scenario.
 
     python scripts/s9_l4_arms.py           # run / resume -> results/s9_runs.jsonl
     python scripts/s9_l4_arms.py --plan
+    python scripts/s9_l4_arms.py --point own   # the same 20 scenarios at L4's OWN calibrated operating point
+                                               # (lambda 100, B 150 MW; results/s7_gap_ladder.csv) instead of
+                                               # the L2-calibrated frozen point -> results/s9_runs_ownpoint.jsonl
 """
 
 import json
@@ -36,7 +39,8 @@ SEEDS, PS = (0, 1, 2), (1,)
 G_TARGETS = (0.9, 0.95, 0.99)
 WORKERS = 4
 DTYPE = np.complex64
-STORE = ROOT / "results" / "s9_runs.jsonl"
+OWN_POINT = "--point" in sys.argv and sys.argv[sys.argv.index("--point") + 1] == "own"
+STORE = ROOT / "results" / ("s9_runs_ownpoint.jsonl" if OWN_POINT else "s9_runs.jsonl")
 SELECTED = ROOT / "results" / "s9_selected.json"
 THREAD_ENV = dict(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
 _CACHE = {}
@@ -50,6 +54,20 @@ def tasks():
     return {(a, e, s["scenario"], sd, p) for s in selected() for a, e in COMBOS for sd in SEEDS for p in PS}
 
 
+def operating_point():
+    """FROZEN (L2-calibrated), or L4's own calibrated point from results/s7_gap_ladder.csv."""
+    import csv
+
+    from qguc.config import FROZEN, OperatingPoint
+
+    if not OWN_POINT:
+        return FROZEN
+    with open(ROOT / "results" / "s7_gap_ladder.csv") as f:
+        row = next(r for r in csv.DictReader(f) if r["level"] == f"L{LEVEL}")
+    return OperatingPoint(model=f"L{LEVEL}", lambda_demand=float(row["own_lambda"]),
+                          demand_bias_mw=float(row["own_bias"]))
+
+
 def get_problem(scenario):
     from s9_census import scenario as census_scenario
 
@@ -57,7 +75,7 @@ def get_problem(scenario):
 
     if scenario not in _CACHE:
         _CACHE.clear()  # one 22-qubit problem per worker
-        pb = make_problem(census_scenario(LEVEL, scenario))
+        pb = make_problem(census_scenario(LEVEL, scenario), operating_point())
         pb.table
         _CACHE[scenario] = pb
     return _CACHE[scenario]
@@ -73,6 +91,7 @@ def job(args):
     for arm, eps in combos:
         r = run_arm(arm, pb, p, seed, eps=eps, dtype=DTYPE)
         rec = dict(arm=arm, eps=eps, scenario=scenario, seed=seed, p=p, peak=pb.instance.meta["peak_mw"],
+                   lambda_demand=pb.point.lambda_demand, bias=pb.point.demand_bias_mw,
                    n_ground=len(pb.ev.ground), r_unif=pb.uniform_ratio, n_evals=r.n_evals, max_evals=r.max_evals,
                    cap_hit=r.cap_hit, early=r.early_stopped, overlap0=r.overlap0,
                    n_pinned=r.extra["n_pinned"], n_pinned_wrong=r.extra["n_pinned_wrong"],
@@ -107,7 +126,7 @@ def main():
     for a, e, s, sd, p in sorted(left):
         groups.setdefault((s, sd, p), []).append((a, e))
     jobs = sorted(((s, sd, p, c) for (s, sd, p), c in groups.items()), key=lambda j: (j[0], j[1]))
-    print(f"phase 3 (L4): {len(todo)} runs in total ({len(done & todo)} done, {len(left)} left) in {len(jobs)} jobs; "
+    print(f"phase 3 (L4, {'own point' if OWN_POINT else 'frozen point'} {operating_point()}): {len(todo)} runs in total ({len(done & todo)} done, {len(left)} left) in {len(jobs)} jobs; "
           f"{WORKERS} workers; CPU load {psutil.cpu_percent(interval=2.0):.0f}%", flush=True)
     if "--plan" in sys.argv or not jobs:
         return

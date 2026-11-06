@@ -29,7 +29,7 @@ PAIRED, other metrics (C-milp@0.1 - D@0.1 and at each arm's Phase-1 best eps):
     gap K1024 C-milp@0.1 - D@0.1: per structure +0.004 [-0.002, +0.011] (boot [-0.001, +0.011]), Wilcoxon p=4.7e-01, +/=/-: 10/0/10 of 20 | reweighted +0.002 [-0.003, +0.008]
     gap K1024 C-milp@0.15 - D@0.25: per structure +0.003 [-0.002, +0.009] (boot [-0.001, +0.009]), Wilcoxon p=1.0e+00, +/=/-: 8/0/12 of 20 | reweighted +0.001 [-0.003, +0.006]
 
-MECHANISM AT 22 QUBITS: split by how many bits the LP pins wrongly (census definition)
+MECHANISM AT 22 QUBITS: split by how many bits the LP pins wrongly at THIS operating point (from the runs)
    D wrong <= 1 ( 5 structures): at best eps C-milp 0.862 vs D 0.919 (diff -0.057); at eps 0.1 C-milp 0.906 vs D 1.000 (diff -0.094)
    D wrong >= 2 (15 structures): at best eps C-milp 0.608 vs D 0.352 (diff +0.256); at eps 0.1 C-milp 0.627 vs D 0.319 (diff +0.308)
    D wrong >= 3 (10 structures): at best eps C-milp 0.483 vs D 0.154 (diff +0.329); at eps 0.1 C-milp 0.516 vs D 0.054 (diff +0.462)

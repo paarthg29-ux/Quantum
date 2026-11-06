@@ -1,0 +1,27 @@
+  L0 T=1: lambda 74.99, B 300 MW (calibrated (s7 procedure), 3 s)
+  L0 T=2: lambda 56.23, B 300 MW (s7_gap_ladder.csv, 0 s)
+  L0 T=3: lambda 74.99, B 300 MW (calibrated (s7 procedure), 5 s)
+  L0 T=4: lambda 56.23, B 300 MW (calibrated (s7 procedure), 269 s)
+  L1 T=1: lambda 100, B 250 MW (calibrated (s7 procedure), 3 s)
+  L1 T=2: lambda 100, B 250 MW (s7_gap_ladder.csv, 0 s)
+  L1 T=3: lambda 74.99, B 300 MW (calibrated (s7 procedure), 64 s)
+  L2 T=1: lambda 100, B 250 MW (calibrated (s7 procedure), 4 s)
+  L2 T=2: lambda 100, B 250 MW (s7_gap_ladder.csv, 0 s)
+census: 0 done, 2700 to do
+  300/2700, 2 s
+  600/2700, 3 s
+  900/2700, 11 s
+  1200/2700, 88 s
+  1500/2700, 88 s
+  1800/2700, 88 s
+  2100/2700, 106 s
+  2400/2700, 107 s
+  2700/2700, 114 s
+Traceback (most recent call last):
+  File "E:\Sem_5\QC&A\scripts\s9_horizon.py", line 217, in <module>
+    report(pts)
+    ~~~~~~^^^^^
+  File "E:\Sem_5\QC&A\scripts\s9_horizon.py", line 167, in report
+    P(f"{'L' + str(lv) + ' T' + str(T):>8} {rs[0]['blocks']:6d} {T:2d} {rs[0]['n']:3d} | "
+                                            ~~~~~^^^^^^^^^^
+KeyError: 'blocks'

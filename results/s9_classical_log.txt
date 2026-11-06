@@ -1,0 +1,75 @@
+(dropped 1868 duplicate records)
+  L2 scenario   0: n 16, eval budget 1197, wall budget 45330 (uncapped); SA P 0.125 / 0.998, tabu P 0.005 / 0.003; QAOA C-milp P 1.000 (6 s)
+  L2 scenario   1: n 16, eval budget 1211, wall budget 33923 (uncapped); SA P 0.128 / 0.970, tabu P 0.003 / 0.000; QAOA C-milp P 1.000 (5 s)
+  L2 scenario   2: n 16, eval budget 1204, wall budget 43798 (uncapped); SA P 0.338 / 1.000, tabu P 0.352 / 0.340; QAOA C-milp P 1.000 (7 s)
+  L2 scenario   3: n 16, eval budget 1210, wall budget 80419 (uncapped); SA P 0.417 / 1.000, tabu P 1.000 / 1.000; QAOA C-milp P 1.000 (7 s)
+  L2 scenario   4: n 16, eval budget 1202, wall budget 70640 (uncapped); SA P 0.280 / 1.000, tabu P 0.505 / 0.460; QAOA C-milp P 1.000 (7 s)
+  L2 scenario   5: n 16, eval budget 1205, wall budget 61487 (uncapped); SA P 0.815 / 1.000, tabu P 0.180 / 0.155; QAOA C-milp P 1.000 (6 s)
+  L2 scenario   6: n 16, eval budget 1215, wall budget 67571 (uncapped); SA P 0.278 / 1.000, tabu P 0.585 / 0.615; QAOA C-milp P 1.000 (5 s)
+  L2 scenario   7: n 16, eval budget 1174, wall budget 64491 (uncapped); SA P 0.130 / 0.998, tabu P 0.040 / 0.030; QAOA C-milp P 1.000 (5 s)
+  L2 scenario   8: n 16, eval budget 1153, wall budget 54607 (uncapped); SA P 0.050 / 0.868, tabu P 0.005 / 0.005; QAOA C-milp P 1.000 (4 s)
+  L2 scenario   9: n 16, eval budget 1209, wall budget 57519 (uncapped); SA P 0.755 / 1.000, tabu P 0.040 / 0.058; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  10: n 16, eval budget 1167, wall budget 59873 (uncapped); SA P 0.050 / 0.870, tabu P 0.000 / 0.000; QAOA C-milp P 1.000 (4 s)
+  L2 scenario  11: n 16, eval budget 1185, wall budget 62132 (uncapped); SA P 0.253 / 1.000, tabu P 0.075 / 0.090; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  12: n 16, eval budget 1193, wall budget 68660 (uncapped); SA P 0.482 / 1.000, tabu P 0.037 / 0.040; QAOA C-milp P 1.000 (6 s)
+  L2 scenario  13: n 16, eval budget 1203, wall budget 61341 (uncapped); SA P 0.102 / 0.995, tabu P 0.007 / 0.010; QAOA C-milp P 0.955 (6 s)
+  L2 scenario  14: n 16, eval budget 1205, wall budget 48444 (uncapped); SA P 0.750 / 1.000, tabu P 1.000 / 1.000; QAOA C-milp P 1.000 (6 s)
+  L2 scenario  15: n 16, eval budget 1206, wall budget 50114 (uncapped); SA P 0.163 / 1.000, tabu P 0.000 / 0.007; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  16: n 16, eval budget 1139, wall budget 39167 (uncapped); SA P 0.092 / 0.912, tabu P 0.075 / 0.092; QAOA C-milp P 1.000 (4 s)
+  L2 scenario  17: n 16, eval budget 1220, wall budget 60966 (uncapped); SA P 0.755 / 1.000, tabu P 0.025 / 0.040; QAOA C-milp P 1.000 (6 s)
+  L2 scenario  18: n 16, eval budget 1145, wall budget 41817 (uncapped); SA P 0.035 / 0.780, tabu P 0.003 / 0.003; QAOA C-milp P 1.000 (4 s)
+  L2 scenario  19: n 16, eval budget 1189, wall budget 53123 (uncapped); SA P 0.138 / 1.000, tabu P 0.003 / 0.000; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  20: n 16, eval budget 1187, wall budget 60413 (uncapped); SA P 0.217 / 1.000, tabu P 0.273 / 0.210; QAOA C-milp P 0.742 (5 s)
+  L2 scenario  21: n 16, eval budget 1200, wall budget 64471 (uncapped); SA P 0.247 / 1.000, tabu P 0.033 / 0.037; QAOA C-milp P 1.000 (6 s)
+  L2 scenario  22: n 16, eval budget 1157, wall budget 55474 (uncapped); SA P 0.035 / 0.882, tabu P 0.007 / 0.005; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  23: n 16, eval budget 1216, wall budget 66971 (uncapped); SA P 0.482 / 1.000, tabu P 0.033 / 0.030; QAOA C-milp P 1.000 (6 s)
+  L2 scenario  24: n 16, eval budget 1169, wall budget 58186 (uncapped); SA P 0.035 / 0.873, tabu P 0.003 / 0.000; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  25: n 16, eval budget 1166, wall budget 46603 (uncapped); SA P 0.175 / 1.000, tabu P 0.035 / 0.043; QAOA C-milp P 1.000 (4 s)
+  L2 scenario  26: n 16, eval budget 1193, wall budget 57925 (uncapped); SA P 0.158 / 1.000, tabu P 0.003 / 0.007; QAOA C-milp P 1.000 (6 s)
+  L2 scenario  27: n 16, eval budget 1196, wall budget 59044 (uncapped); SA P 0.223 / 1.000, tabu P 0.115 / 0.090; QAOA C-milp P 1.000 (5 s)
+  L2 scenario  28: n 16, eval budget 1197, wall budget 70370 (uncapped); SA P 0.190 / 1.000, tabu P 0.065 / 0.058; QAOA C-milp P 1.000 (7 s)
+  L2 scenario  29: n 16, eval budget 1204, wall budget 46055 (uncapped); SA P 0.432 / 1.000, tabu P 0.035 / 0.033; QAOA C-milp P 1.000 (4 s)
+  L4 scenario 138: n 22, eval budget 1100, wall budget 200000 (capped); SA P 0.003 / 0.390, tabu P 0.000 / 0.003; QAOA C-milp P 1.000 (32 s)
+  L4 scenario  94: n 22, eval budget 1239, wall budget 200000 (capped); SA P 0.152 / 1.000, tabu P 0.217 / 0.245; QAOA C-milp P 0.982 (34 s)
+  L4 scenario 208: n 22, eval budget 1148, wall budget 200000 (capped); SA P 0.010 / 0.935, tabu P 0.072 / 0.080; QAOA C-milp P 0.473 (30 s)
+  L4 scenario 176: n 22, eval budget 1176, wall budget 200000 (capped); SA P 0.015 / 0.990, tabu P 0.062 / 0.043; QAOA C-milp P 0.318 (33 s)
+  L4 scenario  70: n 22, eval budget 1200, wall budget 200000 (capped); SA P 0.048 / 1.000, tabu P 0.388 / 0.415; QAOA C-milp P 0.353 (31 s)
+  L4 scenario  81: n 22, eval budget 1132, wall budget 200000 (capped); SA P 0.005 / 0.853, tabu P 0.005 / 0.003; QAOA C-milp P 0.270 (35 s)
+  L4 scenario 144: n 22, eval budget 1156, wall budget 200000 (capped); SA P 0.037 / 1.000, tabu P 0.217 / 0.352; QAOA C-milp P 0.996 (32 s)
+  L4 scenario  80: n 22, eval budget 1213, wall budget 200000 (capped); SA P 0.282 / 1.000, tabu P 0.865 / 0.823; QAOA C-milp P 0.540 (30 s)
+  L4 scenario 194: n 22, eval budget 1213, wall budget 200000 (capped); SA P 0.117 / 1.000, tabu P 0.033 / 0.045; QAOA C-milp P 1.000 (31 s)
+  L4 scenario 183: n 22, eval budget 1167, wall budget 200000 (capped); SA P 0.022 / 0.978, tabu P 0.110 / 0.098; QAOA C-milp P 0.686 (32 s)
+  L4 scenario  68: n 22, eval budget 1121, wall budget 200000 (capped); SA P 0.010 / 0.920, tabu P 0.040 / 0.037; QAOA C-milp P 0.999 (73 s)
+  L4 scenario 128: n 22, eval budget 1143, wall budget 200000 (capped); SA P 0.010 / 0.988, tabu P 0.400 / 0.522; QAOA C-milp P 0.141 (75 s)
+  L4 scenario 115: n 22, eval budget 1206, wall budget 200000 (capped); SA P 0.110 / 1.000, tabu P 0.445 / 0.495; QAOA C-milp P 0.752 (72 s)
+  L4 scenario  43: n 22, eval budget 1166, wall budget 200000 (capped); SA P 0.045 / 1.000, tabu P 0.062 / 0.172; QAOA C-milp P 0.847 (73 s)
+  L4 scenario 137: n 22, eval budget 1233, wall budget 200000 (capped); SA P 0.215 / 1.000, tabu P 0.230 / 0.268; QAOA C-milp P 1.000 (75 s)
+  L4 scenario  49: n 22, eval budget 1149, wall budget 200000 (capped); SA P 0.003 / 0.542, tabu P 0.000 / 0.005; QAOA C-milp P 0.360 (70 s)
+  L4 scenario  40: n 22, eval budget 1154, wall budget 200000 (capped); SA P 0.018 / 1.000, tabu P 0.070 / 0.253; QAOA C-milp P 0.996 (71 s)
+  L4 scenario   3: n 22, eval budget 1227, wall budget 200000 (capped); SA P 0.090 / 1.000, tabu P 0.037 / 0.045; QAOA C-milp P 0.997 (74 s)
+  L4 scenario  64: n 22, eval budget 1139, wall budget 200000 (capped); SA P 0.033 / 0.978, tabu P 0.080 / 0.085; QAOA C-milp P 0.228 (73 s)
+  L4 scenario 177: n 22, eval budget 1191, wall budget 200000 (capped); SA P 0.128 / 1.000, tabu P 0.040 / 0.020; QAOA C-milp P 1.000 (73 s)
+G4: CLASSICAL SAMPLERS ON THE IDENTICAL QUBO vs QAOA (p = 1, eps = 0.1; per-scenario means; 95% t CI over scenarios). R = 400 independent replicas per (scenario, method, budget).
+  P(ground) = probability that the method's returned (best) state is an exact ground state: for QAOA the best of 1024 samples, for SA / tabu the best state of one run. gap = repaired operating-cost gap vs MILP, %.
+
+--- L2: n = 16 qubits, 30 scenarios ---
+  method                             |              P(ground) |  gap % |   budget (objective evaluations) | time
+  QAOA C-milp (best of 1024)         |   0.990 [0.972, 1.008] |   4.84 |          167 evals + 1024 samples |    1.43 s simulated
+  QAOA D (best of 1024)              |   0.816 [0.695, 0.938] |   4.77 |          154 evals + 1024 samples |    1.29 s simulated
+  QAOA A (best of 1024)              |   0.549 [0.435, 0.663] |   7.56 |           69 evals + 1024 samples |    0.59 s simulated
+  SA (= QAOA evaluations)            |   0.278 [0.190, 0.365] |  10.19 |         1191 flip evaluations               |    30.8 ms per run
+  SA (= QAOA wall time)              |   0.972 [0.950, 0.993] |   4.96 |        57031 flip evaluations               |  1427.8 ms per run
+  TABU (= QAOA evaluations)          |   0.151 [0.049, 0.254] |  12.75 |         1191 flip evaluations               |     0.0 ms per run
+  TABU (= QAOA wall time)            |   0.149 [0.047, 0.250] |  12.79 |        57031 flip evaluations               |     1.4 ms per run
+  SA throughput of this implementation: 40,545 flips/s per chain; QAOA wall time per run 1.43 s
+
+--- L4: n = 22 qubits, 20 scenarios ---
+  method                             |              P(ground) |  gap % |   budget (objective evaluations) | time
+  QAOA C-milp (best of 1024)         |   0.697 [0.545, 0.849] |   7.05 |          150 evals + 1024 samples |   46.90 s simulated
+  QAOA D (best of 1024)              |   0.489 [0.274, 0.704] |   6.61 |          149 evals + 1024 samples |   46.28 s simulated
+  QAOA A (best of 1024)              |   0.153 [0.034, 0.272] |  11.41 |           75 evals + 1024 samples |   24.34 s simulated
+  SA (= QAOA evaluations)            |   0.068 [0.031, 0.104] |  12.29 |         1174 flip evaluations               |    64.5 ms per run
+  SA (= QAOA wall time)              |   0.929 [0.852, 1.006] |   7.42 |       200000 flip evaluations (cap hit in 20) | 11007.5 ms per run
+  TABU (= QAOA evaluations)          |   0.169 [0.068, 0.269] |  15.22 |         1174 flip evaluations               |     0.4 ms per run
+  TABU (= QAOA wall time)            |   0.200 [0.096, 0.305] |  14.98 |       200000 flip evaluations (cap hit in 20) |     8.2 ms per run
+  SA throughput of this implementation: 24,770 flips/s per chain; QAOA wall time per run 46.90 s
