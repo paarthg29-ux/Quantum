@@ -379,3 +379,17 @@ phase 1: 3240 runs in total (0 done, 3240 left) in 90 jobs; 8 workers; CPU load 
   50/90 jobs, 0 failed, 340 s
   75/90 jobs, 0 failed, 479 s
   90/90 jobs, 0 failed, 558 s
+phase 2: 3150 runs in total (1555 done, 1595 left) in 305 jobs; 8 workers; CPU load 16%
+  25/305 jobs, 0 failed, 146 s
+  50/305 jobs, 0 failed, 276 s
+  75/305 jobs, 0 failed, 392 s
+  100/305 jobs, 0 failed, 516 s
+  125/305 jobs, 0 failed, 634 s
+  150/305 jobs, 0 failed, 743 s
+  175/305 jobs, 0 failed, 762 s
+  200/305 jobs, 0 failed, 778 s
+  225/305 jobs, 0 failed, 791 s
+  250/305 jobs, 0 failed, 802 s
+  275/305 jobs, 0 failed, 816 s
+  300/305 jobs, 0 failed, 830 s
+  305/305 jobs, 0 failed, 834 s

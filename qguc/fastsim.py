@@ -312,7 +312,8 @@ class QAOASimulator:
         psi0 = uniform_state(self.n, self.dtype) if initial_state is None else np.asarray(initial_state)
         if psi0.shape != self.E.shape:
             raise ValueError(f"initial state has shape {psi0.shape}, expected {self.E.shape}")
-        if not np.isclose(np.vdot(psi0, psi0).real, 1.0, atol=1e-6):
+        # accumulate in float64: a complex64 vdot over 2^22 terms drifts by ~7e-4 though the state is exact to ~1e-9
+        if not np.isclose(np.sum(np.square(np.abs(psi0), dtype=np.float64)), 1.0, atol=1e-6):
             raise ValueError("initial state is not normalised")
         self.initial_state = psi0.astype(self.dtype)
         self.mixer = XMixer(self.n) if mixer is None else mixer

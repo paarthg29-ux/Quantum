@@ -28,6 +28,7 @@ MAIN_EPS, MAIN_P, SWEEP_P = 0.1, (1, 2, 3), (1,)
 MAIN_SEEDS, SWEEP_SEEDS = tuple(range(5)), tuple(range(3))
 RNG = np.random.default_rng(0)
 LOG_FLOOR = -300.0
+GROUPS: dict = {}
 
 
 def load():
@@ -81,7 +82,7 @@ class Data:
         return agg
 
 
-def paired(x: dict, y: dict, scale=1.0):
+def paired(x: dict, y: dict, scale=1.0, unit="scenarios"):
     common = [s for s in x if s in y and x[s] is not None and y[s] is not None]
     d = scale * np.array([x[s] - y[s] for s in common], float)
     n = d.size
@@ -97,7 +98,59 @@ def paired(x: dict, y: dict, scale=1.0):
     w, t, l = int((d > 1e-12).sum()), int((np.abs(d) <= 1e-12).sum()), int((d < -1e-12).sum())
     return dict(n=n, mean=m, ci=(m - half, m + half), boot=(lo, hi), p=pw, wtl=(w, t, l),
                 text=f"{m:+.3f} [{m - half:+.3f}, {m + half:+.3f}] (boot [{lo:+.3f}, {hi:+.3f}]) "
-                     f"Wilcoxon p={pw:.1e}, scenarios +/=/-: {w}/{t}/{l} of {n}")
+                     f"Wilcoxon p={pw:.1e}, {unit} +/=/-: {w}/{t}/{l} of {n}")
+
+
+GROUPS_FILE = RESULTS / "s8_groups.json"
+GROUPINGS = (("GL", "ground state + LP pin pattern"), ("G", "ground state only"))
+
+
+def structural_groups() -> dict:
+    """{"GL": {scenario: group}, "G": {...}}. Scenarios are i.i.d. draws, but at
+    16 bits many share the exact ground state and the LP's pinned pattern
+    (c <= 0.1 -> 0, >= 0.9 -> 1, else '.'), so outcomes cluster; one value per
+    group is the conservative unit. Cached in results/s8_groups.json."""
+    if GROUPS_FILE.exists():
+        g = json.loads(GROUPS_FILE.read_text())
+        return {k: {int(s): v for s, v in m.items()} for k, m in g["groups"].items()}
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from s8_eps_main import N_SCEN, get_problem
+
+    from qguc.arms import c_lp_relaxation
+    from qguc.exact import index_to_bits
+
+    sig = {}
+    for s in range(N_SCEN):
+        pb = get_problem(s)
+        G = tuple(sorted("".join(map(str, b)) for b in index_to_bits(pb.ev.ground, pb.n).astype(int)))
+        c = c_lp_relaxation(pb, 0, MAIN_EPS).c
+        lp = "".join("1" if x >= 0.9 else "0" if x <= 0.1 else "." for x in c)
+        sig[s] = {"GL": (G, lp), "G": (G,)}
+    groups = {}
+    for k, _ in GROUPINGS:
+        ids = {}
+        groups[k] = {s: ids.setdefault(sig[s][k], len(ids)) for s in sorted(sig)}
+    GROUPS_FILE.write_text(json.dumps({"groups": groups, "signatures": {s: {"ground": list(v["GL"][0]),
+                                       "lp_pins": v["GL"][1]} for s, v in sig.items()}}, indent=1))
+    return groups
+
+
+def to_groups(x: dict, gmap: dict) -> dict:
+    out = {}
+    for s, v in x.items():
+        if v is not None:
+            out.setdefault(gmap[s], []).append(v)
+    return {g: float(np.mean(v)) for g, v in out.items()}
+
+
+def paired_groups(x: dict, y: dict, scale=1.0) -> str:
+    """The same paired comparison with one value per structural group (both groupings)."""
+    parts = []
+    for k, _ in GROUPINGS:
+        gm = GROUPS[k]
+        r = paired(to_groups(x, gm), to_groups(y, gm), scale, unit=f"{k}-groups")
+        parts.append(r["text"])
+    return parts
 
 
 def mci(v, scale=1.0, fmt=".3f"):
@@ -148,8 +201,12 @@ def main_table(D):
                                       ("p_ground_K1", "P(gnd) 1-shot", 1, "mean"),
                                       ("gap_repaired_K1024", "gap K1024 pp", 100, "mean"),
                                       ("g_final", "g final", 1, "mean"), ("to_0.9", "evals to g=.9", 1, "median")):
-                res = paired(D.scen(a, MAIN_EPS, p, key, MAIN_SEEDS, how), D.scen(b, MAIN_EPS, p, key, MAIN_SEEDS, how), sc)
+                xa, xb = D.scen(a, MAIN_EPS, p, key, MAIN_SEEDS, how), D.scen(b, MAIN_EPS, p, key, MAIN_SEEDS, how)
+                res = paired(xa, xb, sc)
                 print(f"    {a + ' - ' + b:>19} {lab:>14}: {res['text']}")
+                if key in ("p_ground_K1024", "g_final"):
+                    for g_txt in paired_groups(xa, xb, sc):
+                        print(f"    {'':>19} {'':>14}  {g_txt}")
 
 
 def per_scenario(D, p):
@@ -221,8 +278,11 @@ def sweep(D):
         for a, b in (("D", "C-oracle"), ("D", "C-milp"), ("D", "F"), ("C-oracle", "C-milp"), ("B", "C-milp")):
             for key, lab, sc in (("p_ground_K1024", "P(b1024=gnd)", 1), ("p_ground_K1", "P(gnd) 1-shot", 1),
                                  ("gap_repaired_K1024", "gap K1024 pp", 100), ("g_final", "g final", 1)):
-                res = paired(D.scen(a, best[a], p, key, SWEEP_SEEDS), D.scen(b, best[b], p, key, SWEEP_SEEDS), sc)
+                xa, xb = D.scen(a, best[a], p, key, SWEEP_SEEDS), D.scen(b, best[b], p, key, SWEEP_SEEDS)
+                res = paired(xa, xb, sc)
                 print(f"    {a}@{best[a]} - {b}@{best[b]:<5} {lab:>14}: {res['text']}")
+                for g_txt in paired_groups(xa, xb, sc):
+                    print(f"    {'':>{len(a) + len(b) + 12}} {'':>14}  {g_txt}")
         # 2-fold cross-validated choice of eps (removes the winner's-curse bias of choosing on the same scenarios)
         folds = (set(D.scenarios[0::2]), set(D.scenarios[1::2]))
         cv = {a: {} for a in SWEEP_ARMS}
@@ -236,6 +296,23 @@ def sweep(D):
         print(f"  2-fold cross-validated eps choice (fold A -> B, B -> A): {chosen}")
         for a, b in (("D", "C-oracle"), ("D", "C-milp"), ("D", "F")):
             print(f"    CV {a} - {b}  P(b1024=gnd): {paired(cv[a], cv[b])['text']}")
+        # group-fold CV: eps chosen on whole structural groups, tested on the other groups (no near-duplicate leak)
+        gm = GROUPS["GL"]
+        gids = sorted(set(gm.values()))
+        gfolds = tuple({s for s in D.scenarios if gm[s] in set(gids[k::2])} for k in (0, 1))
+        cvg = {a: {} for a in SWEEP_ARMS}
+        chosen_g = {a: [] for a in SWEEP_ARMS}
+        for k in (0, 1):
+            for a in SWEEP_ARMS:
+                e = best_eps(D, a, p, gfolds[k])
+                chosen_g[a].append(e)
+                vals = D.scen(a, e, p, "p_ground_K1024", SWEEP_SEEDS)
+                cvg[a].update({s: vals[s] for s in gfolds[1 - k]})
+        print(f"  2-fold cross-validated eps choice with GROUP folds (GL groups split, not scenarios): {chosen_g}")
+        for a, b in (("D", "C-oracle"), ("D", "C-milp"), ("D", "F")):
+            print(f"    group-CV {a} - {b}  P(b1024=gnd): {paired(cvg[a], cvg[b])['text']}")
+            for g_txt in paired_groups(cvg[a], cvg[b]):
+                print(f"    {'':>{len(a) + len(b) + 12}}  {g_txt}")
 
         # eps = 0.5 limit
         print("  eps = 0.5 limit:")
@@ -385,7 +462,13 @@ def main():
     keys = tasks(phase)
     recs = [r for r in load() if (r["arm"], r["eps"], r["scenario"], r["seed"], r["p"]) in keys]
     D = Data(recs)
+    global GROUPS
+    GROUPS = structural_groups()
     print(f"phase {phase}: {len(D.recs)} of {len(keys)} runs present, {len(D.scenarios)} scenarios")
+    print("EFFECTIVE SAMPLE SIZE: the 30 scenarios are i.i.d. demand draws but fall into "
+          + ", ".join(f"{len(set(GROUPS[k].values()))} {k}-groups ({lab})" for k, lab in GROUPINGS)
+          + ". Scenario-level tests treat n = 30; each headline comparison is repeated with one value per group "
+            "(n = 17 / 13), the conservative unit.")
     if phase == 1:
         fits = overlap_fit(D)
         sweep(D)

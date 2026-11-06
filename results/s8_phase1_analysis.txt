@@ -1,5 +1,6 @@
 (dropped 1868 duplicate records)
 phase 1: 3240 of 3240 runs present, 30 scenarios
+EFFECTIVE SAMPLE SIZE: the 30 scenarios are i.i.d. demand draws but fall into 17 GL-groups (ground state + LP pin pattern), 13 G-groups (ground state only). Scenario-level tests treat n = 30; each headline comparison is repeated with one value per group (n = 17 / 13), the conservative unit.
 
 ==============================================================================================================
 OVERLAP vs SAMPLING: P(best of 1024 = ground) against log10 |<ground|psi_0>|^2, pooled over all arms and eps at each p (every run present for this phase, 3240 runs)
@@ -101,34 +102,84 @@ EPS SWEEP: 30 scenarios x 3 seeds; scenario-level means (P(best1024=gnd) with 95
       29       1   -2.8   -2.3   -2.0 |        1.000        1.000        1.000        1.000        0.884 |  +0.000
   DECISIVE: each arm at its best eps, paired over scenarios (first - second):
     D@0.25 - C-oracle@0.1     P(b1024=gnd): -0.100 [-0.164, -0.036] (boot [-0.163, -0.045]) Wilcoxon p=2.4e-05, scenarios +/=/-: 4/0/26 of 30
-    D@0.25 - C-oracle@0.1    P(gnd) 1-shot: -0.019 [-0.025, -0.012] (boot [-0.025, -0.012]) Wilcoxon p=1.1e-05, scenarios +/=/-: 4/0/26 of 30
-    D@0.25 - C-oracle@0.1     gap K1024 pp: +0.048 [-0.334, +0.429] (boot [-0.308, +0.418]) Wilcoxon p=8.0e-02, scenarios +/=/-: 19/0/11 of 30
+                                          -0.083 [-0.164, -0.003] (boot [-0.163, -0.019]) Wilcoxon p=2.6e-03, GL-groups +/=/-: 3/0/14 of 17
+                                          -0.109 [-0.213, -0.004] (boot [-0.202, -0.025]) Wilcoxon p=1.3e-02, G-groups +/=/-: 2/0/11 of 13
+    D@0.25 - C-oracle@0.1    P(gnd) 1-shot: -0.019 [-0.025, -0.012] (boot [-0.025, -0.013]) Wilcoxon p=1.1e-05, scenarios +/=/-: 4/0/26 of 30
+                                          -0.017 [-0.027, -0.007] (boot [-0.026, -0.008]) Wilcoxon p=4.6e-03, GL-groups +/=/-: 3/0/14 of 17
+                                          -0.018 [-0.031, -0.005] (boot [-0.029, -0.006]) Wilcoxon p=2.1e-02, G-groups +/=/-: 2/0/11 of 13
+    D@0.25 - C-oracle@0.1     gap K1024 pp: +0.048 [-0.334, +0.429] (boot [-0.313, +0.413]) Wilcoxon p=8.0e-02, scenarios +/=/-: 19/0/11 of 30
+                                          +0.194 [-0.287, +0.676] (boot [-0.097, +0.670]) Wilcoxon p=2.6e-01, GL-groups +/=/-: 10/0/7 of 17
+                                          +0.251 [-0.398, +0.900] (boot [-0.129, +0.875]) Wilcoxon p=6.4e-01, G-groups +/=/-: 7/0/6 of 13
     D@0.25 - C-oracle@0.1          g final: -0.031 [-0.035, -0.028] (boot [-0.035, -0.028]) Wilcoxon p=1.9e-09, scenarios +/=/-: 0/0/30 of 30
-    D@0.25 - C-milp@0.15    P(b1024=gnd): -0.092 [-0.153, -0.031] (boot [-0.153, -0.038]) Wilcoxon p=9.9e-03, scenarios +/=/-: 10/0/20 of 30
-    D@0.25 - C-milp@0.15   P(gnd) 1-shot: -0.018 [-0.029, -0.008] (boot [-0.029, -0.009]) Wilcoxon p=2.2e-03, scenarios +/=/-: 10/0/20 of 30
-    D@0.25 - C-milp@0.15    gap K1024 pp: +0.021 [-0.341, +0.383] (boot [-0.316, +0.372]) Wilcoxon p=2.1e-01, scenarios +/=/-: 21/0/9 of 30
+                                          -0.031 [-0.037, -0.026] (boot [-0.037, -0.027]) Wilcoxon p=1.5e-05, GL-groups +/=/-: 0/0/17 of 17
+                                          -0.032 [-0.039, -0.025] (boot [-0.038, -0.027]) Wilcoxon p=2.4e-04, G-groups +/=/-: 0/0/13 of 13
+    D@0.25 - C-milp@0.15    P(b1024=gnd): -0.092 [-0.153, -0.031] (boot [-0.152, -0.039]) Wilcoxon p=9.9e-03, scenarios +/=/-: 10/0/20 of 30
+                                        -0.069 [-0.140, +0.003] (boot [-0.139, -0.015]) Wilcoxon p=6.4e-02, GL-groups +/=/-: 5/0/12 of 17
+                                        -0.090 [-0.183, +0.003] (boot [-0.176, -0.020]) Wilcoxon p=8.0e-02, G-groups +/=/-: 4/0/9 of 13
+    D@0.25 - C-milp@0.15   P(gnd) 1-shot: -0.018 [-0.029, -0.008] (boot [-0.028, -0.009]) Wilcoxon p=2.2e-03, scenarios +/=/-: 10/0/20 of 30
+                                        -0.017 [-0.032, -0.003] (boot [-0.030, -0.005]) Wilcoxon p=3.1e-02, GL-groups +/=/-: 5/0/12 of 17
+                                        -0.012 [-0.028, +0.003] (boot [-0.027, +0.000]) Wilcoxon p=1.5e-01, G-groups +/=/-: 4/0/9 of 13
+    D@0.25 - C-milp@0.15    gap K1024 pp: +0.021 [-0.341, +0.383] (boot [-0.313, +0.361]) Wilcoxon p=2.1e-01, scenarios +/=/-: 21/0/9 of 30
+                                        +0.146 [-0.284, +0.576] (boot [-0.111, +0.584]) Wilcoxon p=6.1e-01, GL-groups +/=/-: 11/0/6 of 17
+                                        +0.190 [-0.391, +0.771] (boot [-0.153, +0.753]) Wilcoxon p=9.5e-01, G-groups +/=/-: 7/0/6 of 13
     D@0.25 - C-milp@0.15         g final: -0.019 [-0.022, -0.016] (boot [-0.021, -0.017]) Wilcoxon p=1.9e-09, scenarios +/=/-: 0/0/30 of 30
-    D@0.25 - F@0.25    P(b1024=gnd): +0.037 [-0.026, +0.099] (boot [-0.023, +0.094]) Wilcoxon p=2.1e-01, scenarios +/=/-: 20/1/9 of 30
+                                        -0.019 [-0.022, -0.015] (boot [-0.022, -0.015]) Wilcoxon p=1.5e-05, GL-groups +/=/-: 0/0/17 of 17
+                                        -0.019 [-0.023, -0.015] (boot [-0.023, -0.016]) Wilcoxon p=2.4e-04, G-groups +/=/-: 0/0/13 of 13
+    D@0.25 - F@0.25    P(b1024=gnd): +0.037 [-0.026, +0.099] (boot [-0.024, +0.093]) Wilcoxon p=2.1e-01, scenarios +/=/-: 20/1/9 of 30
+                                   +0.047 [-0.028, +0.122] (boot [-0.023, +0.111]) Wilcoxon p=1.2e-01, GL-groups +/=/-: 12/1/4 of 17
+                                   +0.028 [-0.065, +0.122] (boot [-0.053, +0.108]) Wilcoxon p=3.0e-01, G-groups +/=/-: 9/1/3 of 13
     D@0.25 - F@0.25   P(gnd) 1-shot: +0.004 [+0.001, +0.006] (boot [+0.001, +0.006]) Wilcoxon p=9.8e-03, scenarios +/=/-: 20/1/9 of 30
-    D@0.25 - F@0.25    gap K1024 pp: -0.247 [-0.582, +0.088] (boot [-0.566, +0.058]) Wilcoxon p=3.7e-01, scenarios +/=/-: 13/1/16 of 30
+                                   +0.005 [+0.001, +0.008] (boot [+0.002, +0.008]) Wilcoxon p=1.3e-02, GL-groups +/=/-: 12/1/4 of 17
+                                   +0.005 [+0.000, +0.009] (boot [+0.001, +0.008]) Wilcoxon p=5.2e-02, G-groups +/=/-: 8/1/4 of 13
+    D@0.25 - F@0.25    gap K1024 pp: -0.247 [-0.582, +0.088] (boot [-0.568, +0.062]) Wilcoxon p=3.7e-01, scenarios +/=/-: 13/1/16 of 30
+                                   -0.135 [-0.520, +0.249] (boot [-0.476, +0.204]) Wilcoxon p=3.3e-01, GL-groups +/=/-: 6/1/10 of 17
+                                   +0.027 [-0.400, +0.455] (boot [-0.333, +0.405]) Wilcoxon p=9.7e-01, G-groups +/=/-: 6/1/6 of 13
     D@0.25 - F@0.25         g final: -0.008 [-0.010, -0.006] (boot [-0.010, -0.006]) Wilcoxon p=2.6e-06, scenarios +/=/-: 0/1/29 of 30
+                                   -0.009 [-0.012, -0.006] (boot [-0.012, -0.006]) Wilcoxon p=4.4e-04, GL-groups +/=/-: 0/1/16 of 17
+                                   -0.009 [-0.013, -0.006] (boot [-0.013, -0.006]) Wilcoxon p=4.9e-04, G-groups +/=/-: 0/1/12 of 13
     C-oracle@0.1 - C-milp@0.15    P(b1024=gnd): +0.009 [-0.005, +0.022] (boot [+0.000, +0.023]) Wilcoxon p=4.8e-02, scenarios +/=/-: 16/7/7 of 30
-    C-oracle@0.1 - C-milp@0.15   P(gnd) 1-shot: +0.000 [-0.009, +0.009] (boot [-0.008, +0.009]) Wilcoxon p=8.6e-01, scenarios +/=/-: 16/0/14 of 30
+                                               +0.015 [-0.010, +0.039] (boot [+0.000, +0.040]) Wilcoxon p=2.1e-01, GL-groups +/=/-: 9/3/5 of 17
+                                               +0.019 [-0.014, +0.052] (boot [-0.000, +0.049]) Wilcoxon p=2.0e-01, G-groups +/=/-: 8/2/3 of 13
+    C-oracle@0.1 - C-milp@0.15   P(gnd) 1-shot: +0.000 [-0.009, +0.009] (boot [-0.009, +0.009]) Wilcoxon p=8.6e-01, scenarios +/=/-: 16/0/14 of 30
+                                               -0.000 [-0.014, +0.013] (boot [-0.013, +0.012]) Wilcoxon p=1.0e+00, GL-groups +/=/-: 9/0/8 of 17
+                                               +0.005 [-0.009, +0.020] (boot [-0.007, +0.017]) Wilcoxon p=4.1e-01, G-groups +/=/-: 8/0/5 of 13
     C-oracle@0.1 - C-milp@0.15    gap K1024 pp: -0.027 [-0.064, +0.011] (boot [-0.067, +0.001]) Wilcoxon p=6.6e-01, scenarios +/=/-: 14/7/9 of 30
+                                               -0.048 [-0.116, +0.019] (boot [-0.117, +0.000]) Wilcoxon p=7.5e-01, GL-groups +/=/-: 8/3/6 of 17
+                                               -0.061 [-0.151, +0.029] (boot [-0.150, -0.000]) Wilcoxon p=2.4e-01, G-groups +/=/-: 5/2/6 of 13
     C-oracle@0.1 - C-milp@0.15         g final: +0.012 [+0.011, +0.014] (boot [+0.011, +0.014]) Wilcoxon p=1.9e-09, scenarios +/=/-: 30/0/0 of 30
+                                               +0.013 [+0.010, +0.015] (boot [+0.011, +0.015]) Wilcoxon p=1.5e-05, GL-groups +/=/-: 17/0/0 of 17
+                                               +0.013 [+0.010, +0.016] (boot [+0.010, +0.016]) Wilcoxon p=2.4e-04, G-groups +/=/-: 13/0/0 of 13
     B@0.15 - C-milp@0.15    P(b1024=gnd): +0.002 [-0.002, +0.007] (boot [-0.001, +0.008]) Wilcoxon p=3.1e-02, scenarios +/=/-: 4/10/16 of 30
+                                        +0.005 [-0.004, +0.013] (boot [-0.000, +0.014]) Wilcoxon p=3.8e-01, GL-groups +/=/-: 3/6/8 of 17
+                                        +0.006 [-0.006, +0.018] (boot [-0.000, +0.017]) Wilcoxon p=5.7e-01, G-groups +/=/-: 3/3/7 of 13
     B@0.15 - C-milp@0.15   P(gnd) 1-shot: -0.007 [-0.011, -0.004] (boot [-0.011, -0.004]) Wilcoxon p=1.3e-07, scenarios +/=/-: 4/0/26 of 30
-    B@0.15 - C-milp@0.15    gap K1024 pp: -0.008 [-0.020, +0.003] (boot [-0.021, +0.000]) Wilcoxon p=1.7e-01, scenarios +/=/-: 5/10/15 of 30
+                                        -0.008 [-0.012, -0.003] (boot [-0.012, -0.003]) Wilcoxon p=3.8e-04, GL-groups +/=/-: 3/0/14 of 17
+                                        -0.006 [-0.011, -0.000] (boot [-0.011, -0.001]) Wilcoxon p=3.4e-03, G-groups +/=/-: 3/0/10 of 13
+    B@0.15 - C-milp@0.15    gap K1024 pp: -0.008 [-0.020, +0.003] (boot [-0.020, -0.000]) Wilcoxon p=1.7e-01, scenarios +/=/-: 5/10/15 of 30
+                                        -0.014 [-0.034, +0.007] (boot [-0.035, +0.001]) Wilcoxon p=1.9e-01, GL-groups +/=/-: 2/6/9 of 17
+                                        -0.019 [-0.045, +0.008] (boot [-0.046, -0.000]) Wilcoxon p=3.3e-02, G-groups +/=/-: 1/3/9 of 13
     B@0.15 - C-milp@0.15         g final: -0.010 [-0.010, -0.009] (boot [-0.010, -0.009]) Wilcoxon p=1.9e-09, scenarios +/=/-: 0/0/30 of 30
+                                        -0.010 [-0.010, -0.009] (boot [-0.010, -0.009]) Wilcoxon p=1.5e-05, GL-groups +/=/-: 0/0/17 of 17
+                                        -0.010 [-0.010, -0.009] (boot [-0.010, -0.009]) Wilcoxon p=2.4e-04, G-groups +/=/-: 0/0/13 of 13
   2-fold cross-validated eps choice (fold A -> B, B -> A): {'B': [0.15, 0.1], 'C-milp': [0.15, 0.1], 'C-oracle': [0.1, 0.1], 'D': [0.25, 0.35], 'F': [0.25, 0.25]}
-    CV D - C-oracle  P(b1024=gnd): -0.132 [-0.192, -0.072] (boot [-0.191, -0.077]) Wilcoxon p=1.7e-06, scenarios +/=/-: 3/0/27 of 30
-    CV D - C-milp  P(b1024=gnd): -0.121 [-0.179, -0.064] (boot [-0.178, -0.070]) Wilcoxon p=2.1e-05, scenarios +/=/-: 6/0/24 of 30
-    CV D - F  P(b1024=gnd): +0.005 [-0.046, +0.057] (boot [-0.043, +0.054]) Wilcoxon p=4.4e-01, scenarios +/=/-: 19/1/10 of 30
+    CV D - C-oracle  P(b1024=gnd): -0.132 [-0.192, -0.072] (boot [-0.190, -0.075]) Wilcoxon p=1.7e-06, scenarios +/=/-: 3/0/27 of 30
+    CV D - C-milp  P(b1024=gnd): -0.121 [-0.179, -0.064] (boot [-0.178, -0.069]) Wilcoxon p=2.1e-05, scenarios +/=/-: 6/0/24 of 30
+    CV D - F  P(b1024=gnd): +0.005 [-0.046, +0.057] (boot [-0.044, +0.053]) Wilcoxon p=4.4e-01, scenarios +/=/-: 19/1/10 of 30
+  2-fold cross-validated eps choice with GROUP folds (GL groups split, not scenarios): {'B': [0.05, 0.15], 'C-milp': [0.05, 0.15], 'C-oracle': [0.1, 0.1], 'D': [0.15, 0.35], 'F': [0.25, 0.25]}
+    group-CV D - C-oracle  P(b1024=gnd): -0.186 [-0.283, -0.090] (boot [-0.284, -0.100]) Wilcoxon p=5.1e-06, scenarios +/=/-: 4/0/26 of 30
+                           -0.142 [-0.257, -0.028] (boot [-0.254, -0.049]) Wilcoxon p=2.6e-03, GL-groups +/=/-: 3/0/14 of 17
+                           -0.168 [-0.317, -0.020] (boot [-0.308, -0.052]) Wilcoxon p=6.1e-03, G-groups +/=/-: 2/0/11 of 13
+    group-CV D - C-milp  P(b1024=gnd): -0.172 [-0.265, -0.079] (boot [-0.268, -0.091]) Wilcoxon p=5.1e-06, scenarios +/=/-: 4/0/26 of 30
+                         -0.117 [-0.218, -0.017] (boot [-0.218, -0.039]) Wilcoxon p=2.6e-03, GL-groups +/=/-: 3/0/14 of 17
+                         -0.135 [-0.266, -0.005] (boot [-0.261, -0.037]) Wilcoxon p=6.1e-03, G-groups +/=/-: 2/0/11 of 13
+    group-CV D - F  P(b1024=gnd): -0.049 [-0.135, +0.036] (boot [-0.135, +0.025]) Wilcoxon p=4.9e-01, scenarios +/=/-: 20/0/10 of 30
+                    -0.012 [-0.107, +0.082] (boot [-0.110, +0.063]) Wilcoxon p=3.3e-01, GL-groups +/=/-: 12/0/5 of 17
+                    -0.031 [-0.155, +0.093] (boot [-0.148, +0.061]) Wilcoxon p=6.4e-01, G-groups +/=/-: 9/0/4 of 13
   eps = 0.5 limit:
     warm-mixer arms C-milp, C-oracle, D, F identical to each other at eps 0.5: max |diff| = 0.0e+00
     B (X mixer) at eps 0.5 vs arm A, run by run (same start to ~1e-16; the patience stop then fires a few evals apart): overlap0 max|d| 2.0e-20, g_init max|d| 1.7e-15, g_final max|d| 2.0e-04, p_ground_K1024 max|d| 9.3e-03, n_evals max|d| 6.6e+01
     warm mixer @0.5 - A  P(b1024=gnd): +0.014 [+0.000, +0.027] (boot [+0.002, +0.028]) Wilcoxon p=2.4e-01, scenarios +/=/-: 14/0/16 of 30
-    warm mixer @0.5 - A       g final: +0.031 [+0.001, +0.060] (boot [+0.005, +0.060]) Wilcoxon p=5.0e-01, scenarios +/=/-: 16/0/14 of 30
+    warm mixer @0.5 - A       g final: +0.031 [+0.001, +0.060] (boot [+0.005, +0.061]) Wilcoxon p=5.0e-01, scenarios +/=/-: 16/0/14 of 30
     warm mixer @0.5 - A      overlap0: +0.000 [+0.000, +0.000] (boot [+0.000, +0.000]) Wilcoxon p=2.6e-07, scenarios +/=/-: 0/30/0 of 30
 
 wrote results/fig_overlap_vs_sampling.png and .pdf

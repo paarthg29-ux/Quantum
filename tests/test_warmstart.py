@@ -146,3 +146,15 @@ def test_eps_half_is_the_cold_limit():
     np.testing.assert_allclose(WarmStartMixer(c).unitaries(0.37), XMixer(4).unitaries(-0.37), atol=1e-15)
     with pytest.raises(ValueError):
         regularise([0.3], 0.51)
+
+
+def test_complex64_warm_state_accepted_at_22_qubits():
+    """Regression: the normalisation check summed |psi|^2 in float32 and rejected a
+    correct complex64 warm state at n >= 20 (drift ~7e-4 at n = 22)."""
+    n = 22
+    c = regularise(np.random.default_rng(0).uniform(0, 1, n), 0.1)
+    psi = warm_initial_state(c, np.complex64)
+    sim = QAOASimulator(np.zeros(1 << n), initial_state=psi, mixer=WarmStartMixer(c), dtype=np.complex64)
+    assert sim.initial_state.dtype == np.complex64
+    with pytest.raises(ValueError):
+        QAOASimulator(np.zeros(1 << n), initial_state=psi * 1.001, dtype=np.complex64)

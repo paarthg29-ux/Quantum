@@ -1,0 +1,42 @@
+(dropped 1868 duplicate records)
+  features 100/1080
+  features 200/1080
+  features 300/1080
+  features 400/1080
+  features 500/1080
+  features 600/1080
+  features 700/1080
+  features 800/1080
+  features 900/1080
+  features 1000/1080
+phase 1: 3240 runs; features recomputed from psi_0 and checked against the stored overlap0
+
+=== p = 1: 3171 runs with overlap0 > 0, arms ['A', 'B', 'C-milp', 'C-oracle', 'D', 'F'] (residual = observed - fitted, mean per arm) ===
+  Spearman rho with P(best of 1024 = ground): m_top1 +0.883, m_top5 +0.710, m_top10 +0.675, m_top50 +0.540, m_top200 +0.527, m_e01 +0.409, m_e05 +0.397, m_adeq +0.303, entropy -0.437, log10 overlap0 +0.890
+  log10 overlap0 (baseline)  R^2  0.552 | + arm intercepts R^2  0.605 (dR^2 +0.053, F   84.7, p 1.1e-83) | resid range 0.135 | A +0.054 B +0.044 C-milp +0.053 C-oracle +0.059 D -0.008 F -0.075
+  log10 m_top1               R^2  0.564 | + arm intercepts R^2  0.618 (dR^2 +0.054, F   89.0, p 8.7e-88) | resid range 0.141 | A +0.059 B +0.043 C-milp +0.051 C-oracle +0.057 D -0.014 F -0.082
+  log10 m_top5               R^2  0.356 | + arm intercepts R^2  0.405 (dR^2 +0.049, F   52.6, p 1.4e-52) | resid range 0.186 | A -0.000 B +0.047 C-milp +0.056 C-oracle +0.066 D -0.059 F -0.120
+  log10 m_top10              R^2  0.320 | + arm intercepts R^2  0.366 (dR^2 +0.046, F   45.8, p 8.8e-46) | resid range 0.190 | A -0.009 B +0.047 C-milp +0.056 C-oracle +0.068 D -0.069 F -0.122
+  log10 m_top50              R^2  0.228 | + arm intercepts R^2  0.270 (dR^2 +0.041, F   35.8, p 8.6e-36) | resid range 0.208 | A -0.025 B +0.044 C-milp +0.052 C-oracle +0.065 D -0.094 F -0.143
+  log10 m_top200             R^2  0.217 | + arm intercepts R^2  0.267 (dR^2 +0.050, F   42.9, p 6.0e-43) | resid range 0.217 | A -0.035 B +0.048 C-milp +0.056 C-oracle +0.069 D -0.093 F -0.148
+  log10 m_e01                R^2  0.036 | + arm intercepts R^2  0.151 (dR^2 +0.115, F   85.4, p 2.3e-84) | resid range 0.298 | A -0.209 B +0.068 C-milp +0.077 C-oracle +0.089 D -0.076 F -0.129
+  log10 m_e05                R^2  0.035 | + arm intercepts R^2  0.151 (dR^2 +0.116, F   86.3, p 2.7e-85) | resid range 0.300 | A -0.210 B +0.069 C-milp +0.077 C-oracle +0.090 D -0.073 F -0.130
+  log10 m_adeq               R^2  0.004 | + arm intercepts R^2  0.155 (dR^2 +0.151, F  113.1, p 3.0e-110) | resid range 0.361 | A -0.271 B +0.069 C-milp +0.077 C-oracle +0.090 D -0.075 F -0.129
+  entropy                    R^2  0.139 | + arm intercepts R^2  0.155 (dR^2 +0.016, F   11.8, p 2.2e-11) | resid range 0.220 | A -0.012 B -0.012 C-milp -0.003 C-oracle +0.012 D -0.147 F -0.208
+  ov + m_top1                R^2  0.564 | + arm intercepts R^2  0.618 (dR^2 +0.054, F   89.0, p 8.5e-88) | resid range 0.141 | A +0.060 B +0.043 C-milp +0.051 C-oracle +0.057 D -0.013 F -0.081
+  ov + m_top5                R^2  0.614 | + arm intercepts R^2  0.637 (dR^2 +0.023, F   40.2, p 3.4e-40) | resid range 0.093 | A +0.008 B +0.026 C-milp +0.034 C-oracle +0.039 D +0.012 F -0.054
+  ov + m_top10               R^2  0.632 | + arm intercepts R^2  0.651 (dR^2 +0.018, F   33.4, p 2.3e-33) | resid range 0.086 | A -0.003 B +0.023 C-milp +0.032 C-oracle +0.035 D +0.017 F -0.051
+  ov + m_top50               R^2  0.649 | + arm intercepts R^2  0.660 (dR^2 +0.010, F   19.4, p 4.7e-19) | resid range 0.061 | A -0.011 B +0.017 C-milp +0.026 C-oracle +0.029 D +0.008 F -0.032
+  ov + m_top200              R^2  0.661 | + arm intercepts R^2  0.668 (dR^2 +0.007, F   14.3, p 7.7e-14) | resid range 0.047 | A -0.014 B +0.013 C-milp +0.022 C-oracle +0.026 D +0.004 F -0.021
+  ov + m_e01                 R^2  0.925 | + arm intercepts R^2  0.925 (dR^2 +0.001, F    5.2, p 9.2e-05) | resid range 0.017 | A -0.005 B +0.002 C-milp +0.011 C-oracle +0.011 D +0.012 F +0.003
+  ov + m_e05                 R^2  0.952 | + arm intercepts R^2  0.953 (dR^2 +0.000, F    5.6, p 4.1e-05) | resid range 0.019 | A -0.007 B -0.001 C-milp +0.008 C-oracle +0.009 D +0.009 F +0.011
+  ov + m_adeq                R^2  0.965 | + arm intercepts R^2  0.967 (dR^2 +0.002, F   39.3, p 3.0e-39) | resid range 0.020 | A +0.003 B -0.001 C-milp +0.008 C-oracle +0.012 D -0.002 F +0.018
+  ov + entropy               R^2  0.685 | + arm intercepts R^2  0.693 (dR^2 +0.008, F   17.1, p 1.0e-16) | resid range 0.051 | A +0.000 B +0.020 C-milp +0.028 C-oracle +0.026 D -0.000 F -0.023
+  ov + all features          R^2  0.974 | + arm intercepts R^2  0.974 (dR^2 +0.001, F   19.2, p 8.0e-19) | resid range 0.013 | A +0.003 B +0.000 C-milp +0.009 C-oracle +0.013 D +0.005 F +0.014
+  mean initial-state features by arm (log10 masses; entropy in bits):
+           A: log10 ov  -4.74 | m_top1  -4.82 m_top5  -4.12 m_top10  -3.82 m_top50  -3.12 m_top200  -2.52 m_e01  -1.94 m_e05  -0.99 m_adeq  -2.17 entropy  16.00
+           B: log10 ov  -2.76 | m_top1  -2.84 m_top5  -2.24 m_top10  -2.01 m_top50  -1.60 m_top200  -1.26 m_e01  -0.91 m_e05  -0.33 m_adeq  -1.01 entropy  11.10
+      C-milp: log10 ov  -2.76 | m_top1  -2.84 m_top5  -2.24 m_top10  -2.01 m_top50  -1.60 m_top200  -1.26 m_e01  -0.91 m_e05  -0.33 m_adeq  -1.01 entropy  11.10
+    C-oracle: log10 ov  -2.73 | m_top1  -2.81 m_top5  -2.24 m_top10  -2.02 m_top50  -1.62 m_top200  -1.27 m_e01  -0.90 m_e05  -0.32 m_adeq  -0.96 entropy  11.36
+           D: log10 ov  -4.35 | m_top1  -4.43 m_top5  -3.16 m_top10  -2.70 m_top50  -1.59 m_top200  -1.23 m_e01  -0.89 m_e05  -0.34 m_adeq  -1.03 entropy  10.89
+           F: log10 ov  -3.46 | m_top1  -3.54 m_top5  -2.55 m_top10  -2.28 m_top50  -1.66 m_top200  -1.27 m_e01  -0.87 m_e05  -0.29 m_adeq  -0.84 entropy  10.88
