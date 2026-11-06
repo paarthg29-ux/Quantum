@@ -169,3 +169,25 @@ def test_learned_arms_at_L2():
     np.testing.assert_allclose(rB.extra["c"], rC.extra["c"])  # same warm start, different mixer
     assert rB.g_state0 == pytest.approx(rC.g_state0)  # identical initial state
     assert 0 < rC.source_s < 0.05
+
+
+def test_initial_overlap_and_frozen_bits():
+    from qguc.arms import frozen_bits
+
+    inst = make_scenario_set(2, n_hours=2, seed=8, refinement_level=0)[1]
+    pb = make_problem(inst)
+    s = OptimiserSettings(cap_per_param=5)
+    rA = run_arm("A", pb, 1, seed=0, settings=s)
+    assert rA.overlap0 == pytest.approx(len(pb.ev.ground) / 2**pb.n, rel=1e-12)
+    G = index_to_bits(pb.ev.ground, pb.n)
+    for eps in (0.0, 0.1, 0.3):
+        r = run_arm("D", pb, 1, seed=0, eps=eps, settings=s)
+        c = r.extra["c"]
+        prod = sum(np.prod(np.where(g == 1, c, 1 - c)) for g in G)  # product-state formula
+        assert r.overlap0 == pytest.approx(prod, rel=1e-9, abs=1e-300)
+    # a source that pins the ground state exactly has 0 wrong bits; flipping one pinned bit gives 1
+    g = G[0].astype(float)
+    assert frozen_bits(pb, g) == (pb.n, 0)
+    g2 = g.copy(); g2[0] = 1 - g2[0]
+    assert frozen_bits(pb, g2)[1] == (1 if len(G) == 1 else frozen_bits(pb, g2)[1])
+    assert frozen_bits(pb, np.full(pb.n, 0.5)) == (0, 0)

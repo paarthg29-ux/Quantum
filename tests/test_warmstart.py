@@ -133,3 +133,16 @@ def test_warm_qaoa_matches_pennylane_gate_decomposition():
                         mixer=WarmStartMixer(c)).state(g, b)
     phase = np.vdot(psi, ref)
     np.testing.assert_allclose(psi * phase / abs(phase), ref, atol=1e-10)
+
+
+def test_eps_half_is_the_cold_limit():
+    """eps = 0.5 (the sweep's sanity point) is accepted: c -> 1/2 everywhere,
+    the warm state is |+>^n and the warm mixer is the X mixer with beta -> -beta."""
+    from qguc.fastsim import XMixer
+
+    c = regularise([0.0, 0.2, 0.97, 1.0], 0.5)
+    np.testing.assert_array_equal(c, 0.5)
+    np.testing.assert_allclose(warm_initial_state(c), np.full(16, 0.25), atol=1e-15)
+    np.testing.assert_allclose(WarmStartMixer(c).unitaries(0.37), XMixer(4).unitaries(-0.37), atol=1e-15)
+    with pytest.raises(ValueError):
+        regularise([0.3], 0.51)

@@ -27,6 +27,8 @@ Metrics
   the uniform superposition (depends only on the instance, so it is the
   same reference for every arm). g = 0: no better than a random bitstring;
   g = 1: the ground state.
+* overlap0 = |<ground|psi_0>|^2 (summed over degenerate ground states): the
+  initial state's weight on the exact ground state(s), before any layer.
 * g_state0: g of the initial state itself (no layers) -- the head start of
   the warm start alone; g_init: g at the first evaluation (initial
   parameters); g_final: best g.
@@ -119,6 +121,7 @@ class RunResult:
     cap_hit: bool
     max_evals: int
     g_state0: float
+    overlap0: float  # |<ground|psi_0>|^2 summed over all degenerate ground states
     sampling: dict  # K -> {p_ground, adequate, gap_raw, gap_repaired}, exact
     wall_s: float  # optimisation + metrics
     source_s: float = 0.0  # time to produce the warm start (e.g. LP solve)
@@ -219,10 +222,11 @@ def run_qaoa(
     probs = probabilities(sim.state(gammas, betas))
     ratios = np.asarray(ev.ratio(energies), float)
     g0 = float(problem.gain(ev.ratio(expectation(sim.initial_state, ev.E))))
+    overlap0 = float(probabilities(sim.initial_state)[ev.ground].sum())
     return RunResult(
         arm=arm, p=p, seed=seed, gammas=gammas, betas=betas, energies=energies, ratios=ratios,
         gains=problem.gain(ratios), stop_reason=reason, early_stopped=early, cap_hit=cap_hit,
-        max_evals=max_evals, g_state0=g0, sampling=exact_sampling_metrics(probs, problem.table, Ks),
+        max_evals=max_evals, g_state0=g0, overlap0=overlap0, sampling=exact_sampling_metrics(probs, problem.table, Ks),
         wall_s=time.perf_counter() - t0, source_s=source_s, extra=extra or {},
     )
 

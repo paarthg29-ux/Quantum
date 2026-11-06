@@ -138,14 +138,36 @@ ARMS: dict[str, Arm] = {
 }
 
 
+PIN_TAU = 0.1
+
+
+def frozen_bits(problem: QAOAProblem, c) -> tuple[int, int]:
+    """(pinned, pinned_wrong) for a raw warm-start vector c: a variable is
+    PINNED if c <= PIN_TAU or c >= 1 - PIN_TAU, and pinned WRONG if its
+    rounded value disagrees with the exact ground state (the degenerate
+    ground state that disagrees least is used)."""
+    from .exact import index_to_bits
+
+    if "ground_bits" not in problem.cache:
+        problem.cache["ground_bits"] = index_to_bits(problem.ev.ground, problem.n).astype(int)
+    G = problem.cache["ground_bits"]
+    c = np.asarray(c, float)
+    pinned = (c <= PIN_TAU) | (c >= 1 - PIN_TAU)
+    wrong = min(int((pinned & (np.round(c) != g)).sum()) for g in G)
+    return int(pinned.sum()), wrong
+
+
 def run_arm(arm: Arm | str, problem: QAOAProblem, p: int, seed: int, *, eps: float = DEFAULT_EPS,
             settings: OptimiserSettings = OptimiserSettings(), dtype=np.complex128) -> RunResult:
     arm = ARMS[arm] if isinstance(arm, str) else arm
     if arm.c_source is None:
-        return run_qaoa(problem, p, seed, arm=arm.name, settings=settings, dtype=dtype)
+        return run_qaoa(problem, p, seed, arm=arm.name, settings=settings, dtype=dtype,
+                        extra=dict(eps=eps, n_pinned=0, n_pinned_wrong=0))
     cv = arm.c_source(problem, seed, eps)
     c = regularise(cv.c, eps)
     psi0 = warm_initial_state(c, dtype) if arm.warm_state else None
     mixer = WarmStartMixer(c) if arm.warm_mixer else XMixer(problem.n)
+    n_pin, n_wrong = frozen_bits(problem, cv.c)
     return run_qaoa(problem, p, seed, arm=arm.name, initial_state=psi0, mixer=mixer, settings=settings,
-                    dtype=dtype, source_s=cv.source_s, extra=dict(c=c, eps=eps, **cv.info))
+                    dtype=dtype, source_s=cv.source_s,
+                    extra=dict(c=c, eps=eps, n_pinned=n_pin, n_pinned_wrong=n_wrong, **cv.info))

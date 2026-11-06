@@ -44,8 +44,8 @@ DEFAULT_EPS = 0.1
 
 def regularise(c, eps: float = DEFAULT_EPS) -> np.ndarray:
     c = np.asarray(c, float)
-    if not 0.0 <= eps < 0.5:
-        raise ValueError("eps must be in [0, 0.5)")
+    if not 0.0 <= eps <= 0.5:  # eps = 0.5 is the sanity limit: c = 1/2 -> uniform state, X mixer (beta -> -beta)
+        raise ValueError("eps must be in [0, 0.5]")
     return np.clip(c, eps, 1.0 - eps)
 
 
