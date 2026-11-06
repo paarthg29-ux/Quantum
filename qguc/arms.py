@@ -158,10 +158,12 @@ def frozen_bits(problem: QAOAProblem, c) -> tuple[int, int]:
 
 
 def run_arm(arm: Arm | str, problem: QAOAProblem, p: int, seed: int, *, eps: float = DEFAULT_EPS,
-            settings: OptimiserSettings = OptimiserSettings(), dtype=np.complex128) -> RunResult:
+            settings: OptimiserSettings = OptimiserSettings(), dtype=np.complex128, shots: int | None = None,
+            method: str = "COBYLA") -> RunResult:
+    """One run of ``arm``; ``shots`` / ``method`` as in :func:`qguc.qaoa.run_qaoa` (defaults: exact, COBYLA)."""
     arm = ARMS[arm] if isinstance(arm, str) else arm
     if arm.c_source is None:
-        return run_qaoa(problem, p, seed, arm=arm.name, settings=settings, dtype=dtype,
+        return run_qaoa(problem, p, seed, arm=arm.name, settings=settings, dtype=dtype, shots=shots, method=method,
                         extra=dict(eps=eps, n_pinned=0, n_pinned_wrong=0))
     cv = arm.c_source(problem, seed, eps)
     c = regularise(cv.c, eps)
@@ -169,5 +171,5 @@ def run_arm(arm: Arm | str, problem: QAOAProblem, p: int, seed: int, *, eps: flo
     mixer = WarmStartMixer(c) if arm.warm_mixer else XMixer(problem.n)
     n_pin, n_wrong = frozen_bits(problem, cv.c)
     return run_qaoa(problem, p, seed, arm=arm.name, initial_state=psi0, mixer=mixer, settings=settings,
-                    dtype=dtype, source_s=cv.source_s,
+                    dtype=dtype, source_s=cv.source_s, shots=shots, method=method,
                     extra=dict(c=c, eps=eps, n_pinned=n_pin, n_pinned_wrong=n_wrong, **cv.info))

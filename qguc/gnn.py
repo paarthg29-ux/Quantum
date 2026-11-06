@@ -189,6 +189,18 @@ class WarmStartModel:
     def predict_flat(self, instance: UCInstance) -> np.ndarray:
         return instance.flatten(self.predict(instance))
 
+    def predict_graph(self, instance: UCInstance) -> np.ndarray:
+        """c as (N, T) for an instance whose block set MAY DIFFER from training
+        (e.g. a forced outage removes a node): the GCN weights are shared across
+        nodes, so the trained model is applied on the instance's own normalised
+        adjacency. Out-of-distribution use only; ``predict`` keeps the check."""
+        torch = _torch()
+        A_hat = normalised_adjacency(unit_adjacency(instance.plants))
+        with torch.no_grad():
+            logits = self.model(torch.as_tensor(A_hat, dtype=torch.float32),
+                                torch.as_tensor(node_features(instance)))
+        return torch.sigmoid(logits).numpy().T.astype(float)
+
     def time_forward(self, instance: UCInstance, reps: int = 2000) -> dict:
         """Median wall time (s) of features + forward pass, and of the forward pass alone."""
         torch = _torch()

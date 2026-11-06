@@ -206,3 +206,24 @@ def test_lp_qubo_target_capped_at_fleet_capacity():
     lp = solve_lp_relaxation(inst, "qubo")
     U = inst.unflatten(lp.x)
     np.testing.assert_allclose(U[:, over], 1.0, atol=1e-9)
+
+
+def test_finite_shot_optimisation_and_second_optimiser():
+    """shots=None is the exact run; a huge shot count reproduces it closely; few shots change the
+    optimiser's path but every reported metric stays exact; Nelder-Mead respects the cap."""
+    pb = make_problem(make_scenario_set(1, n_hours=2, seed=8, refinement_level=0)[0])
+    s = OptimiserSettings(cap_per_param=20)
+    ex = run_arm("D", pb, 1, seed=1, settings=s)
+    ex2 = run_arm("D", pb, 1, seed=1, settings=s, shots=None)
+    np.testing.assert_array_equal(ex.energies, ex2.energies)
+    big = run_arm("D", pb, 1, seed=1, settings=s, shots=10**9)
+    assert abs(big.energies[0] - ex.energies[0]) < 1e-3  # same first point, estimate ~ exact
+    few = run_arm("D", pb, 1, seed=1, settings=s, shots=64)
+    assert few.extra["shots"] == 64 and len(few.extra) > 0
+    ev = few.extra
+    assert -1.0 <= ev["exact_g_chosen"] <= 1.0 and ev["exact_g_trajectory_max"] >= ev["exact_g_chosen"] - 1e-12
+    assert 0.0 <= few.sampling[1024]["p_ground"] <= 1.0
+    nm = run_arm("A", pb, 1, seed=1, settings=s, method="Nelder-Mead")
+    assert nm.extra["method"] == "Nelder-Mead" and nm.n_evals <= s.max_evals(2)
+    with pytest.raises(ValueError):
+        run_arm("A", pb, 1, seed=1, settings=s, method="BFGS")

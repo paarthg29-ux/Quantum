@@ -1,0 +1,63 @@
+1440 runs (0 done, 1440 left) in 90 jobs; 4 workers
+  15/90 jobs, 28 s
+  30/90 jobs, 55 s
+  45/90 jobs, 91 s
+  60/90 jobs, 127 s
+  75/90 jobs, 166 s
+  90/90 jobs, 198 s
+(dropped 1868 duplicate records)
+G3 (scoped) + G11: L2, 30 held-out scenarios x 3 seeds, p = 1, eps = 0.1. Metrics are EXACT at the chosen parameters; scenario means, then paired over scenarios (and over the 17 structural groups).
+
+  optimiser view                   arm | P(b1024=gnd) P 1-shot g (exact)  evals   cap gap K1024 %
+  exact <H>, COBYLA (Phase 2)        A |        0.543   0.0028     0.827     72    0%        7.70
+  exact <H>, COBYLA (Phase 2)   C-milp |        0.990   0.0425     0.936    164    0%        4.84
+  exact <H>, COBYLA (Phase 2)        D |        0.816   0.0162     0.946    155    0%        4.77
+  exact <H>, COBYLA (Phase 2)        F |        0.656   0.0076     0.935    183    0%        5.61
+
+  8192 shots, COBYLA                 A |        0.507   0.0025     0.813     34    0%        8.03
+  8192 shots, COBYLA            C-milp |        0.982   0.0303     0.911     26    0%        4.85
+  8192 shots, COBYLA                 D |        0.790   0.0116     0.926     26    0%        4.77
+  8192 shots, COBYLA                 F |        0.565   0.0051     0.916     26    0%        6.14
+
+  1024 shots, COBYLA                 A |        0.454   0.0023     0.719     31    0%        8.96
+  1024 shots, COBYLA            C-milp |        0.979   0.0285     0.902     23    0%        4.86
+  1024 shots, COBYLA                 D |        0.781   0.0109     0.917     23    0%        4.76
+  1024 shots, COBYLA                 F |        0.544   0.0049     0.909     22    0%        6.28
+
+  128 shots, COBYLA                  A |        0.438   0.0016     0.744     27    0%        8.78
+  128 shots, COBYLA             C-milp |        0.969   0.0293     0.888     22    0%        4.86
+  128 shots, COBYLA                  D |        0.775   0.0098     0.906     22    0%        4.76
+  128 shots, COBYLA                  F |        0.513   0.0042     0.898     21    0%        6.52
+
+  exact <H>, Nelder-Mead             A |        0.558   0.0028     0.858     90    0%        7.35
+  exact <H>, Nelder-Mead        C-milp |        0.990   0.0433     0.936     81    0%        4.84
+  exact <H>, Nelder-Mead             D |        0.818   0.0165     0.946     80    0%        4.77
+  exact <H>, Nelder-Mead             F |        0.664   0.0078     0.935     82    0%        5.57
+
+PAIRED: the learned advantage under each optimiser view, P(best of 1024 = ground), C-milp - D and C-milp - F
+  exact <H>, COBYLA (Phase 2)  C-milp - D: +0.174 [+0.057, +0.291] (Wilcoxon p=5.8e-02, +/=/- 21/0/9) | 17 groups +0.128 [-0.003, +0.258]
+  exact <H>, COBYLA (Phase 2)  C-milp - F: +0.334 [+0.228, +0.440] (Wilcoxon p=8.3e-07, +/=/- 24/0/6) | 17 groups +0.309 [+0.160, +0.459]
+  exact <H>, COBYLA (Phase 2)  C-milp - A: +0.446 [+0.332, +0.561] (Wilcoxon p=9.3e-09, +/=/- 29/0/1) | 17 groups +0.438 [+0.281, +0.595]
+  8192 shots, COBYLA           C-milp - D: +0.192 [+0.064, +0.320] (Wilcoxon p=6.7e-02, +/=/- 21/0/9) | 17 groups +0.142 [-0.001, +0.285]
+  8192 shots, COBYLA           C-milp - F: +0.417 [+0.293, +0.541] (Wilcoxon p=8.3e-07, +/=/- 24/0/6) | 17 groups +0.385 [+0.212, +0.559]
+  8192 shots, COBYLA           C-milp - A: +0.475 [+0.358, +0.592] (Wilcoxon p=9.3e-09, +/=/- 29/0/1) | 17 groups +0.468 [+0.306, +0.629]
+  1024 shots, COBYLA           C-milp - D: +0.198 [+0.067, +0.329] (Wilcoxon p=5.2e-02, +/=/- 21/0/9) | 17 groups +0.148 [+0.000, +0.295]
+  1024 shots, COBYLA           C-milp - F: +0.435 [+0.307, +0.563] (Wilcoxon p=8.3e-07, +/=/- 24/0/6) | 17 groups +0.400 [+0.221, +0.579]
+  1024 shots, COBYLA           C-milp - A: +0.525 [+0.407, +0.643] (Wilcoxon p=9.3e-09, +/=/- 29/0/1) | 17 groups +0.514 [+0.348, +0.679]
+  128 shots, COBYLA            C-milp - D: +0.194 [+0.062, +0.326] (Wilcoxon p=1.0e-01, +/=/- 20/0/10) | 17 groups +0.138 [-0.008, +0.283]
+  128 shots, COBYLA            C-milp - F: +0.456 [+0.323, +0.589] (Wilcoxon p=8.3e-07, +/=/- 24/0/6) | 17 groups +0.411 [+0.227, +0.596]
+  128 shots, COBYLA            C-milp - A: +0.532 [+0.418, +0.645] (Wilcoxon p=1.9e-09, +/=/- 30/0/0) | 17 groups +0.519 [+0.361, +0.676]
+  exact <H>, Nelder-Mead       C-milp - D: +0.172 [+0.056, +0.289] (Wilcoxon p=5.8e-02, +/=/- 20/1/9) | 17 groups +0.126 [-0.003, +0.256]
+  exact <H>, Nelder-Mead       C-milp - F: +0.326 [+0.222, +0.430] (Wilcoxon p=8.3e-07, +/=/- 24/0/6) | 17 groups +0.302 [+0.155, +0.450]
+  exact <H>, Nelder-Mead       C-milp - A: +0.432 [+0.320, +0.543] (Wilcoxon p=9.3e-09, +/=/- 29/0/1) | 17 groups +0.427 [+0.274, +0.579]
+
+DOES THE ADVANTAGE GROW AS SHOTS FALL? (change of C-milp - D relative to the exact-COBYLA run, per scenario)
+   8192 shots: advantage minus exact-run advantage +0.018 [+0.003, +0.033] (Wilcoxon p=1.7e-01, +/=/- 20/0/10) | 17 groups +0.014 [-0.005, +0.033]
+   1024 shots: advantage minus exact-run advantage +0.024 [+0.003, +0.045] (Wilcoxon p=1.5e-01, +/=/- 20/0/10) | 17 groups +0.020 [-0.010, +0.050]
+    128 shots: advantage minus exact-run advantage +0.020 [-0.006, +0.047] (Wilcoxon p=3.2e-01, +/=/- 19/0/11) | 17 groups +0.010 [-0.030, +0.050]
+
+HOW MUCH DOES EACH ARM LOSE TO SHOT NOISE? (P(b1024) at 128 shots minus exact, per scenario)
+        A: -0.106 [-0.134, -0.078] (Wilcoxon p=3.5e-08, +/=/- 1/0/29) | 17 groups -0.115 [-0.150, -0.080]
+   C-milp: -0.021 [-0.047, +0.006] (Wilcoxon p=6.0e-05, +/=/- 0/10/20) | 17 groups -0.034 [-0.082, +0.014]
+        D: -0.041 [-0.067, -0.014] (Wilcoxon p=2.6e-06, +/=/- 0/2/28) | 17 groups -0.044 [-0.085, -0.004]
+        F: -0.142 [-0.183, -0.102] (Wilcoxon p=1.9e-09, +/=/- 0/0/30) | 17 groups -0.136 [-0.191, -0.081]

@@ -111,3 +111,28 @@ def test_saved_production_models_condition_on_load(variant):
     if not path.exists():
         pytest.skip("production model not trained yet (scripts/s7a_train_gnn.py)")
     assert_load_conditioned(WarmStartModel.load(path), *probe_pair())
+
+
+def test_predict_graph_matches_predict_and_handles_outage():
+    """predict_graph == predict on the training block set; on a fleet with one block removed
+    it runs on the reduced graph (predict refuses it)."""
+    import dataclasses
+
+    import numpy as np
+
+    from qguc import make_instance
+    from qguc.gnn import MODEL_DIR, WarmStartModel
+
+    path = MODEL_DIR / "gnn_milp_L2.pt"
+    if not path.exists():
+        pytest.skip("L2 model not trained")
+    m = WarmStartModel.load(path)
+    inst = make_instance(3300.0, n_hours=2, seed=1, refinement_level=2)
+    np.testing.assert_allclose(m.predict_graph(inst), m.predict(inst), atol=1e-6)
+    keep = np.array([p.name != "Yamunanagar" for p in inst.plants])
+    out = dataclasses.replace(inst, plants=tuple(p for p, k in zip(inst.plants, keep) if k),
+                              initial_on=inst.initial_on[keep])
+    c = m.predict_graph(out)
+    assert c.shape == (out.n_plants, out.n_hours) and np.all((c >= 0) & (c <= 1))
+    with pytest.raises(ValueError):
+        m.predict(out)

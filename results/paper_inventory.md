@@ -1,102 +1,128 @@
 # Paper inventory: what we can support, where it comes from, and what is missing
 
-Status at 2026-11-06, branch `qguc-pipeline`. **Committed** = the run data and the analysis output are in git (commit given). **Uncommitted** = the file exists but is not in git.
+Status at 2026-11-06, branch `qguc-pipeline`, after the last experimental round. **Committed** = the run data and the analysis output are in git (commit given). **Uncommitted** = the file exists but is not in git.
+
+**Framing (locked): no quantum-advantage claim anywhere.** A classical sampler solves these instances in milliseconds (T19). The contribution is what determines warm-start quality within QAOA.
 
 Statistical convention for every comparison below:
 - Values are averaged over seeds within a scenario, then paired across scenarios.
 - Where scenarios share a structure, the unit is the **structural group**: 17 groups by (ground state, LP pin pattern), 13 by ground state alone. At L4 every selected scenario is its own structure (n = 20).
-- For choosing ε, the primary numbers are **group-fold cross-validation repeated over 1,000 random group splits**. The single 2-fold scenario split leaked, because near-duplicate scenarios landed on both sides.
+- For choosing ε, the primary numbers are **group-fold cross-validation repeated over 1,000 random group splits**.
+
+## Claims skeleton (what the paper says, with the strongest number for each)
+
+The paper studies warm-started QAOA for Haryana unit commitment, encoded as a calibrated QUBO on 10–22 qubits and simulated exactly; it makes no quantum-advantage claim. Ten claims, each with its strongest number:
+
+1. **A learned warm start makes QAOA sample the exact ground state far more reliably than the alternatives.** At 16 qubits, p = 1, a GCN trained on MILP schedules reaches P(best of 1024 samples is the ground state) = 0.990. The LP relaxation reaches 0.816, merit order 0.656 and the cold start 0.549 (T5).
+2. **The advantage over the LP survives tuning the LP's regularisation.** With ε chosen by group-fold cross-validation, the LP still trails C-milp by 0.070, and is worse in 96% of 1,000 random splits (T7). It also survives the move to 22 qubits at that level's own operating point: C-milp − D = +0.231 [+0.079, +0.384] over 20 structurally distinct instances (T15).
+3. **The deficit has a precise cause.** The LP pins marginal units to the wrong value. Where it pins 2 or more bits wrong, C-milp leads by +0.26 to +0.50 at 22 qubits (both operating points, both ε). Where it pins at most one, the LP is as good or better (T14, T15).
+4. **Initial overlap alone does not explain sampling; band share does.** Band share is the ground state's share of the initial low-energy band. Overlap gives R² 0.55 with arm-specific residuals. Adding band mass gives R² 0.95–0.98 at 16 and 22 qubits, and predicts held-out arms within 0.015 (T10, T11, T16). Spreading initial mass over near-ground states hurts. Band share is a diagnostic, not a predictor: it needs the full spectrum.
+5. **The LP needs its regularisation tuned; the learned start does not.** A wrong ε costs the LP up to 0.917 (0.122 at ε = 0.05). It costs the learned starts at most 0.018 (T9).
+6. **The LP's errors grow with problem size, the learned start's grow much more slowly.** Along the horizon at fixed granularity, each added variable adds 0.09–0.10 wrongly pinned bits for the LP, against 0.014–0.042 for the learned start (2–7× slower, depending on granularity). The gap widens from 0.44 to 1.73 wrong pins between T = 1 and T = 4 (T13, T18).
+7. **The advantage is robust to the optimiser's view.** With 128-shot expectation estimates the learned start loses only 0.021 in P(best of 1024 is ground), against 0.106 for the cold start and 0.142 for merit order; the C-milp − LP gap is unchanged (+0.02, not significant) (T21). A second optimiser (Nelder–Mead) reproduces the comparison within 0.002 (T22).
+8. **The learned start generalises across graph changes, but not across demand regimes.** Under a forced outage (one block removed, so a different graph) it keeps 0.95–0.99, at or above the LP. Below the training demand range it falls under the LP (0.723 vs 0.861). With a changed hourly profile it falls to LP level (T20).
+9. **On cost, all warm starts are equivalent.** The best-of-1024 operating-cost gap of the LP and the learned arms does not differ significantly (T5, T14): the LP's misses are near-optimal adequate schedules.
+10. **No quantum advantage.** Compiled simulated annealing on the identical QUBO reaches P(ground) 0.996 in 4.5 ms at 16 qubits and 0.994 in 34 ms at 22 qubits, against QAOA's 0.990 in 1.4 s and 0.697 in 47 s of simulation (T19).
 
 ## Tables
 
 | # | Table | Claim it supports | Source file (script) | Run committed? |
 |---|---|---|---|---|
-| T1 | Problem and encoding: fleet, ladder L0–L4 (5/6/8/9/11 blocks × 2 h = 10–22 qubits, 4,442 MW at every level), frozen operating point λ = 100, B = 250 MW | The QUBO is a faithful, calibrated encoding of Haryana unit commitment | `s4_ladder.txt`, `s4b_recalibrate_L2.txt`, `s2_model_comparison.txt` (`s4_ladder.py`, `s2_calibrate.py`) | yes (80fc040, 50f7960) |
-| T2 | Encoding gap per level, at the frozen point and at each level's own calibrated point | The encoding costs 2.5–6.1% at the frozen point and 1.8–4.9% at each level's own point | `s7_gap_figure.txt`, `s7_gap_ladder.csv` | yes (f006eeb) |
-| T3 | Simulator timing; PennyLane comparison | The exact NumPy statevector simulator is 11–16× faster than `lightning.qubit` at 22 qubits, which is what makes the benchmark feasible | `s3b_fastsim_timing.txt`, `s3_timing_probe.txt` | yes (917a70f, 3eff343) |
-| T4 | GCN warm-start model: held-out MAE and BCE against a constant predictor (thresholded accuracy misleads for symmetrised labels), load-conditioning check, inference time (L2: C-milp and C-oracle; L4: C-milp) | The learned warm start is load-conditioned, beats a constant predictor at both sizes (L4 MAE 0.122 vs 0.178), and costs about 0.1 ms per instance | `s7a_train_gnn.txt`, `s9_train_gnn_L4.txt`, `s9_gnn_vs_constant.txt` | yes (428dec6, a6789e7) |
-| T5 | **Main table, ε = 0.1**: 7 arms × 30 held-out scenarios × 5 seeds, p = 1/2/3. P(best of 1024 is ground), single-shot P(ground), best-of-1024 cost gap, final g, evaluations to g, wrong pins | Learned arms sample the ground state far better than LP (D), merit order (F), cold (A) or random (E) starts. Depth barely helps warm arms. D has the best final g at ε = 0.1 | `s8_phase2_analysis.txt` (`s8_analysis.py --phase 2`) | yes (7feab61) |
-| T6 | Per-scenario detail of T5 (p = 1, 3) | D's deficit is confined to 8 of 30 scenarios (4 structural groups) where the LP pins 2–3 bits wrong | `s8_phase2_analysis.txt` | yes (7feab61) |
-| T7 | **ε sweep, p = 1**: 5 warm arms × 7 ε, each arm at its own best ε, the decisive paired comparisons and the ε = 0.5 sanity checks | At its best ε, D does not match the learned arms on ground-state sampling. Primary numbers: D − C-oracle −0.094 and D − C-milp −0.070 over 1,000 random group splits, with D worse in 100% and 96% of splits | `s8_phase1_analysis.txt`, `s8_eps_stability.txt` (`s8_analysis.py --phase 1`, `s8_eps_stability.py`) | yes (7feab61, a6789e7) |
-| T8 | **Statistics at group level** for every headline comparison (n = 30 scenarios / 17 / 13 groups) | Says which claims survive with honest n. "D at its best ε loses to the learned arms" survives under group-fold CV. Against C-milp at D's in-sample best ε it is borderline (t-CI touches 0) | `s8_phase1_analysis.txt`, `s8_phase2_analysis.txt` | yes (7feab61) |
-| T9 | **ε regret**: P lost at a fixed ε relative to the arm's own best, per group, with CIs | **The LP needs its regularisation tuned; the learned starts do not.** Regret for D is 0.122 at ε = 0.05 and 0.917 at ε = 0; for C-milp and C-oracle it is 0.010 / 0.000 at ε = 0.05, and at most 0.018 / 0.005 anywhere in ε ∈ [0, 0.25] | `s8_eps_stability.txt` (section 3) | yes (a6789e7) |
-| T10 | **Mechanism, band share**: logistic fits of P(best of 1024 is ground) on overlap, top-k mass, band mass, adequate mass and entropy, with per-arm intercept tests at p = 1, 2, 3 | Overlap alone gives R² 0.55 with a per-arm residual. Adding band mass gives R² 0.95–0.97 and removes the per-arm residual. Spreading mass over near-ground states hurts | `s8_mass_phase1.txt`, `s8_mass_phase2.txt` (`s8_mass.py`) | yes (a6789e7) |
-| T11 | Mechanism checks: held-out arms (fit on the non-learned runs, predict the learned arms: bias 0.09–0.11 with overlap alone, ≤ 0.014 with band mass) and leave-one-group-out CV (R² 0.50–0.64 → 0.95–0.97), at p = 1, 2, 3 | The band-share result is predictive, not curve-fitted | `s8_mass_phase1.txt`, `s8_mass_phase2.txt` ("HELD-OUT CHECKS") | yes (a6789e7) |
-| T12 | **Wrong-pin census along granularity** L0–L4 at T = 2 (300 paired demand draws per level): distribution 0/1/2/3+, mean, trend per qubit, McNemar L2→L4, per-block concentration; at the frozen point **and** at each level's own point | P(2 or more wrong LP pins) grows with granularity: 0.24 → 0.52 at own points (+0.020 per variable [0.014, 0.025]; L2→L4 McNemar p = 0.001); frozen point 0.28 → 0.54. Wrong pins fall on small, expensive marginal blocks (Spearman with capacity −0.89 at L4) | `s9_census.txt`, `s9_census_ownpoint.txt` (`s9_census.py [--point own]`) | yes (a6789e7) |
-| T13 | **Wrong-pin census along the horizon** at fixed granularity: L0 × T = 1–4, L1 × T = 1–3, L2 × T = 1–2, every cell at its own calibrated point | **Wrong pins grow with problem size generally, not only with granularity.** At fixed blocks they are extensive: wrong pins per hour are flat (L0 0.52/0.55/0.54/0.52 for T = 1–4), so the total grows linearly. P(2 or more wrong) for L0 rises 0.07 → 0.57. Per added variable the horizon raises mean wrong pins by +0.10 [0.09, 0.11], against +0.05 [0.03, 0.07] for granularity. Granularity additionally raises the per-hour rate (0.55 at L0 → 0.96 at L4), non-monotonically | `s9_horizon.txt`, `s9_horizon_points.csv`, `s9_horizon_census.jsonl` (`s9_horizon.py`) | **uncommitted** |
-| T14 | **L4 arms (22 qubits), frozen point**: A, C-milp, D, F at ε = 0.1 and at each arm's Phase-1 best ε, on 20 structurally diverse scenarios × 3 seeds, p = 1; per structure (n = 20) and reweighted to the demand distribution | The learned advantage holds at 22 qubits: C-milp − D +0.208 [+0.037, +0.379] at ε = 0.1, +0.177 [+0.039, +0.316] at best ε. It is concentrated where the LP pins ≥ 2 bits wrong. Absolute levels fall: C-milp 0.70, D 0.49, A 0.15 | `s9_analysis.txt`, `s9_runs.jsonl`, `s9_selected.json` | yes (a6789e7) |
-| T15 | **L4 arms at L4's own operating point** (λ = 100, B = 150 MW), same 20 structures, paired with T14 | The L4 result does not depend on the L2-calibrated encoding. C-milp − D +0.231 [+0.079, +0.384] (ahead in 14 of 20; reweighted +0.175 [+0.020, +0.404]); at best ε +0.205 [+0.071, +0.339]. Change from the frozen point +0.023 [−0.220, +0.267]. C-milp's wrong pins fall to 0.05 per structure (D 2.75). Best-of-1024 cost gap falls to 2.3–2.5% for warm arms (6.6–7.1% at the frozen point) | `s9_analysis_ownpoint.txt`, `s9_runs_ownpoint.jsonl` (`s9_l4_arms.py --point own`, `s9_analysis.py --point own`) | **uncommitted** |
-| T16 | **Band share at L4, and transfer from L2** | Overlap + band mass explains L4 sampling (R² 0.98, per-arm residual range 0.025). The L2 curve applied unchanged to L4 gives R² 0.91 (overlap alone: 0.60) | `s9_mass.txt` (`s9_mass.py`) | yes (a6789e7) |
-| T17 | **Classical samplers on the identical QUBO**: SA and tabu at L2 (30 scenarios) and L4 (20 structures), with budgets matched to QAOA C-milp by (a) objective evaluations and (b) wall time | **Wall time matched (our simulator):** SA 0.972 vs QAOA C-milp 0.990 at 16 qubits; SA 0.929 and tabu 0.948 vs 0.697 at 22 qubits. Classical samplers match QAOA at 16 qubits and beat it at 22. **Evaluations matched:** QAOA C-milp wins (0.990 vs SA 0.278 at L2; 0.697 vs 0.068 at L4), but this counting is generous to QAOA (one expectation estimate = one evaluation). The MILP solves the operational problem in about 25 ms (T1) | `s9_classical.txt`, `s9_classical.jsonl` (`s9_classical.py`) | **uncommitted** |
+| T1 | Problem and encoding: fleet, ladder L0–L4 (5/6/8/9/11 blocks × 2 h = 10–22 qubits, 4,442 MW at every level), frozen operating point λ = 100, B = 250 MW | The QUBO is a faithful, calibrated encoding of Haryana unit commitment; the MILP solves the operational problem in about 25 ms | `s4_ladder.txt`, `s4b_recalibrate_L2.txt`, `s2_model_comparison.txt` | yes (80fc040, 50f7960) |
+| T2 | Encoding gap per level, at the frozen point and at each level's own point | The encoding costs 2.5–6.1% at the frozen point and 1.8–4.9% at each level's own point | `s7_gap_figure.txt`, `s7_gap_ladder.csv` | yes (f006eeb) |
+| T3 | Simulator timing; PennyLane comparison | The exact NumPy statevector simulator is 11–16× faster than `lightning.qubit` at 22 qubits | `s3b_fastsim_timing.txt`, `s3_timing_probe.txt` | yes (917a70f, 3eff343) |
+| T4 | GCN warm start: held-out MAE and BCE against a constant predictor, load conditioning, **training and inference cost** | Beats a constant predictor at L2 and L4 (L4 MAE 0.122 vs 0.178). **Cost (G13):** L2 C-milp: MILP labels 9.7 s + training 54 s; L2 C-oracle: brute-force labels 15 s + 42 s; L4 C-milp: 6.5 s + 8 s; inference 0.04–0.3 ms per instance; LP solve about 1.6 ms | `s7a_train_gnn.txt`, `s9_train_gnn_L4.txt`, `s9_gnn_vs_constant.txt` | yes (428dec6, a6789e7) |
+| T5 | **Main table, ε = 0.1**: 7 arms × 30 held-out scenarios × 5 seeds, p = 1/2/3 | Claim 1 (and 9) | `s8_phase2_analysis.txt` | yes (7feab61) |
+| T6 | Per-scenario detail of T5 | D's deficit is confined to 8 of 30 scenarios where the LP pins 2–3 bits wrong | `s8_phase2_analysis.txt` | yes (7feab61) |
+| T7 | **ε sweep, p = 1**, best ε, decisive comparisons, ε = 0.5 sanity checks, repeated group-fold CV | Claim 2: D − C-oracle −0.094 and D − C-milp −0.070 over 1,000 group splits (D worse in 100% / 96%) | `s8_phase1_analysis.txt`, `s8_eps_stability.txt` | yes (7feab61, a6789e7) |
+| T8 | Statistics at group level (n = 30 / 17 / 13) | Which claims survive with honest n | `s8_phase1_analysis.txt`, `s8_phase2_analysis.txt` | yes (7feab61) |
+| T9 | **ε regret** | Claim 5: D 0.122 at ε = 0.05, 0.917 at ε = 0; C-milp / C-oracle ≤ 0.018 / 0.005 over ε ∈ [0, 0.25] | `s8_eps_stability.txt` (section 3) | yes (a6789e7) |
+| T10 | **Band share** at L2, p = 1, 2, 3 | Claim 4: R² 0.55 → 0.95–0.97; per-arm residual removed; spreading hurts | `s8_mass_phase1.txt`, `s8_mass_phase2.txt` | yes (a6789e7) |
+| T11 | Band-share held-out checks | Held-out arms within 0.015; leave-one-group-out R² 0.50–0.64 → 0.95–0.97 | `s8_mass_phase*.txt` ("HELD-OUT CHECKS") | yes (a6789e7) |
+| T12 | Wrong-pin census along granularity (L0–L4, T = 2), frozen and own points; per-block concentration | Wrong pins grow with granularity and fall on small, expensive marginal blocks | `s9_census.txt`, `s9_census_ownpoint.txt` | yes (a6789e7) |
+| T13 | Wrong-pin census along the horizon at fixed granularity (LP) | Claim 6, first half: the LP's wrong pins are extensive in the horizon (per hour flat; +0.10 per variable) | `s9_horizon.txt` | yes (63ef26d) |
+| T14 | L4 arms at the frozen point | C-milp − D +0.208 [+0.037, +0.379] | `s9_analysis.txt` | yes (a6789e7) |
+| T15 | L4 arms at L4's own point, paired with T14 | Claim 2 at 22 qubits: +0.231 [+0.079, +0.384]; change from the frozen point +0.023 [−0.220, +0.267] | `s9_analysis_ownpoint.txt` | yes (63ef26d) |
+| T16 | Band share at L4; L2 curve transferred to L4 | Claim 4 at scale: R² 0.98; transfer R² 0.91 | `s9_mass.txt` | yes (a6789e7) |
+| T17 | Classical samplers, numpy implementation (SA, tabu with restarts), evaluation- and wall-matched | Superseded for timing by T19; kept for tabu and the evaluation-matched comparison (QAOA C-milp wins when one expectation estimate counts as one evaluation) | `s9_classical.txt` | yes (63ef26d) |
+| T18 | **Learned start's wrong pins along the horizon (G16)**: C-milp trained at each horizon, and the T = 2 model transferred, on the T13 draws | Claim 6, second half: C-milp +0.014 / +0.031 / +0.042 wrong pins per variable (L0/L1/L2) vs LP +0.103 / +0.104 / +0.091. P(2 or more) slope +0.001–0.009 vs +0.028–0.035. Paired gap widens 0.44 → 1.73 (L0, T = 1 → 4). The models hit the 6,000-epoch cap while improving, which is conservative | `s10_horizon_learned.txt` (`s10_horizon_learned.py`; models in `models/horizon/`) | **uncommitted** |
+| T19 | **Compiled SA (numba, G17)**: budget ladder with measured time per run | Claim 10: 0.996 in 4.5 ms (L2, 10⁵ flips), 0.994 in 34 ms (L4, 10⁶ flips); 22–30 M flips/s per chain; QAOA's wall time buys 3 × 10⁷ / 1.4 × 10⁹ flips | `s10_sa_compiled.txt` (`s10_sa_compiled.py`) | **uncommitted** |
+| T20 | **Out of distribution (G5)**: shifted demand (high/low), forced outages (3 blocks), reversed and flat profiles; C-milp vs D vs A | Claim 8. Outages: C 0.947–0.986, ≥ D. Low demand: C 0.723 vs D 0.861, wrong pins 2.85 vs 1.45. Flat: 0.793 vs 0.790; reversed 0.893 vs 0.839. High demand: trivial (all arms ≈ 1.000) | `s10_ood.txt` (`s10_ood.py`) | **uncommitted** |
+| T21 | **Finite-shot optimisation (G3 scoped)**: 128 / 1024 / 8192 shots, exact evaluation | Claim 7. Loss at 128 shots: C-milp −0.021, D −0.041, A −0.106, F −0.142. C-milp − D advantage change +0.02 (not significant). Under shot noise COBYLA stops after 21–34 evaluations (72–183 exact) | `s10_robust.txt` (`s10_robust.py`) | **uncommitted** |
+| T22 | **Second optimiser (G11)**: Nelder–Mead, exact expectations | Claim 7: C-milp − D +0.172 (COBYLA +0.174); all pairs within 0.01 | `s10_robust.txt` | **uncommitted** |
+| T23 | **Simulator validation (G12)** against PennyLane default.qubit; best-of-K vs Monte Carlo | Worst error over 45 cases 1.5 × 10⁻¹⁴; a real UC instance to 2.2 × 10⁻¹⁴; Monte Carlo within 2.5 standard errors | `s10_simulator_validation.txt` (`s10_validation.py`) | **uncommitted** |
 
 ## Figures
 
-| # | Figure | Claim it supports | File (script) | Committed? |
+| # | Figure | Claim | File | Committed? |
 |---|---|---|---|---|
-| F1 | Encoding-gap ladder, two panels | Encoding cost per level, frozen point vs own point | `fig_encoding_gap_ladder.png/.pdf` (`s7_gap_figure.py`) | yes (f006eeb) |
-| F2 | **Band share, two panels**: (a) P vs log overlap, arms separate (R² 0.55, per-arm residual spread 0.16); (b) P vs band-share index, arms collapse (R² 0.95, spread 0.01) | The mechanism | `fig_bandshare.png/.pdf` (`s8_fig_bandshare.py`) | yes (a6789e7) |
-| F3 | Overlap vs sampling per arm, small multiples | Superseded by F2(a); supplement at most | `fig_overlap_vs_sampling.png/.pdf` | yes (7feab61) |
+| F1 | Encoding-gap ladder | T2 | `fig_encoding_gap_ladder.png/.pdf` | yes (f006eeb) |
+| F2 | **Band share, two panels** (arms separate on overlap, collapse on band share) | Claim 4 | `fig_bandshare.png/.pdf` | yes (a6789e7) |
+| F3 | Overlap vs sampling, small multiples | supplement only | `fig_overlap_vs_sampling.png/.pdf` | yes (7feab61) |
 
-**Figures we can support but have not drawn:**
-- **ε regret curves:** P(best of 1024 is ground) against ε per arm, with group CIs. D's steep curve against the learned arms' flat one, i.e. T7 and T9 as one picture. Highest-value missing figure.
-- **Size vs granularity:** mean wrong pins and P(2 or more) against n, with the horizon lines (L0/L1/L2 × T) and the granularity line (T = 2, L0–L4) on one axis, from T12 and T13. Second-highest value: it carries the forward-looking claim.
-- **Main-table dot plot:** arms × p, with group CIs, from T5.
-- **L4 per-structure matrix:** C-milp vs D per structure, coloured by D's wrong pins, at both operating points, from T14 and T15.
-- **Classical vs QAOA:** P(ground) against budget for SA, tabu and QAOA, at L2 and L4, from T17.
+**To draw while writing** (data in hand, no new runs):
+1. **ε regret curves** (claim 5): P against ε per arm, with group CIs.
+2. **Size scaling** (claim 6): mean wrong pins against n, LP vs C-milp, along the horizon (T13, T18), with the granularity line (T12).
+3. **Main-table dot plot** (claim 1): arms × p, with group CIs.
+4. **L4 per-structure matrix** (claims 2–3): C-milp vs D, coloured by D's wrong pins.
+5. **Classical vs QAOA** (claim 10): P(ground) against measured time, compiled SA ladder vs QAOA arms, at L2 and L4.
+6. **Robustness panel** (claims 7–8): P loss under shots per arm, and OOD per set.
 
-## Claims ledger: status after proper statistics
+## Claims ledger
 
 | Claim | Status |
 |---|---|
-| Learned warm starts (C-milp, C-oracle) sample the ground state far better than A, E and F | **Holds** at every level of aggregation (C − F +0.31 to +0.33 at group level) |
-| At its best ε, D still loses to the learned arms on P(best of 1024 is ground) | **Holds** under repeated group-fold CV. **Borderline** at group level against C-milp when D is given its in-sample best ε |
-| D's deficit comes from scenarios where the LP pins 2 or more bits wrong | **Holds** at L2 (8 of 30 scenarios, 4 groups) and at L4 at both operating points. Where the LP pins ≤ 1 bit wrong, D matches or slightly beats C-milp |
-| D matches the learned arms on best-of-1024 cost | **Holds** (no significant difference) at L2 and L4: D's misses land on near-optimal adequate schedules |
-| C-oracle beats C-milp | **Not supported**: tie at group level |
-| B (warm state, X mixer) matches C-milp | **On sampling, yes** (tie). **On final g and single-shot P(ground), no**: B is worse in 17 of 17 groups |
-| Overlap alone predicts sampling | **No**: R² 0.55 with significant per-arm residuals |
-| Band share explains sampling across arms, ε, depth and size | **Holds**: R² 0.95–0.98 at L2 and L4; held-out arms within 0.015; the L2 curve transfers to L4 (R² 0.91) |
-| The LP needs its regularisation tuned; the learned starts do not | **Holds** (T9): regret 0.122 at ε = 0.05 and 0.917 at ε = 0 for D, against at most 0.018 (C-milp) and 0.005 (C-oracle) anywhere in ε ∈ [0, 0.25] |
-| ~~The LP's best ε is unstable~~ | **Dropped.** D picks 0.25 in 91% of bootstraps. Replaced by the regret claim above |
-| Wrong LP pins grow with problem size | **Holds generally** (T13): at fixed granularity they are extensive in the number of hours, and per added variable the horizon raises them about twice as fast as granularity does. Granularity adds a further per-hour increase. Shown for one fleet |
-| The learned advantage survives at 22 qubits | **Holds** at p = 1 on 20 diverse structures, per structure and reweighted, at the frozen point and at L4's own point. The absolute success rate falls for every arm |
-| Final-g ranking: D best at ε = 0.1, worst among warm arms at its own best ε | **Holds** (30 of 30 scenarios both ways at L2; 20 of 20 at L4). It is the ε trade-off; state it explicitly so T5 and T7 don't look contradictory |
-| QAOA is competitive with classical solvers on these instances | **No.** The MILP solves the operational problem exactly in milliseconds. At matched wall time SA matches QAOA at 16 qubits and beats it at 22. Position: the contribution is what determines warm-start quality within QAOA, not quantum advantage |
+| Learned warm starts sample the ground state far better than A, E and F | **Holds** at every level of aggregation |
+| At its best ε, D still loses to the learned arms | **Holds** under repeated group-fold CV. **Borderline** at group level against C-milp when D gets its in-sample best ε |
+| D's deficit comes from scenarios where the LP pins 2 or more bits wrong | **Holds** at L2 and at L4 (both operating points) |
+| D matches the learned arms on best-of-1024 cost | **Holds** |
+| C-oracle beats C-milp | **Not supported** (tie). **Writing (G7):** present C-oracle as the labels upper bound. Its labels need the exact QUBO ground state (brute force: 15 s for 350 instances at 16 qubits, about 8 min at 22), so it does not scale, and it buys nothing over MILP labels |
+| B matches C-milp | On sampling yes (tie); on final g and single-shot P(ground) no |
+| Overlap alone predicts sampling | **No** |
+| Band share explains sampling | **Holds** (R² 0.95–0.98, held-out arms within 0.015, transfers L2 → L4). Diagnostic, not predictive |
+| The LP needs ε tuned; learned starts do not | **Holds** |
+| ~~The LP's best ε is unstable~~ | **Dropped**; replaced by the regret claim |
+| The LP's wrong pins grow with problem size | **Holds** generally (horizon and granularity), one fleet |
+| The learned start's wrong pins stay low with size | **Narrowed to "grow 2–7× more slowly"** (T18). They do grow |
+| The learned advantage survives at 22 qubits | **Holds** at both operating points, p = 1 |
+| The learned advantage is robust to shot noise | **Against cold and heuristic starts: grows.** Against the LP: unchanged (not significant). Regime caveat: COBYLA stops early under noise |
+| The learned start generalises out of distribution | **Partly**: graph changes (outages) yes; lower demand no (worse than LP); new profile shapes fall to LP level |
+| QAOA is competitive with classical solvers | **No**: compiled SA 0.99+ in 4.5–34 ms |
+| Final-g ranking flips with ε | **Holds** (30/30 at L2, 20/20 at L4); state explicitly |
+
+## Methods notes for the writing (G18 and others)
+
+- **Disclosed tuning of the classical baselines (G18), both choices in the classical samplers' favour.** SA's end temperature (5th percentile of positive |ΔE| / ln 100) was chosen among three options on 4 L2 scenarios. Tabu's tenure (n/2) and restart rule (after 5n non-improving steps) were chosen among six options on the 3 hardest L2 scenarios. Without restarts tabu cycles and does not improve with budget.
+- **The learned starts were never tuned:** default hyperparameters at every level and horizon. Several models hit the epoch cap, which is conservative for them.
+- **Finite-shot runs:** the patience stop and the choice of reported parameters use the noisy estimates; every metric is exact at the chosen parameters.
+- **Bugs found and fixed during the study, each with a regression test:**
+  - **ε = 0.5 rejected:** the regulariser refused the cold-limit value, which crashed the sweep.
+  - **complex64 normalisation check:** a correct warm state was rejected at 20 or more qubits, because the check summed in single precision.
+  - **LP infeasible above capacity:** the LP at the QUBO target was infeasible when demand + bias exceeded capacity; the target is now capped.
+  - None of these changed a published number; each would have crashed rather than mislead.
 
 ## Superseded or do not use
 
-- `s6_*`, `s6b_*` (pilot) and `s7_arms_full.*` (10 scenarios, scenario-level statistics only) are superseded by T5–T8. Cite s6b only for the history of the LP-target fix.
-- The p = 5 and p = 3 sweep records inside `s8_runs.jsonl` fall outside both phases; the analysis ignores them.
-- The scenario-fold CV numbers in early Phase 1 output are leaky. Use group-fold.
-- The first tabu run (no restarts) cycled and did not improve with budget. `s9_classical.jsonl` holds the restarted version.
-- Untracked `fig1_lambda_sweep.png`, `fig2_gnn.png`, `gnn_params.npz`, `gnn_report.json`, `lambda_*.json` are from the old `src/quc` prototype. They are not this pipeline; do not use them.
+- `s6_*`, `s6b_*` (pilot) and `s7_arms_full.*` (10 scenarios) are superseded by T5–T8.
+- The p = 5 and p = 3 sweep records inside `s8_runs.jsonl` fall outside both phases.
+- Scenario-fold CV numbers in early Phase 1 output are leaky; use group-fold.
+- T17's numpy SA timings are superseded by T19. The first tabu run (no restarts) was replaced.
+- The untracked `fig1_lambda_sweep.png`, `fig2_gnn.png`, `gnn_params.npz`, `gnn_report.json` and `lambda_*.json` are from the old `src/quc` prototype. Do not use them.
 
 ## Gaps
 
-### Closed in this round
+### Closed
 
-| # | Gap | How it was closed |
+G1 (L4 own point), G2 (size vs granularity), G4 (classical samplers), G5 (out of distribution, partly negative), G7 (C-oracle as labels upper bound, writing note above), G8, G9, G10, G11 (Nelder–Mead), G12 (validation table), G13 (training cost in T4), G16 (learned start along the horizon), G17 (compiled SA), G18 (tuning disclosure above).
+
+### Deferred, to be stated as limitations
+
+| # | Limitation | How to state it |
 |---|---|---|
-| G1 | L4 QAOA runs used the L2-calibrated operating point | T15: re-run at L4's own point; the advantage holds (+0.231, change +0.023 [−0.220, +0.267]) |
-| G2 | "Size" was only granularity of one fleet | T13: horizon census at fixed granularity. Wrong pins grow with size generally (extensive in hours). Still one fleet (see G16) |
-| G4 | No classical sampler on the same QUBO | T17: SA and tabu, evaluation- and wall-matched, at L2 and L4 |
-| G8 | L4 analysis script | `s9_analysis.py` |
-| G9 | Band-share held-out checks not in a results file | T11 |
-| G10 | L4 GCN accuracy below the majority baseline | `s9_gnn_vs_constant.txt`; T4 must report MAE/BCE against the constant predictor |
-
-### Still open (most important first)
-
-| # | Gap | Why a reviewer asks | Cost to close |
-|---|---|---|---|
-| G3 | **Noise-free, exact sampling only.** No shot noise, no hardware noise | Does the advantage survive realistic noise? | A depolarising-channel or trajectory simulation at L2: days. Alternatively argue that best-of-K is exact and noise is out of scope |
-| G16 | **The learned model's wrong pins have not been measured along the horizon.** The forward-looking claim needs the LP's wrong pins to grow with size (shown) **and** the learned start's to stay low. That is shown only at T = 2 (L4: C-milp 0.40 / 0.05 vs D 2.90 / 2.75) | If C-milp's wrong pins also grow extensively with T, the gap need not widen | Train C-milp at L0/L1 for T = 3, 4 and count its wrong pins on the horizon census: about 30 min, no QAOA |
-| G5 | **Generalisation of the learned model.** Training and test come from the same demand generator | What about out-of-distribution profiles, unit outages or other fleets? | Shifted-demand and outage test sets at L2, QAOA p = 1: about 1 h |
-| G14 | **L4 covers 34% of the demand distribution** (the 20 selected signatures). The selection over-represents multiply-wrong structures (75% vs 54% in the pool) | The population-level L4 effect is extrapolated from the census fraction × per-structure gaps | A random (non-diverse) L4 sample of 20: about 80 min |
-| G17 | **Classical timing is for a pure-numpy SA** (25,000–40,000 flips/s). A compiled SA would be much faster; not measured | "Milliseconds" for SA is not yet a measured claim (the MILP's milliseconds are) | Time a compiled SA (numba): about 20 min |
-| G6 | **Band share needs the full spectrum,** so it explains the result but cannot select a warm start at scale | Is there a computable proxy? | Test whether LP wrong-pin count or GNN confidence predicts band share: about 30 min of analysis |
-| G11 | **One optimiser (COBYLA) and one initial-parameter distribution** | Is the ranking an artefact of the optimiser? | Repeat T5 at p = 1 with SPSA or Nelder–Mead on a subset: about 30 min |
-| G15 | **L4 at p = 1 only.** Absolute success is low for every arm | Does depth recover it at L4? | p = 2 at L4: about 5.5 h (deferred by decision) |
-| G12 | **The simulator's correctness evidence lives only in tests** (PennyLane oracle at 1e-10, Monte Carlo check of best-of-K) | A reviewer wants a validation table | Export the oracle comparison to a results file: about 10 min |
-| G13 | **Wall-clock accounting** omits GCN training cost (labels plus 8 s training) | Fair comparison against LP | One line in T5 from the T4 logs |
-| G7 | **C-oracle is not scalable** (labels need brute force); dropped at L4 | Fine as an upper bound; say so | writing only |
-| G18 | **Classical-sampler tuning is light and disclosed.** SA's end temperature was chosen on 4 L2 scenarios; tabu's tenure and restart on 3 | A reviewer may ask whether the baselines are tuned fairly | Both choices favour the classical samplers; disclose in methods |
+| G3 | Noise-free circuits. Only finite-shot expectation estimates are modelled (T21); gate and decoherence noise need density matrices (4^n) and are out of scope | Limitations section |
+| G14 | L4 covers 34% of the demand distribution (20 selected signatures), mitigated by reweighting; the selection over-represents multiply-wrong structures (75% vs 54%) | Report per-structure and reweighted, and say so |
+| G15 | L4 at p = 1 only | Depth did nothing for warm arms at L2 (0.990 → 0.991, p = 1 → 3) |
+| G6 | No computable proxy for band share: it needs the full spectrum, so it is a diagnostic of why warm starts work, not a way to choose one | State explicitly in the mechanism section |
+| — | One fleet (Haryana) | Scaling shown along two axes of one system |
+| — | Out-of-distribution weaknesses of the learned start: lower demand and new profile shapes (T20) | Results and limitations; suggests training on wider demand and shape ranges |
+| — | Finite-shot regime: under shot noise COBYLA stops after 21–34 evaluations, so T21 describes a lightly optimised regime | State with T21 |

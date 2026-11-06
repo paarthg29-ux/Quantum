@@ -184,8 +184,20 @@ def run_qaoa(
     source_s: float = 0.0,
     extra: dict | None = None,
     Ks=KS,
+    shots: int | None = None,
+    method: str = "COBYLA",
 ) -> RunResult:
-    """One optimisation run; ``init_params`` = (theta, beta) with theta = sigma * gamma."""
+    """One optimisation run; ``init_params`` = (theta, beta) with theta = sigma * gamma.
+
+    ``shots``: if given, the optimiser sees a FINITE-SHOT estimate of <H_C> (the
+    mean energy of ``shots`` bitstrings drawn from the exact distribution;
+    multinomial counts, rng from (seed, p, shots)) instead of the exact value.
+    The patience stop and the choice of the reported parameters (best measured
+    value) use what the optimiser saw; every reported metric is then evaluated
+    EXACTLY at those parameters. ``energies`` holds the estimates; the exact
+    trajectory and the exact gain at the chosen parameters are in ``extra``.
+    ``method``: 'COBYLA' (default) or 'Nelder-Mead', with the same evaluation
+    cap and patience stop."""
     t0 = time.perf_counter()
     ev = problem.ev
     sim = QAOASimulator(ev.E, initial_state=initial_state, mixer=mixer, dtype=dtype)
@@ -193,11 +205,18 @@ def run_qaoa(
     theta0, beta0 = initial_parameters(p, seed) if init_params is None else init_params
     x0 = np.concatenate([np.asarray(theta0, float), np.asarray(beta0, float)])
     max_evals = settings.max_evals(2 * p)
-    energies, xs = [], []
+    energies, xs, exact = [], [], []
     state = {"best": -np.inf, "best_at": 0}
+    shot_rng = np.random.default_rng([seed, p, int(shots)]) if shots else None
 
     def f(x):
-        e = sim.energy(x[:p] / sigma, x[p:])
+        if shots:
+            pr = probabilities(sim.state(x[:p] / sigma, x[p:])).astype(np.float64)
+            pr /= pr.sum()
+            exact.append(float(pr @ ev.E))
+            e = float(shot_rng.multinomial(int(shots), pr) @ ev.E) / shots
+        else:
+            e = sim.energy(x[:p] / sigma, x[p:])
         energies.append(e)
         xs.append(np.array(x))
         r = float(ev.ratio(e))
@@ -209,9 +228,15 @@ def run_qaoa(
 
     early = False
     try:
-        res = minimize(f, x0, method="COBYLA",
-                       options=dict(rhobeg=settings.rhobeg, tol=settings.rhoend, maxiter=max_evals))
-        reason = "cobyla: " + str(res.message)
+        if method == "COBYLA":
+            res = minimize(f, x0, method="COBYLA",
+                           options=dict(rhobeg=settings.rhobeg, tol=settings.rhoend, maxiter=max_evals))
+        elif method == "Nelder-Mead":
+            res = minimize(f, x0, method="Nelder-Mead",
+                           options=dict(maxfev=max_evals, xatol=settings.rhoend, fatol=0.0))
+        else:
+            raise ValueError(f"unknown method {method!r}")
+        reason = f"{method.lower()}: " + str(res.message)
     except _EarlyStop:
         early, reason = True, f"patience ({settings.patience} evals without +{settings.min_delta:g} in ratio)"
     energies = np.array(energies)
@@ -223,6 +248,13 @@ def run_qaoa(
     ratios = np.asarray(ev.ratio(energies), float)
     g0 = float(problem.gain(ev.ratio(expectation(sim.initial_state, ev.E))))
     overlap0 = float(probabilities(sim.initial_state)[ev.ground].sum())
+    extra = dict(extra or {})
+    extra["method"] = method
+    if shots:
+        ex = np.asarray(exact)
+        extra.update(shots=int(shots), exact_g_chosen=float(problem.gain(ev.ratio(ex[best]))),
+                     exact_g_init=float(problem.gain(ev.ratio(ex[0]))),
+                     exact_g_trajectory_max=float(problem.gain(ev.ratio(ex.min()))))
     return RunResult(
         arm=arm, p=p, seed=seed, gammas=gammas, betas=betas, energies=energies, ratios=ratios,
         gains=problem.gain(ratios), stop_reason=reason, early_stopped=early, cap_hit=cap_hit,
