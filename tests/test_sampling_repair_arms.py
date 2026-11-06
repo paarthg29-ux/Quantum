@@ -191,3 +191,18 @@ def test_initial_overlap_and_frozen_bits():
     g2 = g.copy(); g2[0] = 1 - g2[0]
     assert frozen_bits(pb, g2)[1] == (1 if len(G) == 1 else frozen_bits(pb, g2)[1])
     assert frozen_bits(pb, np.full(pb.n, 0.5)) == (0, 0)
+
+
+def test_lp_qubo_target_capped_at_fleet_capacity():
+    """Regression: a draw with D_t + bias above total capacity made the LP at the
+    QUBO target infeasible (census, L4 scenario 80). Capped, every block is on
+    in that hour, which is also where the QUBO penalty is minimised."""
+    from qguc import make_instance
+
+    inst = make_instance(4400.0, n_hours=2, seed=0, refinement_level=2, demand_bias_mw=250.0)
+    cap = inst.capacity.sum()
+    over = inst.target_mw > cap
+    assert over.any() and (inst.demand_mw <= cap).all()
+    lp = solve_lp_relaxation(inst, "qubo")
+    U = inst.unflatten(lp.x)
+    np.testing.assert_allclose(U[:, over], 1.0, atol=1e-9)

@@ -1,0 +1,68 @@
+WRONG-PIN CENSUS: the same 300 i.i.d. demand draws (seed 9300) at every level, frozen operating point, LP at the QUBO target; pinned = c <= 0.1 or >= 0.9; wrong = pinned and disagreeing with the exact ground state (least-disagreeing degenerate ground state)
+
+level   n runs |          P(wrong >= 2) |           mean wrong |      0      1      2     3+ | mean pinned wrong/pinned | #gnd > 1
+   L0  10  300 |  0.280 [0.232, 0.333] |  1.19 [1.10, 1.28] |  0.170  0.550  0.203  0.077 |        8.45        0.141 |    0.000
+   L1  12  300 |  0.370 [0.317, 0.426] |  1.45 [1.33, 1.56] |  0.103  0.527  0.257  0.113 |       10.45        0.138 |    0.093
+   L2  16  300 |  0.380 [0.327, 0.436] |  1.43 [1.33, 1.53] |  0.087  0.533  0.260  0.120 |       14.45        0.099 |    0.217
+   L3  18  300 |  0.540 [0.483, 0.596] |  1.69 [1.52, 1.86] |  0.277  0.183  0.327  0.213 |       16.26        0.104 |    0.540
+   L4  22  300 |  0.540 [0.483, 0.596] |  2.06 [1.86, 2.27] |  0.227  0.233  0.177  0.363 |       20.13        0.103 |    0.673
+
+TREND over n (paired: 300 demand draws present at every level; bootstrap over draws):
+  mean wrong pins per qubit added: +0.0654  95% CI [+0.0515, +0.0794]
+  P(wrong >= 2) per qubit added:   +0.0220  95% CI [+0.0163, +0.0277]
+  Spearman(n, wrong pins) over all (draw, level) pairs: +0.156
+  L2 -> L4: draws with >= 2 wrong pins 114 -> 162 (became >= 2: 98, stopped: 50; exact McNemar p = 9.8e-05); mean wrong 1.43 -> 2.06, paired Wilcoxon p = 2.3e-10
+  L0 -> L4: draws with >= 2 wrong pins 84 -> 162 (became >= 2: 100, stopped: 22; exact McNemar p = 4.5e-13); mean wrong 1.19 -> 2.06, paired Wilcoxon p = 3.6e-17
+
+WHERE THE WRONG PINS FALL: per block, the fraction of draws in which it is wrongly pinned (either hour), with its capacity, merit-order rank (1 = cheapest per MW) and how often the LP pins it at all
+  L0 (n = 10; 328 wrong-pinned blocks in 300 draws):
+       Faridabad     432 MW  rank  5/5 | wrong in  0.723 of draws (66.2% of all wrong pins) | pinned  0.88
+     Yamunanagar     600 MW  rank  3/5 | wrong in  0.367 of draws (33.5% of all wrong pins) | pinned  0.72
+         Panipat     710 MW  rank  4/5 | wrong in  0.003 of draws ( 0.3% of all wrong pins) | pinned  0.62
+           Hisar    1200 MW  rank  2/5 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+         Jhajjar    1500 MW  rank  1/5 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+    Spearman(wrong rate, capacity) = -0.97; Spearman(wrong rate, merit rank) = +0.87 (over 5 blocks; descriptive)
+  L1 (n = 12; 391 wrong-pinned blocks in 300 draws):
+       Faridabad     432 MW  rank  6/6 | wrong in  0.720 of draws (55.2% of all wrong pins) | pinned  0.88
+     Yamunanagar     600 MW  rank  4/6 | wrong in  0.393 of draws (30.2% of all wrong pins) | pinned  0.72
+         Panipat     710 MW  rank  5/6 | wrong in  0.097 of draws ( 7.4% of all wrong pins) | pinned  0.62
+         RGTPP-2     600 MW  rank  3/6 | wrong in  0.093 of draws ( 7.2% of all wrong pins) | pinned  1.00
+         RGTPP-1     600 MW  rank  2/6 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+         Jhajjar    1500 MW  rank  1/6 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+    Spearman(wrong rate, capacity) = -0.62; Spearman(wrong rate, merit rank) = +0.93 (over 6 blocks; descriptive)
+  L2 (n = 16; 395 wrong-pinned blocks in 300 draws):
+       Faridabad     432 MW  rank  8/8 | wrong in  0.643 of draws (48.9% of all wrong pins) | pinned  0.88
+     Yamunanagar     600 MW  rank  6/8 | wrong in  0.343 of draws (26.1% of all wrong pins) | pinned  0.72
+        IGSTPP-3     500 MW  rank  3/8 | wrong in  0.217 of draws (16.5% of all wrong pins) | pinned  1.00
+         Panipat     710 MW  rank  7/8 | wrong in  0.113 of draws ( 8.6% of all wrong pins) | pinned  0.62
+         RGTPP-1     600 MW  rank  4/8 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+         RGTPP-2     600 MW  rank  5/8 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-1     500 MW  rank  1/8 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-2     500 MW  rank  2/8 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+    Spearman(wrong rate, capacity) = -0.24; Spearman(wrong rate, merit rank) = +0.68 (over 8 blocks; descriptive)
+  L3 (n = 18; 384 wrong-pinned blocks in 300 draws):
+        DCRTPP-2     300 MW  rank  7/9 | wrong in  0.513 of draws (40.1% of all wrong pins) | pinned  0.78
+       Faridabad     432 MW  rank  9/9 | wrong in  0.430 of draws (33.6% of all wrong pins) | pinned  0.88
+        DCRTPP-1     300 MW  rank  6/9 | wrong in  0.283 of draws (22.1% of all wrong pins) | pinned  0.85
+        IGSTPP-3     500 MW  rank  3/9 | wrong in  0.030 of draws ( 2.3% of all wrong pins) | pinned  1.00
+         Panipat     710 MW  rank  8/9 | wrong in  0.020 of draws ( 1.6% of all wrong pins) | pinned  0.62
+         RGTPP-2     600 MW  rank  5/9 | wrong in  0.003 of draws ( 0.3% of all wrong pins) | pinned  1.00
+         RGTPP-1     600 MW  rank  4/9 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-1     500 MW  rank  1/9 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-2     500 MW  rank  2/9 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+    Spearman(wrong rate, capacity) = -0.64; Spearman(wrong rate, merit rank) = +0.75 (over 9 blocks; descriptive)
+  L4 (n = 22; 514 wrong-pinned blocks in 300 draws):
+          PTPS-6     210 MW  rank  8/11 | wrong in  0.547 of draws (31.9% of all wrong pins) | pinned  0.85
+          PTPS-7     250 MW  rank  9/11 | wrong in  0.440 of draws (25.7% of all wrong pins) | pinned  0.90
+        DCRTPP-2     300 MW  rank  7/11 | wrong in  0.263 of draws (15.4% of all wrong pins) | pinned  0.70
+        DCRTPP-1     300 MW  rank  6/11 | wrong in  0.213 of draws (12.5% of all wrong pins) | pinned  0.84
+          FGPP-1     432 MW  rank 11/11 | wrong in  0.180 of draws (10.5% of all wrong pins) | pinned  0.88
+          PTPS-8     250 MW  rank 10/11 | wrong in  0.070 of draws ( 4.1% of all wrong pins) | pinned  0.87
+         RGTPP-1     600 MW  rank  4/11 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+         RGTPP-2     600 MW  rank  5/11 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-1     500 MW  rank  1/11 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-2     500 MW  rank  2/11 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+        IGSTPP-3     500 MW  rank  3/11 | wrong in  0.000 of draws ( 0.0% of all wrong pins) | pinned  1.00
+    Spearman(wrong rate, capacity) = -0.89; Spearman(wrong rate, merit rank) = +0.72 (over 11 blocks; descriptive)
+
+wall time per instance (median, s): L0 0.01, L1 0.01, L2 0.04, L3 0.13, L4 2.44

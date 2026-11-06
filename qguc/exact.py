@@ -259,11 +259,15 @@ def solve_lp_relaxation(instance: UCInstance, target: str = "demand") -> LPRelax
     ``target = "qubo"``: generation >= D_t + demand_bias_mw, the level the
     QUBO penalty actually targets -- the relaxation of the problem the
     circuit minimises (up to soft vs hard), which is what a warm start for
-    that circuit should relax."""
+    that circuit should relax. Where D_t + bias exceeds the fleet's total
+    capacity the target is capped at that capacity: no schedule reaches it,
+    the QUBO penalty is then minimised by committing everything, and so is
+    the capped LP (uncapped, the LP would be infeasible)."""
     if target not in ("demand", "qubo"):
         raise ValueError("target must be 'demand' or 'qubo'")
     t_build = time.perf_counter()
-    c, A, lb, ub = _milp_matrices(instance, instance.demand_mw if target == "demand" else instance.target_mw)
+    rhs = instance.demand_mw if target == "demand" else np.minimum(instance.target_mw, instance.capacity.sum())
+    c, A, lb, ub = _milp_matrices(instance, rhs)
     finite = np.isfinite(ub)
     A_ub = np.vstack([-A, A[finite]])  # lb <= A z  ->  -A z <= -lb ;  A z <= ub where finite
     b_ub = np.r_[-lb, ub[finite]]

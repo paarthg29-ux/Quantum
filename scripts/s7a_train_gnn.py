@@ -1,4 +1,8 @@
-"""Train the GCN warm-start models (C-milp and C-oracle) at L2.
+"""Train the GCN warm-start models (C-milp and C-oracle) at L2 (default), or
+C-milp alone at another level:
+
+    python scripts/s7a_train_gnn.py                          # L2, milp + oracle
+    python scripts/s7a_train_gnn.py --level 4 --variants milp  # L4 (22 qubits), Phase 3
 
 Scenario sets (disjoint seeds; none used by any calibration or benchmark):
     train 300 (seed 8001), validation 50 (seed 8002), held-out accuracy 100
@@ -7,6 +11,7 @@ A model that fails the load-conditioning check is not saved.
 """
 
 import json
+import sys
 import time
 
 import numpy as np
@@ -22,7 +27,9 @@ from qguc.gnn import (
     train,
 )
 
-LEVEL, N_HOURS = 2, 2
+LEVEL = int(sys.argv[sys.argv.index("--level") + 1]) if "--level" in sys.argv else 2
+VARIANTS = tuple(sys.argv[sys.argv.index("--variants") + 1].split(",")) if "--variants" in sys.argv else ("milp", "oracle")
+N_HOURS = 2
 TRAIN, VAL, HELD = (300, 8001), (50, 8002), (100, 9002)
 SEED = 0
 
@@ -49,7 +56,7 @@ def main():
     names = [p.name for p in tr[0].plants]
     low, high = probe_pair()
     labelled, out = {}, {}
-    for variant in ("milp", "oracle"):
+    for variant in VARIANTS:
         t0 = time.perf_counter()
         labelled[variant] = tuple(dataset(s, LABELERS[variant]) for s in (tr, va, held))
         print(f"\n===== C-{variant}: labels in {time.perf_counter() - t0:.1f} s =====")
@@ -92,10 +99,12 @@ def main():
     lp = [solve_lp_relaxation(i, target="qubo") for i in held[:50]]
     print(f"\nreference: LP relaxation (arm D) solve {1e3 * np.median([x.solve_time_s for x in lp]):.2f} ms median, "
           f"build + solve {1e3 * np.median([x.total_time_s for x in lp]):.2f} ms")
-    ym, yo = labelled["milp"][2][1], labelled["oracle"][2][1]
-    print(f"labels: mean |MILP - oracle| on held-out = {np.abs(ym - yo).mean():.3f}; fraction of (block, hour) "
-          f"where they round differently = {((ym > 0.5) != (yo > 0.5)).mean():.3f}")
-    (MODEL_DIR / "gnn_summary.json").write_text(json.dumps(out, indent=1))
+    if {"milp", "oracle"} <= set(labelled):
+        ym, yo = labelled["milp"][2][1], labelled["oracle"][2][1]
+        print(f"labels: mean |MILP - oracle| on held-out = {np.abs(ym - yo).mean():.3f}; fraction of (block, hour) "
+              f"where they round differently = {((ym > 0.5) != (yo > 0.5)).mean():.3f}")
+    summary = MODEL_DIR / ("gnn_summary.json" if LEVEL == 2 else f"gnn_summary_L{LEVEL}.json")
+    summary.write_text(json.dumps(out, indent=1))
 
 
 if __name__ == "__main__":

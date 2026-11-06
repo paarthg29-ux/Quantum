@@ -157,6 +157,31 @@ def main():
         res["ov + all"] = report("ov + all features", [ov] + [np.array([r[k] for r in rs]) if k == "entropy"
                                                                else lg(k) for k in FEATURES], y, arm, arms, tss)
         out[p] = res
+        # held-out checks: (1) fit on the non-learned runs (A, D, F, E and every arm at eps = 0.5), predict the
+        # learned arms (B, C-milp, C-oracle at eps < 0.5); (2) leave one structural group out at a time.
+        from s8_analysis import structural_groups
+
+        eps = np.array([r["eps"] for r in rs])
+        learned = np.isin(arm, ["B", "C-milp", "C-oracle"]) & (eps < 0.5)
+        gid = np.array([structural_groups()["GL"][r["scenario"]] for r in rs])
+        me5 = lg("m_e05")
+        print("  HELD-OUT CHECKS (log10 overlap alone vs log10 overlap + log10 m_e05):")
+        for lab, cols in (("overlap only", [ov]), ("overlap + m_e05", [ov, me5])):
+            X = np.column_stack([np.ones(len(y))] + cols)
+            b, _, _ = fit(X[~learned], y[~learned])
+            pred = sigmoid(X @ b)
+            bias = {a: float(np.mean(y[learned & (arm == a)] - pred[learned & (arm == a)]))
+                    for a in ("B", "C-milp", "C-oracle") if (learned & (arm == a)).any()}
+            cv = np.empty_like(y)
+            for g in np.unique(gid):
+                m = gid == g
+                bg, _, _ = fit(X[~m], y[~m])
+                cv[m] = sigmoid(X[m] @ bg)
+            r2cv = 1 - ((y - cv) ** 2).sum() / tss
+            print(f"    {lab:>16}: fit on non-learned runs, learned arms observed - predicted: "
+                  + ", ".join(f"{a} {v:+.3f}" for a, v in bias.items())
+                  + f" | leave-one-group-out CV R^2 {r2cv:.3f} ({len(np.unique(gid))} groups)")
+            res[f"heldout {lab}"] = dict(learned_bias=bias, logo_cv_r2=r2cv)
         # where the learned arms put their mass, vs D, at matched overlap
         print("  mean initial-state features by arm (log10 masses; entropy in bits):")
         for a in arms:

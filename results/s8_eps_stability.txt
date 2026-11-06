@@ -1,0 +1,46 @@
+EPS STABILITY (Phase 1, p = 1; unit = 17 GL structural groups; metric P(best of 1024 = ground); candidate eps [0.0, 0.05, 0.1, 0.15, 0.25, 0.35])
+
+1a. GROUP BOOTSTRAP: how often each eps is selected as best (2000 resamples of the 17 groups)
+       arm |    0.0   0.05    0.1   0.15   0.25   0.35 | modal freq | SD of picked eps | pooled pick
+         B |  0.002  0.091  0.287  0.619  0.002  0.000 |      0.619 |            0.034 | 0.15
+    C-milp |  0.054  0.031  0.283  0.534  0.098  0.000 |      0.534 |            0.054 | 0.15
+  C-oracle |  0.040  0.056  0.904  0.000  0.000  0.000 |      0.904 |            0.022 | 0.1
+         D |  0.000  0.000  0.001  0.058  0.911  0.030 |      0.911 |            0.030 | 0.25
+         F |  0.000  0.000  0.000  0.000  0.999  0.002 |      0.999 |            0.004 | 0.25
+
+1b. RANDOM 2-FOLD GROUP SPLITS (500): eps picked on one half, P evaluated on the other half
+       arm | picked-eps freq    0.0   0.05    0.1   0.15   0.25   0.35 | SD picked | held-out P (mean over splits) | held-out regret vs that half's own best
+         B |                  0.000  0.206  0.294  0.490  0.010  0.000 |     0.041 | 0.985 [0.963, 1.000] | 0.006
+    C-milp |                  0.081  0.072  0.345  0.398  0.104  0.000 |     0.061 | 0.975 [0.934, 1.000] | 0.011
+  C-oracle |                  0.120  0.073  0.807  0.000  0.000  0.000 |     0.034 | 1.000 [0.999, 1.000] | 0.000
+         D |                  0.000  0.000  0.016  0.082  0.849  0.053 |     0.041 | 0.906 [0.757, 0.999] | 0.012
+         F |                  0.000  0.000  0.000  0.000  0.998  0.002 |     0.004 | 0.870 [0.810, 0.930] | 0.000
+  held-out P, D - C-oracle on the same splits: mean -0.094, 95% of splits in [-0.243, -0.001], D worse in 100.0% of splits
+  held-out P, D - C-milp on the same splits: mean -0.070, 95% of splits in [-0.191, +0.001], D worse in 96.2% of splits
+  held-out P, D - F on the same splits: mean +0.036, 95% of splits in [-0.065, +0.115], D worse in 20.5% of splits
+
+2. INSTANCE DEPENDENCE: each group's own best eps (ties -> smaller cost gap)
+       arm |    0.0   0.05    0.1   0.15   0.25   0.35 | distinct | SD over groups
+         B |  0.412  0.235  0.118  0.118  0.059  0.059 |        6 | 0.097
+    C-milp |  0.765  0.000  0.059  0.118  0.059  0.000 |        4 | 0.074
+  C-oracle |  0.765  0.000  0.176  0.059  0.000  0.000 |        3 | 0.049
+         D |  0.000  0.118  0.412  0.235  0.059  0.176 |        5 | 0.099
+         F |  0.059  0.000  0.000  0.235  0.471  0.235 |        4 | 0.090
+  note: a group whose P is 1.000 at several eps has a tie broken by cost gap; 'distinct' counts such groups too, so the SD is the cleaner summary
+  fraction of groups where P is the same (to 1e-3) at every eps < 0.5 (eps irrelevant there): B 0.12, C-milp 0.24, C-oracle 0.18, D 0.00, F 0.06
+
+3. COST OF A WRONG EPS: regret(eps) = P(at pooled best eps) - P(at eps), per group; mean [95% t CI over 17 groups]
+       arm best |                  0.0                 0.05                  0.1                 0.15                 0.25                 0.35
+         B 0.15 | +0.018 [-0.010,+0.047] +0.007 [-0.011,+0.025] +0.001 [-0.005,+0.008] +0.000 [+0.000,+0.000] +0.039 [-0.005,+0.084] +0.102 [+0.043,+0.162]
+    C-milp 0.15 | +0.018 [-0.009,+0.046] +0.010 [-0.010,+0.031] +0.003 [-0.005,+0.011] +0.000 [+0.000,+0.000] +0.011 [-0.009,+0.031] +0.053 [+0.013,+0.093]
+  C-oracle  0.1 | +0.000 [-0.000,+0.001] +0.000 [-0.000,+0.001] +0.000 [+0.000,+0.000] +0.000 [-0.000,+0.000] +0.005 [-0.000,+0.010] +0.050 [+0.021,+0.078]
+         D 0.25 | +0.917 [+0.836,+0.997] +0.122 [+0.011,+0.232] +0.062 [-0.010,+0.134] +0.031 [-0.014,+0.077] +0.000 [+0.000,+0.000] +0.031 [-0.008,+0.071]
+         F 0.25 | +0.197 [+0.100,+0.294] +0.197 [+0.100,+0.294] +0.197 [+0.100,+0.294] +0.071 [+0.025,+0.117] +0.000 [+0.000,+0.000] +0.052 [+0.010,+0.095]
+  worst-case regret over eps in [0.05, 0.35] (excludes eps = 0, which zeroes D's overlap): B 0.102, C-milp 0.053, C-oracle 0.050, D 0.122, F 0.197
+
+  per-instance oracle: P(each group at its own best eps) - P(at the pooled best eps), mean [95% CI]
+         B: +0.002 [-0.000, +0.005]  (groups gaining > 0.01: 1/17)
+    C-milp: +0.006 [-0.004, +0.015]  (groups gaining > 0.01: 2/17)
+  C-oracle: +0.000 [-0.000, +0.000]  (groups gaining > 0.01: 0/17)
+         D: +0.012 [-0.004, +0.027]  (groups gaining > 0.01: 4/17)
+         F: +0.008 [-0.002, +0.018]  (groups gaining > 0.01: 2/17)

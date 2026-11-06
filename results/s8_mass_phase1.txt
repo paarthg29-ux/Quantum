@@ -1,14 +1,4 @@
 (dropped 1868 duplicate records)
-  features 100/1080
-  features 200/1080
-  features 300/1080
-  features 400/1080
-  features 500/1080
-  features 600/1080
-  features 700/1080
-  features 800/1080
-  features 900/1080
-  features 1000/1080
 phase 1: 3240 runs; features recomputed from psi_0 and checked against the stored overlap0
 
 === p = 1: 3171 runs with overlap0 > 0, arms ['A', 'B', 'C-milp', 'C-oracle', 'D', 'F'] (residual = observed - fitted, mean per arm) ===
@@ -33,6 +23,9 @@ phase 1: 3240 runs; features recomputed from psi_0 and checked against the store
   ov + m_adeq                R^2  0.965 | + arm intercepts R^2  0.967 (dR^2 +0.002, F   39.3, p 3.0e-39) | resid range 0.020 | A +0.003 B -0.001 C-milp +0.008 C-oracle +0.012 D -0.002 F +0.018
   ov + entropy               R^2  0.685 | + arm intercepts R^2  0.693 (dR^2 +0.008, F   17.1, p 1.0e-16) | resid range 0.051 | A +0.000 B +0.020 C-milp +0.028 C-oracle +0.026 D -0.000 F -0.023
   ov + all features          R^2  0.974 | + arm intercepts R^2  0.974 (dR^2 +0.001, F   19.2, p 8.0e-19) | resid range 0.013 | A +0.003 B +0.000 C-milp +0.009 C-oracle +0.013 D +0.005 F +0.014
+  HELD-OUT CHECKS (log10 overlap alone vs log10 overlap + log10 m_e05):
+        overlap only: fit on non-learned runs, learned arms observed - predicted: B +0.089, C-milp +0.097, C-oracle +0.104 | leave-one-group-out CV R^2 0.504 (17 groups)
+     overlap + m_e05: fit on non-learned runs, learned arms observed - predicted: B +0.003, C-milp +0.011, C-oracle +0.012 | leave-one-group-out CV R^2 0.946 (17 groups)
   mean initial-state features by arm (log10 masses; entropy in bits):
            A: log10 ov  -4.74 | m_top1  -4.82 m_top5  -4.12 m_top10  -3.82 m_top50  -3.12 m_top200  -2.52 m_e01  -1.94 m_e05  -0.99 m_adeq  -2.17 entropy  16.00
            B: log10 ov  -2.76 | m_top1  -2.84 m_top5  -2.24 m_top10  -2.01 m_top50  -1.60 m_top200  -1.26 m_e01  -0.91 m_e05  -0.33 m_adeq  -1.01 entropy  11.10
