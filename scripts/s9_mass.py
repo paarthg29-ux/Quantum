@@ -69,11 +69,13 @@ def main():
     import io
     import contextlib
 
+    out = dict(n_runs=int(len(y)), refit={}, transfer={})
     lines.append("\n1. REFIT AT L4 (logistic least squares; per-arm intercept test):")
-    for lab, cols in (("log10 overlap", [ov]), ("log10 overlap + log10 m_e05", [ov, me5])):
+    for lab, cols in (("log10 overlap", [ov]), ("log10 overlap + log10 m_e05", [ov, me5]),
+                      ("band share log10(ov / m_e05)", [ov - me5])):
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
-            M.report(lab, cols, y, arm, arms, tss)
+            out["refit"][lab] = M.report(lab, cols, y, arm, arms, tss)
         lines.append(buf.getvalue().rstrip())
 
     lines.append("\n2. TRANSFER: the L2 (Phase 1, p = 1) fits applied to the L4 runs WITHOUT refitting:")
@@ -83,6 +85,8 @@ def main():
         X = np.column_stack([np.ones(len(y))] + cols)
         pred = M.sigmoid(X @ b)
         res = y - pred
+        out["transfer"][key] = dict(r2=float(1 - (res @ res) / tss), coef=b.tolist(),
+                                    resid={a: float(res[arm == a].mean()) for a in arms})
         lines.append(f"  L2 fit '{key}' (coef {np.round(b, 2).tolist()}): R^2 on L4 = {1 - (res @ res) / tss:.3f}; "
                      "mean observed - predicted by arm: "
                      + ", ".join(f"{a} {res[arm == a].mean():+.3f}" for a in arms))
@@ -92,6 +96,7 @@ def main():
         lines.append(f"    {a:>7}: overlap {ov[m].mean():6.2f}  m_e05 {me5[m].mean():6.2f}  share {(ov - me5)[m].mean():6.2f}"
                      f"  | P(b1024) {y[m].mean():.3f}")
     OUT.write_text("\n".join(lines) + "\n")
+    OUT.with_suffix(".json").write_text(json.dumps(out, indent=1, default=float))
     print("\n".join(lines))
 
 

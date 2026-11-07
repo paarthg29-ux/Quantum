@@ -109,6 +109,46 @@ def main():
         z = np.abs(freq - w) / np.where(sd > 0, sd, np.inf)
         mc.append((K, float(z.max()), float(np.abs(freq - w).max())))
 
+    # 6. injected bugs: each deliberately wrong simulator variant must DISAGREE with the correct PennyLane circuit
+    from qguc.fastsim import CustomMixer
+
+    bugs = []
+    n, p = NB, PB = 8, 2
+    rng = np.random.default_rng(2024)
+    h, J = T.random_ising(n, rng)
+    H = T.pl_hamiltonian(n, h, J)
+    gam, bet = rng.uniform(-np.pi, np.pi, p), rng.uniform(-np.pi, np.pi, p)
+    E = ising_energy_vector(h, J)
+    plus = lambda: [qml.Hadamard(w) for w in range(n)]  # noqa: E731
+    ref, ref_e = T.run_pl(n, plus, T.standard_layers(n, H, gam, bet), H)
+    good = QAOASimulator(E)
+    bugs.append(("none (correct simulator)", state_err(good.state(gam, bet), ref), abs(good.energy(gam, bet) - ref_e)))
+    # (a) bit order reversed: variable j read as variable n-1-j
+    rev = np.array([int(format(k, f"0{n}b")[::-1], 2) for k in range(1 << n)])
+    sim = QAOASimulator(E[rev])
+    bugs.append(("bit order reversed", state_err(sim.state(gam, bet), ref), abs(sim.energy(gam, bet) - ref_e)))
+    # (b) sign of the cost phase flipped: exp(+i gamma H_C)
+    sim = QAOASimulator(-E)
+    bugs.append(("cost-phase sign flipped", state_err(sim.state(gam, bet), ref), abs(-sim.energy(gam, bet) - ref_e)))
+    # (c) mixer unitaries transposed (non-symmetric generators, so U^T != U)
+    gens = []
+    for _ in range(n):
+        A = rng.normal(size=(2, 2)) + 1j * rng.normal(size=(2, 2))
+        gens.append((A + A.conj().T) / 2)
+
+    def lay():
+        for g, b in zip(gam, bet):
+            qml.qaoa.cost_layer(g, H)
+            for j in range(n):
+                qml.QubitUnitary(expm(-1j * b * gens[j]), wires=T.wire(n, j))
+
+    ref_c, ref_ce = T.run_pl(n, plus, lay, H)
+    ok = QAOASimulator(E, mixer=CustomMixer(n, lambda b: np.stack([expm(-1j * b * G) for G in gens])))
+    bad = QAOASimulator(E, mixer=CustomMixer(n, lambda b: np.stack([expm(-1j * b * G).T for G in gens])))
+    bugs.append(("custom mixer, correct", state_err(ok.state(gam, bet), ref_c), abs(ok.energy(gam, bet) - ref_ce)))
+    bugs.append(("custom mixer, unitaries transposed", state_err(bad.state(gam, bet), ref_c),
+                 abs(bad.energy(gam, bet) - ref_ce)))
+
     L = ["SIMULATOR VALIDATION: qguc.fastsim vs PennyLane default.qubit (independent implementation). Max over the "
          "2^n amplitudes of |psi_fast - psi_PL| (global phase removed) and |<H>_fast - <H>_PL|; random Ising "
          "(30% couplings zeroed), random angles in [-pi, pi]."]
@@ -129,9 +169,21 @@ def main():
     for K, z, d in mc:
         L.append(f"  K = {K:3d}: max |frequency - exact| = {d:.4f}, = {z:.2f} standard errors (largest over 32 states)")
     L.append("")
+    L.append(f"INJECTED BUGS (n = {NB}, p = {PB}): a deliberately wrong simulator must disagree with PennyLane")
+    for name, es, ee in bugs:
+        L.append(f"  {name:<36}: state {es:.1e}, energy {ee:.1e}")
+    L.append("")
     L.append("complex64 vs complex128 (used at 22 qubits): max approximation-ratio error 2.6e-7 (results/s3b_fastsim_timing.txt)")
     L.append("Source: tests/test_fastsim.py and tests/test_sampling_repair_arms.py run the same checks as unit tests.")
     OUT.write_text("\n".join(L) + "\n")
+    import json
+
+    OUT.with_suffix(".json").write_text(json.dumps(dict(
+        cases=[dict(n=n_, p=p_, standard=e1, warm_state=e2, warm_mixer=e3) for n_, p_, e1, e2, e3 in rows],
+        n_cases=len(rows) * 3, worst=worst, uc_instance=dict(n=pb.n, energy_vector_err=e_vec,
+                                                              circuits=[dict(p=a, state=b, energy=c) for a, b, c in uc]),
+        monte_carlo=[dict(K=a, max_z=b, max_abs=c) for a, b, c in mc],
+        injected_bugs=[dict(bug=a, state=b, energy=c) for a, b, c in bugs], injected_n=NB, injected_p=PB), indent=1))
     print("\n".join(L))
 
 

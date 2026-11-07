@@ -4,6 +4,7 @@ L4 (22 qubits), p = 1: 420 runs (0 with overlap 0 excluded); features of psi_0 c
 1. REFIT AT L4 (logistic least squares; per-arm intercept test):
   log10 overlap              R^2  0.859 | + arm intercepts R^2  0.873 (dR^2 +0.014, F   15.4, p 1.6e-09) | resid range 0.158 | A +0.152 C-milp -0.006 D +0.024 F +0.004
   log10 overlap + log10 m_e05 R^2  0.980 | + arm intercepts R^2  0.983 (dR^2 +0.003, F   21.5, p 5.5e-13) | resid range 0.025 | A -0.008 C-milp +0.017 D +0.005 F +0.006
+  band share log10(ov / m_e05) R^2  0.902 | + arm intercepts R^2  0.949 (dR^2 +0.047, F  128.1, p 1.0e-58) | resid range 0.136 | A +0.135 C-milp +0.001 D +0.011 F -0.001
 
 2. TRANSFER: the L2 (Phase 1, p = 1) fits applied to the L4 runs WITHOUT refitting:
   L2 fit 'baseline: log10 overlap0' (coef [6.01, 1.28]): R^2 on L4 = 0.598; mean observed - predicted by arm: A +0.043, C-milp -0.134, D -0.121, F -0.199

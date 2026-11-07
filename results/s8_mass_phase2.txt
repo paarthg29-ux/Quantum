@@ -4,6 +4,7 @@ phase 2: 3150 runs; features recomputed from psi_0 and checked against the store
 === p = 1: 1050 runs with overlap0 > 0, arms ['A', 'B', 'C-milp', 'C-oracle', 'D', 'E', 'F'] (residual = observed - fitted, mean per arm) ===
   Spearman rho with P(best of 1024 = ground): m_top1 +0.910, m_top5 +0.723, m_top10 +0.701, m_top50 +0.550, m_top200 +0.532, m_e01 +0.403, m_e05 +0.333, m_adeq +0.318, entropy -0.292, log10 overlap0 +0.925
   log10 overlap0 (baseline)  R^2  0.672 | + arm intercepts R^2  0.777 (dR^2 +0.105, F   82.1, p 3.8e-84) | resid range 0.241 | A +0.112 B +0.064 C-milp +0.060 C-oracle +0.060 D -0.038 E +0.035 F -0.129
+  band share log10(ov/m_e05) R^2  0.921 | + arm intercepts R^2  0.942 (dR^2 +0.021, F   62.0, p 8.8e-66) | resid range 0.122 | A +0.046 B +0.010 C-milp +0.006 C-oracle +0.006 D -0.011 E +0.058 F -0.064
   log10 m_top1               R^2  0.677 | + arm intercepts R^2  0.800 (dR^2 +0.123, F  106.6, p 9.4e-105) | resid range 0.243 | A +0.104 B +0.063 C-milp +0.059 C-oracle +0.058 D -0.047 E +0.039 F -0.139
   log10 m_top5               R^2  0.509 | + arm intercepts R^2  0.615 (dR^2 +0.105, F   47.4, p 1.4e-51) | resid range 0.281 | A +0.081 B +0.087 C-milp +0.084 C-oracle +0.089 D -0.086 E -0.033 F -0.192
   log10 m_top10              R^2  0.482 | + arm intercepts R^2  0.588 (dR^2 +0.106, F   44.4, p 1.6e-48) | resid range 0.287 | A +0.088 B +0.090 C-milp +0.086 C-oracle +0.095 D -0.094 E -0.047 F -0.192
@@ -38,6 +39,7 @@ phase 2: 3150 runs; features recomputed from psi_0 and checked against the store
 === p = 2: 1050 runs with overlap0 > 0, arms ['A', 'B', 'C-milp', 'C-oracle', 'D', 'E', 'F'] (residual = observed - fitted, mean per arm) ===
   Spearman rho with P(best of 1024 = ground): m_top1 +0.895, m_top5 +0.702, m_top10 +0.681, m_top50 +0.524, m_top200 +0.503, m_e01 +0.375, m_e05 +0.302, m_adeq +0.302, entropy -0.268, log10 overlap0 +0.909
   log10 overlap0 (baseline)  R^2  0.627 | + arm intercepts R^2  0.756 (dR^2 +0.129, F   91.7, p 2.1e-92) | resid range 0.255 | A +0.126 B +0.058 C-milp +0.057 C-oracle +0.057 D -0.049 E +0.022 F -0.130
+  band share log10(ov/m_e05) R^2  0.899 | + arm intercepts R^2  0.928 (dR^2 +0.030, F   71.8, p 6.3e-75) | resid range 0.138 | A +0.061 B +0.006 C-milp +0.006 C-oracle +0.006 D -0.022 E +0.062 F -0.076
   log10 m_top1               R^2  0.633 | + arm intercepts R^2  0.776 (dR^2 +0.143, F  110.6, p 6.2e-108) | resid range 0.258 | A +0.120 B +0.056 C-milp +0.055 C-oracle +0.055 D -0.056 E +0.028 F -0.138
   log10 m_top5               R^2  0.459 | + arm intercepts R^2  0.571 (dR^2 +0.112, F   45.1, p 3.2e-49) | resid range 0.283 | A +0.101 B +0.079 C-milp +0.078 C-oracle +0.083 D -0.090 E -0.049 F -0.183
   log10 m_top10              R^2  0.429 | + arm intercepts R^2  0.542 (dR^2 +0.113, F   42.9, p 5.6e-47) | resid range 0.289 | A +0.107 B +0.082 C-milp +0.082 C-oracle +0.089 D -0.095 E -0.065 F -0.182
@@ -72,6 +74,7 @@ phase 2: 3150 runs; features recomputed from psi_0 and checked against the store
 === p = 3: 1050 runs with overlap0 > 0, arms ['A', 'B', 'C-milp', 'C-oracle', 'D', 'E', 'F'] (residual = observed - fitted, mean per arm) ===
   Spearman rho with P(best of 1024 = ground): m_top1 +0.890, m_top5 +0.692, m_top10 +0.667, m_top50 +0.507, m_top200 +0.484, m_e01 +0.357, m_e05 +0.284, m_adeq +0.285, entropy -0.245, log10 overlap0 +0.903
   log10 overlap0 (baseline)  R^2  0.598 | + arm intercepts R^2  0.752 (dR^2 +0.154, F  108.0, p 7.8e-106) | resid range 0.285 | A +0.149 B +0.056 C-milp +0.056 C-oracle +0.057 D -0.058 E +0.004 F -0.136
+  band share log10(ov/m_e05) R^2  0.888 | + arm intercepts R^2  0.931 (dR^2 +0.044, F  110.1, p 1.5e-107) | resid range 0.175 | A +0.085 B +0.005 C-milp +0.004 C-oracle +0.005 D -0.034 E +0.054 F -0.091
   log10 m_top1               R^2  0.603 | + arm intercepts R^2  0.769 (dR^2 +0.166, F  124.7, p 9.1e-119) | resid range 0.288 | A +0.144 B +0.055 C-milp +0.054 C-oracle +0.054 D -0.065 E +0.011 F -0.144
   log10 m_top5               R^2  0.427 | + arm intercepts R^2  0.555 (dR^2 +0.128, F   49.9, p 4.6e-54) | resid range 0.312 | A +0.126 B +0.076 C-milp +0.075 C-oracle +0.080 D -0.096 E -0.068 F -0.186
   log10 m_top10              R^2  0.395 | + arm intercepts R^2  0.525 (dR^2 +0.130, F   47.5, p 1.2e-51) | resid range 0.316 | A +0.132 B +0.080 C-milp +0.079 C-oracle +0.087 D -0.101 E -0.085 F -0.184

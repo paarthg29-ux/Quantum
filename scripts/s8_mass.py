@@ -146,6 +146,7 @@ def main():
               + ", ".join(f"{k} {stats.spearmanr(lg(k) if k != 'entropy' else [r[k] for r in rs], y).statistic:+.3f}"
                           for k in FEATURES) + f", log10 overlap0 {stats.spearmanr(ov, y).statistic:+.3f}")
         res = {"baseline: log10 overlap0": report("log10 overlap0 (baseline)", [ov], y, arm, arms, tss)}
+        res["share: log10(ov / m_e05)"] = report("band share log10(ov/m_e05)", [ov - lg("m_e05")], y, arm, arms, tss)
         for k in FEATURES:
             x = np.array([r[k] for r in rs]) if k == "entropy" else lg(k)
             lab = k if k == "entropy" else f"log10 {k}"

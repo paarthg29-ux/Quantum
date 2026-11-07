@@ -27,5 +27,12 @@ EXACT BEST-OF-K vs MONTE CARLO (40,000 trials of K samples; 5-qubit random state
   K =   8: max |frequency - exact| = 0.0021, = 2.54 standard errors (largest over 32 states)
   K =  64: max |frequency - exact| = 0.0014, = 1.84 standard errors (largest over 32 states)
 
+INJECTED BUGS (n = 8, p = 2): a deliberately wrong simulator must disagree with PennyLane
+  none (correct simulator)            : state 5.4e-16, energy 5.6e-16
+  bit order reversed                  : state 2.4e-01, energy 3.3e-16
+  cost-phase sign flipped             : state 2.3e-01, energy 2.2e-01
+  custom mixer, correct               : state 3.1e-16, energy 1.2e-15
+  custom mixer, unitaries transposed  : state 2.1e-01, energy 1.9e+00
+
 complex64 vs complex128 (used at 22 qubits): max approximation-ratio error 2.6e-7 (results/s3b_fastsim_timing.txt)
 Source: tests/test_fastsim.py and tests/test_sampling_repair_arms.py run the same checks as unit tests.
