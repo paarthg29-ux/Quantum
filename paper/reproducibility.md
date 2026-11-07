@@ -7,7 +7,7 @@ Every number and figure in the paper is generated from the result files in `resu
 | What | Commit |
 |---|---|
 | All run stores (`results/*.jsonl`) and models (`models/`) | `9afe77d` (last experimental round); earlier stores in `7feab61`, `a6789e7`, `63ef26d` |
-| Paper generation layer: `paper/`, `scripts/make_tables.py`, `make_figures.py`, `lint_paper.py`, and three analysis scripts extended to also write JSON (`s8_mass.py` band-share-alone model, `s9_mass.py`, `s10_validation.py` with the injected-bug checks) | **not yet committed** at the time of writing; record the hash here when it is |
+| Paper generation layer: `paper/`, `scripts/make_tables.py`, `make_figures.py`, `lint_paper.py`, and three analysis scripts extended to also write JSON (`s8_mass.py` band-share-alone model, `s9_mass.py`, `s10_validation.py` with the injected-bug checks), with their regenerated outputs | `d86f60c` |
 
 `paper/numbers.tex` records the commit it was generated from in its header.
 
