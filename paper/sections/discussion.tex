@@ -2,7 +2,7 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{What band share implies for warm-start design} A warm start is usually judged by how close it is to the optimum: its overlap, or the quality of the classical solution it encodes. Our results say that this is the wrong objective. At fixed overlap, initial mass on near-optimal competitors \emph{lowers} ground-state sampling (coefficient \BSCoefBand\ on $\log_{10}m_5$). QAOA amplifies the low-energy band as a whole, so the ground state receives the share of that amplification it already holds.
+\paragraph{What band share implies for warm-start design} A warm start is usually judged by how close it is to the optimum: its overlap, or the quality of the classical solution it encodes. Earlier work suspected that this is not enough, because good but suboptimal states compete with the optimum~\cite{dehn2023hybrid,bhattacharyya2025qubo}. Our results support that suspicion and quantify it. At fixed overlap, initial mass on near-optimal competitors \emph{lowers} ground-state sampling (coefficient \BSCoefBand\ on $\log_{10}m_5$). QAOA amplifies the low-energy band as a whole, so the ground state receives the share of that amplification it already holds.
 
 A good warm start therefore concentrates the low-energy band on the optimum, rather than simply placing weight near it. A relaxation that confidently commits a few marginal decisions the wrong way does the opposite: it builds a band of cheap near-misses. This reasoning uses nothing specific to unit commitment, only a diagonal cost Hamiltonian and a product-state warm start. We expect it to apply to other QUBO-encoded problems, but we have not tested that.
 
