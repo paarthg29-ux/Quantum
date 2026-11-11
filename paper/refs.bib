@@ -1,6 +1,6 @@
-% Every entry below was checked by web search on 2026-11-07 (existence, authors, venue, year).
-% Entries whose details could not all be confirmed carry a visible note "UNVERIFIED: ...".
-% No DOIs or page numbers were added unless the search returned them.
+% Every entry below was checked against its arXiv or publisher record (existence, authors, venue, year);
+% first pass 2026-11-07, second pass 2026-11-11. No entry is currently flagged as unverified.
+% No DOIs or page numbers were added unless a record returned them. arXiv-only entries assert no venue.
 
 @misc{farhi2014qaoa,
   author = {Edward Farhi and Jeffrey Goldstone and Sam Gutmann},
@@ -27,9 +27,9 @@
   journal = {ACM Transactions on Quantum Computing},
   volume = {4},
   number = {2},
-  pages = {1--39},
   year = {2023},
-  note = {arXiv:2010.14021. UNVERIFIED: journal volume, issue and pages taken from a citing paper's reference list; no DOI confirmed}
+  doi = {10.1145/3549554},
+  note = {arXiv:2010.14021}
 }
 
 @misc{cain2022stuck,
@@ -141,12 +141,12 @@
 }
 
 @inproceedings{koretsky2021qaoauc,
-  author = {Samantha Koretsky and others},
+  author = {Samantha Koretsky and Pranav Gokhale and Jonathan M. Baker and Joshua Viszlai and Honghao Zheng and Niroj Gurung and Ryan Burg and Esa Aleksi Paaso and Amin Khodaei and Rozhin Eskandarpour and Frederic T. Chong},
   title = {Adapting Quantum Approximation Optimization Algorithm ({QAOA}) for Unit Commitment},
   booktitle = {IEEE International Conference on Quantum Computing and Engineering (QCE)},
   year = {2021},
   doi = {10.1109/QCE52317.2021.00035},
-  note = {arXiv:2110.12624. UNVERIFIED: full author list and order (sources differ; co-authors include P. Gokhale and F. T. Chong)}
+  note = {arXiv:2110.12624}
 }
 
 @article{nikmehr2022quc,
@@ -182,12 +182,11 @@
 }
 
 @misc{hasanzadeh2026survey,
-  author = {Hasanzadeh and Rajabi and Kargarian},
+  author = {Milad Hasanzadeh and Ali Rajabi and Amin Kargarian},
   title = {A Survey on Applications of Quantum Computing for Unit Commitment},
   year = {2026},
   eprint = {2601.01777},
-  archivePrefix = {arXiv},
-  note = {UNVERIFIED: authors' given names and initials not confirmed}
+  archivePrefix = {arXiv}
 }
 
 @inproceedings{kipf2017gcn,
@@ -254,7 +253,7 @@
   pages = {73},
   year = {2023},
   doi = {10.1038/s41534-023-00718-4},
-  note = {UNVERIFIED: full author list taken from the query; the search confirmed the first author, title, venue and year}
+  note = {arXiv:2206.03579}
 }
 
 @misc{bergholm2018pennylane,
@@ -293,4 +292,138 @@
   booktitle = {Proceedings of the Second Workshop on the LLVM Compiler Infrastructure in HPC (LLVM-HPC)},
   year = {2015},
   doi = {10.1145/2833157.2833162}
+}
+
+% ---- Added 2026-11-11. Each checked against its arXiv abstract page or publisher record. ----
+
+@article{tate2023custom,
+  author = {Reuben Tate and Jai Moondra and Bryan Gard and Greg Mohler and Swati Gupta},
+  title = {Warm-Started {QAOA} with Custom Mixers Provably Converges and Computationally Beats {Goemans-Williamson's} {Max-Cut} at Low Circuit Depths},
+  journal = {Quantum},
+  volume = {7},
+  pages = {1121},
+  year = {2023},
+  doi = {10.22331/q-2023-09-26-1121}
+}
+
+@misc{tate2024theory,
+  author = {Reuben Tate and Stephan Eidenbenz},
+  title = {Theoretical Approximation Ratios for Warm-Started {QAOA} on 3-Regular {Max-Cut} Instances at Depth $p=1$},
+  year = {2024},
+  eprint = {2402.12631},
+  archivePrefix = {arXiv},
+  primaryClass = {quant-ph}
+}
+
+@misc{tate2024poles,
+  author = {Reuben Tate and Stephan Eidenbenz},
+  title = {Warm-Started {QAOA} with Aligned Mixers Converges Slowly Near the Poles of the {Bloch} Sphere},
+  year = {2024},
+  eprint = {2410.00027},
+  archivePrefix = {arXiv},
+  primaryClass = {quant-ph}
+}
+
+@misc{feeney2024bsp,
+  author = {Sean Feeney and Reuben Tate and Stephan Eidenbenz},
+  title = {The Better Solution Probability Metric: Optimizing {QAOA} to Outperform its Warm-Start Solution},
+  year = {2024},
+  eprint = {2409.09012},
+  archivePrefix = {arXiv},
+  primaryClass = {quant-ph}
+}
+
+@misc{dehn2023hybrid,
+  author = {Vanessa Dehn and Thomas Wellens},
+  title = {A hybrid quantum-classical approach to warm-starting optimization},
+  year = {2023},
+  eprint = {2309.13961},
+  archivePrefix = {arXiv},
+  primaryClass = {quant-ph}
+}
+
+@misc{bhattacharyya2025qubo,
+  author = {Bikrant Bhattacharyya and Michael Capriotti and Reuben Tate},
+  title = {Solving General {QUBOs} with Warm-Start {QAOA} via a Reduction to {Max-Cut}},
+  year = {2025},
+  eprint = {2504.06253},
+  archivePrefix = {arXiv}
+}
+
+@article{truger2024mapping,
+  author = {Felix Truger and Johanna Barzen and Marvin Bechtold and Martin Beisel and Frank Leymann and Alexander Mandl and Vladimir Yussupov},
+  title = {Warm-Starting and Quantum Computing: A Systematic Mapping Study},
+  journal = {ACM Computing Surveys},
+  volume = {56},
+  number = {9},
+  year = {2024},
+  doi = {10.1145/3652510},
+  note = {arXiv:2303.06133}
+}
+
+@misc{he2026rws,
+  author = {Zichang He and Anuj Apte and Brandon Augustino and Arman Babakhani and Abid Khan and Sivaprasad Omanakuttan and Ruslan Shaydulin},
+  title = {Regularized Warm-Started Quantum Approximate Optimization and Conditions for Surpassing Classical Solvers on the {Max-Cut} Problem},
+  year = {2026},
+  eprint = {2603.10191},
+  archivePrefix = {arXiv}
+}
+
+@article{yu2025abqaoa,
+  author = {Yunlong Yu and Xiang-Bin Wang and Nic Shannon and Robert Joynt},
+  title = {Warm Start Adaptive-Bias Quantum Approximate Optimization Algorithm},
+  journal = {Physical Review A},
+  volume = {112},
+  pages = {012422},
+  year = {2025},
+  note = {arXiv:2503.20048}
+}
+
+@misc{yuan2025iterative,
+  author = {Haomu Yuan and Songqinghao Yang and Crispin H. W. Barnes},
+  title = {Iterative quantum optimisation with a warm-started quantum state},
+  year = {2025},
+  eprint = {2502.09704},
+  archivePrefix = {arXiv}
+}
+
+@misc{rajabi2026dqaoa,
+  author = {Ali Rajabi and Milad Hasanzadeh and Amin Kargarian},
+  title = {A Distributed Quantum Approximate Optimization Algorithm For Unit Commitment},
+  year = {2026},
+  eprint = {2608.04159},
+  archivePrefix = {arXiv}
+}
+
+@misc{hasanzadeh2025d2uc,
+  author = {Milad Hasanzadeh and Amin Kargarian},
+  title = {{D2-UC}: A Distributed-Distributed Quantum-Classical Framework for Unit Commitment},
+  year = {2025},
+  eprint = {2511.03104},
+  archivePrefix = {arXiv}
+}
+
+@misc{salgado2024hybrid,
+  author = {Bruna Salgado and Andr{\'e} Sequeira and Luis Paulo Santos},
+  title = {A hybrid classical-quantum approach to highly constrained Unit Commitment problems},
+  year = {2024},
+  eprint = {2412.11312},
+  archivePrefix = {arXiv}
+}
+
+@misc{zhou2025psi,
+  author = {Jingxian Zhou and Ziqing Zhu and Linghua Zhu and Siqi Bu},
+  title = {Problem-Structure-Informed Quantum Approximate Optimization Algorithm for Large-Scale Unit Commitment with Limited Qubits},
+  year = {2025},
+  eprint = {2503.20509},
+  archivePrefix = {arXiv}
+}
+
+@misc{gaidai2026benchmark,
+  author = {Igor Gaidai and Rick Mukherjee},
+  title = {Benchmarking Hybrid Quantum-Classical Algorithms for Power Grid Optimization Problems},
+  year = {2026},
+  eprint = {2607.15543},
+  archivePrefix = {arXiv},
+  primaryClass = {quant-ph}
 }
