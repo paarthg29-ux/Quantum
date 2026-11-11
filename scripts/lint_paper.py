@@ -32,7 +32,15 @@ def strip_comments(t):
 
 def main():
     defined = set(re.findall(r"\\newcommand\{\\([A-Za-z]+)\}", (PAPER / "numbers.tex").read_text(encoding="utf-8")))
-    sources = [PAPER / "main.tex"] + sorted((PAPER / "sections").glob("*.tex"))
+    sources = [PAPER / "main.tex", PAPER / "supplement.tex"] + sorted((PAPER / "sections").glob("*.tex"))
+    bib = (PAPER / "refs.bib").read_text(encoding="utf-8") if (PAPER / "refs.bib").exists() else ""
+    bibkeys = set(re.findall(r"@\w+\{([^,\s]+),", bib))
+    for f in sources:
+        for group in re.findall(r"\\cite\{([^}]+)\}", strip_comments(f.read_text(encoding="utf-8"))):
+            for key in (k.strip() for k in group.split(",")):
+                if key not in bibkeys:
+                    print(f"  {f.name}: \\cite key not in refs.bib: {key}")
+                    bibkeys_missing = True
     problems = []
     labels, refs = set(), []
     for f in sources:

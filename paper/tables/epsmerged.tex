@@ -1,0 +1,12 @@
+\begin{tabular}{lcccccccccc}
+\toprule
+Arm & $\varepsilon^\star$ & $P_{\KMax}$ at $\varepsilon^\star$ [95\% CI] & $g$ at $\varepsilon^\star$ & $g$ at $\EpsMain$ & Regret $\varepsilon{=}0$ & Regret $\varepsilon{=}\EpsSecond$ & D $-$ arm, scenarios & D $-$ arm, GL groups & D $-$ arm, group CV \\
+\midrule
+C-oracle (GCN) & 0.1 & 1.000 \ensuremath{[1.000,\,1.000]} & 0.936 & 0.936 & 0.000 & 0.000 & \ensuremath{-0.100} \ensuremath{[-0.164,\,-0.036]} & \ensuremath{-0.083} \ensuremath{[-0.164,\,-0.003]} & \ensuremath{-0.094} (100\%) \\
+C-milp (GCN) & 0.15 & 0.991 \ensuremath{[0.978,\,1.005]} & 0.924 & 0.936 & 0.018 & 0.010 & \ensuremath{-0.092} \ensuremath{[-0.153,\,-0.031]} & \ensuremath{-0.069} \ensuremath{[-0.140,\,+0.003]} & \ensuremath{-0.070} (96\%) \\
+B (GCN, X mixer) & 0.15 & 0.994 \ensuremath{[0.985,\,1.003]} & 0.914 & 0.927 & 0.018 & 0.007 & \ensuremath{-0.094} \ensuremath{[-0.156,\,-0.032]} & \ensuremath{-0.073} \ensuremath{[-0.147,\,+0.001]} & \ensuremath{-0.079} (98\%) \\
+F (merit order) & 0.25 & 0.863 \ensuremath{[0.811,\,0.915]} & 0.912 & 0.935 & 0.197 & 0.197 & \ensuremath{+0.037} \ensuremath{[-0.026,\,+0.099]} & \ensuremath{+0.047} \ensuremath{[-0.028,\,+0.122]} & \ensuremath{+0.036} (20\%) \\
+\midrule
+D (LP) & 0.25 & 0.900 \ensuremath{[0.836,\,0.964]} & 0.905 & 0.946 & 0.917 & 0.122 & -- & -- & -- \\
+\bottomrule
+\end{tabular}

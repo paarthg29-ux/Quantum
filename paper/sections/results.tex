@@ -46,15 +46,15 @@ At the group level ($n=\NGroupsGL$), C-milp $-$ F and C-milp $-$ A keep interval
 
 Tuning the LP's regularisation for sampling does not close the gap.
 
-\paragraph{Each arm at its own best $\varepsilon$} Table~\ref{tab:besteps} gives $p=1$ over the $\varepsilon$ sweep, with each arm at the $\varepsilon$ that maximises its scenario-mean $P_{\KMax}$ ($\varepsilon=\EpsMax$ excluded). The LP is best at $\varepsilon=\BestEpsD$, where it reaches \PgndBestD\ \PgndBestCID. C-oracle reaches \PgndBestCoracle\ at $\varepsilon=\BestEpsCoracle$ and C-milp \PgndBestCmilp\ at $\varepsilon=\BestEpsCmilp$.
+\paragraph{Each arm at its own best $\varepsilon$} Table~\ref{tab:eps} gives $p=1$ over the $\varepsilon$ sweep, with each arm at the $\varepsilon$ that maximises its scenario-mean $P_{\KMax}$ ($\varepsilon=\EpsMax$ excluded). The LP is best at $\varepsilon=\BestEpsD$, where it reaches \PgndBestD\ \PgndBestCID. C-oracle reaches \PgndBestCoracle\ at $\varepsilon=\BestEpsCoracle$ and C-milp \PgndBestCmilp\ at $\varepsilon=\BestEpsCmilp$.
 
-Table~\ref{tab:decisive} gives the paired comparisons:
+The paired comparisons are:
 \begin{itemize}
 \item D $-$ C-oracle $=\BestDMinusCoracle$ \BestDMinusCoracleCI\ (D behind in \BestDMinusCoracleL\ of \BestDMinusCoracleN\ scenarios), and \BestDMinusCoracleGL\ \BestDMinusCoracleGLCI\ at the group level.
 \item D $-$ C-milp $=\BestDMinusCmilp$ \BestDMinusCmilpCI\ at the scenario level. At the group level it is \BestDMinusCmilpGL\ \BestDMinusCmilpGLCI, so granting D its in-sample best $\varepsilon$ leaves the group-level gap to C-milp borderline.
 \end{itemize}
 
-\paragraph{Cross-validated $\varepsilon$} Choosing each arm's $\varepsilon$ on the same scenarios it is evaluated on flatters the arm whose optimum is noisiest. Our primary numbers therefore choose $\varepsilon$ on half of the structural groups and evaluate on the other half, over \NSplits\ random splits (Table~\ref{tab:cv}):
+\paragraph{Cross-validated $\varepsilon$} Choosing each arm's $\varepsilon$ on the same scenarios it is evaluated on flatters the arm whose optimum is noisiest. Our primary numbers therefore choose $\varepsilon$ on half of the structural groups and evaluate on the other half, over \NSplits\ random splits (Table~\ref{tab:eps}, last column):
 \begin{itemize}
 \item D $-$ C-oracle $=\CVDMinusCoracle$, with D worse in \CVDMinusCoracleWorse\% of splits;
 \item D $-$ C-milp $=\CVDMinusCmilp$, with D worse in \CVDMinusCmilpWorse\%;
@@ -63,35 +63,19 @@ Table~\ref{tab:decisive} gives the paired comparisons:
 
 \begin{table*}[t]
 \centering
-\caption{Each arm at its best regularisation $\varepsilon^\star$ (maximising scenario-mean $P_{\KMax}$; $\varepsilon=\EpsMax$ excluded). L2, $p=1$, \NScen\ scenarios $\times$ \NSeedsSweep\ seeds. Also shown: $P_{\KMax}$ at $\varepsilon=\EpsMain$, at $\varepsilon=0$ (no regularisation) and at $\varepsilon=\EpsMax$ (the uniform limit), and the final gain $g$ at $\varepsilon^\star$ and at $\varepsilon=\EpsMain$.}
-\label{tab:besteps}
-\footnotesize
-\input{tables/besteps}
-\end{table*}
-
-\begin{table}[t]
-\centering
-\caption{Paired differences in $P_{\KMax}$ with each arm at its own $\varepsilon^\star$: at the scenario level (W/T/L = scenarios won/tied/lost by the first arm) and with one value per structural group (GL: ground state + LP pin pattern; G: ground state).}
-\label{tab:decisive}
+\caption{Regularisation. Each arm at its best $\varepsilon^\star$ (maximising scenario-mean $P_{\KMax}$; $\varepsilon=\EpsMax$ excluded); L2, $p=1$, \NScen\ scenarios $\times$ \NSeedsSweep\ seeds. $g$: final gain. Regret: drop in group-level $P_{\KMax}$ from $\varepsilon^\star$. Last three columns: the LP (at its own $\varepsilon^\star$) minus the arm, paired over scenarios and over the \NGroupsGL\ structural groups (95\% $t$-intervals), and group-fold cross-validated over \NSplits\ splits (mean; share of splits in which D is worse).}
+\label{tab:eps}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
-\input{tables/decisive}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Group-fold cross-validation: $\varepsilon$ chosen on half of the \NGroupsGL\ structural groups, $P_{\KMax}$ evaluated on the other half; \NSplits\ random splits, the same splits for every arm.}
-\label{tab:cv}
-\footnotesize
-\input{tables/cv}
-\end{table}
+\input{tables/epsmerged}
+\end{table*}
 
 \paragraph{The gain ranking flips between the two tables} This follows from the $\varepsilon$ trade-off and is not a contradiction.
 \begin{itemize}
 \item \textbf{At $\varepsilon=\EpsMain$} the LP has the highest final gain of any arm (\GfinalD, against \GfinalCoracle\ for C-oracle): C-oracle $-$ D $=\GfinalCoracleMinusD$ \GfinalCoracleMinusDCI, with D higher in all \GfinalCoracleMinusDL\ scenarios.
 \item \textbf{At each arm's own best $\varepsilon$} the order reverses: D $-$ C-oracle $=\GfinalBestDMinusCoracle$ \GfinalBestDMinusCoracleCI, with D lower in all \GfinalBestDMinusCoracleL.
 \end{itemize}
-Every warm arm has a lower final gain at its larger-$\varepsilon$ setting (Table~\ref{tab:besteps}), because a larger $\varepsilon$ moves the initial state towards uniform. The LP's sampling optimum ($\varepsilon=\BestEpsD$) lies well above the learned arms' ($\varepsilon=\BestEpsCoracle$ and \BestEpsCmilp). The LP therefore gives up gain to dilute its wrongly pinned bits; the learned arms get high gain and high sampling at small $\varepsilon$.
+Every warm arm has a lower final gain at its larger-$\varepsilon$ setting (Table~\ref{tab:eps}), because a larger $\varepsilon$ moves the initial state towards uniform. The LP's sampling optimum ($\varepsilon=\BestEpsD$) lies well above the learned arms' ($\varepsilon=\BestEpsCoracle$ and \BestEpsCmilp). The LP therefore gives up gain to dilute its wrongly pinned bits; the learned arms get high gain and high sampling at small $\varepsilon$.
 
 \paragraph{At \NLfour\ qubits} Table~\ref{tab:lfour} gives the result over \LfourNStruct\ structurally distinct L4 instances $\times$ \NSeedsLfour\ seeds. At L4's own calibrated operating point:
 \begin{itemize}
@@ -184,7 +168,7 @@ Band share is a diagnostic, not a predictor: computing it needs the full spectru
 \subsection{The LP needs its regularisation tuned; the learned start does not}
 \label{sec:res-eps}
 
-A wrong $\varepsilon$ is expensive for the LP and nearly free for the learned starts (Fig.~\ref{fig:eps}, Table~\ref{tab:regret}). Regret is the drop in group-level $P_{\KMax}$ from an arm's best $\varepsilon$.
+A wrong $\varepsilon$ is expensive for the LP and nearly free for the learned starts (Fig.~\ref{fig:eps}, Table~\ref{tab:eps}). Regret is the drop in group-level $P_{\KMax}$ from an arm's best $\varepsilon$.
 \begin{itemize}
 \item \textbf{The LP:} regret is \RegretEpsFiveD\ \RegretEpsFiveDCI\ at $\varepsilon=\EpsSecond$, and \RegretEpsZeroD\ at $\varepsilon=0$, where a wrongly pinned bit can never flip.
 \item \textbf{The learned starts:} regret is at most \RegretMaxCmilp\ (C-milp) and \RegretMaxCoracle\ (C-oracle) anywhere in $0\leq\varepsilon\leq\RegretRange$.
@@ -199,14 +183,6 @@ The LP's chosen $\varepsilon$ is not unstable. Over \NBoot\ bootstrap resamples 
 \label{fig:eps}
 \end{figure}
 
-\begin{table}[t]
-\centering
-\caption{Regret: drop in group-level $P_{\KMax}$ relative to each arm's best $\varepsilon$ (bold), L2, $p=1$.}
-\label{tab:regret}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\input{tables/regret}
-\end{table}
 
 \subsection{Wrong pins grow with problem size; the learned start's grow more slowly}
 \label{sec:res-size}

@@ -5,192 +5,124 @@
 \subsection{Problem}
 \label{sec:problem}
 
-We study multi-period unit commitment (UC) for the thermal fleet of the Indian state of Haryana: five stations with a combined installed capacity of \FleetCap\,MW. Installed capacities come from public plant listings. The cost coefficients are documented assumptions, not measured heat-rate or tariff data. They were chosen to be plausible in order of magnitude and to give a sensible merit order: large modern coal is cheapest per MWh, old subcritical coal is dearer, and the gas plant is dearest per MWh but cheapest to start. All results are therefore results on a stylised instance, not cost estimates for the Haryana grid.
+We study multi-period unit commitment (UC) for the thermal fleet of the Indian state of Haryana: five stations, \FleetCap\,MW in total. Capacities come from public plant listings. The cost coefficients are documented assumptions chosen to give a plausible merit order: modern coal is cheapest per MWh, old coal dearer, and gas dearest per MWh but cheapest to start. All results are on a stylised instance, not cost estimates for the real grid.
 
-\paragraph{Commitment model} The decision $x_{i,t}\in\{0,1\}$ commits block $i$ in hour $t$. A committed block produces its full rated output $P_i$; there is no economic dispatch below rating. Block $i$ costs $a_i + b_i P_i$ per committed hour (no-load plus marginal cost at full output) and $S_i$ per start-up, with the hour-$-1$ state $x_{i,-1}$ given. By default the blocks whose marginal cost is among the two lowest distinct values start committed. The operational problem minimises fuel plus start-up cost subject to adequacy, $\sum_i P_i x_{i,t}\geq D_t$ in every hour, and is solved exactly as a mixed-integer linear program (MILP) with HiGHS. Minimum up and down times are not enforced (Section~\ref{sec:qubo}).
+\paragraph{Commitment model} The decision $x_{i,t}\in\{0,1\}$ commits block $i$ in hour $t$. A committed block produces its full rated output $P_i$: there is no dispatch below rating. It costs $a_i+b_iP_i$ per hour and $S_i$ per start-up, from a given hour-$-1$ state. The operational problem minimises fuel plus start-up cost subject to adequacy, $\sum_iP_ix_{i,t}\geq D_t$ in every hour, solved exactly as a MILP with HiGHS~\cite{huangfu2018highs}.
 
-\paragraph{Demand} A scenario draws a peak uniformly from [\LoadMin, \LoadMax]\,MW. The hourly demand follows a summer-evening profile that ramps up to the peak and eases, with a trough at \TroughPct\% of the peak and \JitterPct\% hourly jitter, clipped to the same range.
-
-\paragraph{Refinement ladder} The same \FleetCap\,MW fleet is described at five granularities, L0--L4. Stations are split into their generating units one at a time (RGTPP, IGSTPP, DCRTPP, PTPS), giving \LadderBlocks\ blocks. A unit inherits its station's cost coefficients scaled by its capacity share, so committing every unit of a station costs exactly what committing the station costs. The levels therefore differ only in granularity, and the same demand draw is a valid instance at every level.
-
-\paragraph{Horizon} The main experiments use $T=\NHoursMain$ hours, giving $n = 2N$ variables for $N$ blocks: \LadderQubits\ qubits for L0--L4. To separate problem size from granularity (Section~\ref{sec:res-size}), we also varied the horizon at fixed granularity: L0 at $T=1,\dots,4$, L1 at $T=1,2,3$ and L2 at $T=1,2$.
+\paragraph{Demand, ladder and horizon} Each scenario draws a peak uniformly from [\LoadMin, \LoadMax]\,MW, with a summer-evening profile (trough \TroughPct\% of peak, \JitterPct\% hourly jitter). The same fleet is described at five granularities, L0--L4, by splitting stations into their units one at a time, giving \LadderBlocks\ blocks. A unit inherits its station's costs scaled by its capacity share, so the levels differ only in granularity and every demand draw is valid at every level. The main horizon is $T=\NHoursMain$, giving \LadderQubits\ qubits. To separate problem size from granularity, we also varied the horizon at fixed granularity (L0 at $T=1$--4, L1 at $T=1$--3, L2 at $T=1,2$).
 
 \subsection{QUBO encoding}
 \label{sec:qubo}
 
-The circuit minimises a quadratic unconstrained binary objective,
+The circuit minimises
 \begin{equation}
-E(\mathbf x) = \underbrace{\sum_{i,t}(a_i+b_iP_i)\,x_{i,t}}_{\text{fuel}}
- + \underbrace{\lambda_D\sum_t\Bigl(\sum_i P_i x_{i,t} - D_t - B\Bigr)^2}_{\text{demand penalty}}
- + \underbrace{\sum_{i,t} S_i\,x_{i,t}(1-x_{i,t-1})}_{\text{start-up}} ,
+E(\mathbf x) = \sum_{i,t}(a_i+b_iP_i)\,x_{i,t}
+ + \lambda_D\sum_t\Bigl(\sum_i P_i x_{i,t} - D_t - B\Bigr)^2
+ + \sum_{i,t} S_i\,x_{i,t}(1-x_{i,t-1}),
 \label{eq:qubo}
 \end{equation}
-which is a QUBO term by term. With $x^2=x$, the fuel term is linear. Expanding the penalty gives diagonal entries $\lambda_D(P_i^2 - 2(D_t+B)P_i)$, couplings $2\lambda_D P_iP_j$ between blocks in the same hour, and the constant $\lambda_D(D_t+B)^2$. The start-up cost is exactly quadratic, with no approximation: a diagonal $S_i$ for $t\geq1$ (and $S_i(1-x_{i,-1})$ at $t=0$) plus the coupling $-S_i\,x_{i,t-1}x_{i,t}$.
+a QUBO term by term~\cite{lucas2014ising}.
+\begin{itemize}
+\item \textbf{Fuel} is linear, since $x^2=x$.
+\item \textbf{The demand penalty} expands to diagonal terms $\lambda_D(P_i^2-2(D_t+B)P_i)$, same-hour couplings $2\lambda_DP_iP_j$, and a constant. The penalty is two-sided, and with fixed blocks it settles on the achievable generation nearest its target, often below demand. The bias $B$ raises the target to restore adequacy; it is not a reserve requirement. Where $D_t+B$ exceeds capacity, committing every block minimises it.
+\item \textbf{Start-up} is \emph{exactly} quadratic, a diagonal $S_i$ plus the coupling $-S_i\,x_{i,t-1}x_{i,t}$, with no approximation.
+\end{itemize}
 
-The penalty is two-sided, so surplus is penalised like a shortfall of the same size. With fixed blocks the total generation takes only finitely many values per hour, and the penalty settles on the achievable level nearest the target, which is often below demand. The bias $B$ shifts the target upward to restore adequacy. It is a bias on the penalty target, not a reserve requirement. Where $D_t+B$ would exceed the fleet's capacity, no schedule reaches the target and the penalty is minimised by committing every block.
-
-\paragraph{Minimum up/down time} The encoding provides a switching penalty $\lambda_{\mathrm{sw}}\sum_{i,t}(x_{i,t}-x_{i,t-1})^2$, which is quadratic. It is a \emph{quadratic relaxation} of a minimum up/down-time constraint, not the constraint itself: it charges every on/off transition but forbids no schedule. The exact constraint is cubic (for a two-hour minimum up time, the pattern $(1-x_{t-1})\,x_t\,(1-x_{t+1})$ must be excluded), and reducing it to a QUBO needs ancilla qubits. We did not do this. In every reported experiment $\lambda_{\mathrm{sw}}=\LambdaSwitch$, so minimum up/down times are not enforced at all; start-up costs alone discourage cycling.
+\paragraph{Minimum up/down time} A switching penalty $\lambda_{\mathrm{sw}}\sum(x_{i,t}-x_{i,t-1})^2$ is available. It is only a \emph{quadratic relaxation}: it charges transitions but forbids no schedule. The exact constraint is cubic (a two-hour minimum up time must exclude $(1-x_{t-1})x_t(1-x_{t+1})$) and would need ancilla qubits. We did not add them, and every experiment uses $\lambda_{\mathrm{sw}}=\LambdaSwitch$, so minimum up/down times are not enforced at all.
 
 \subsection{Calibration and the frozen operating point}
 \label{sec:calibration}
 
-The penalty weight $\lambda_D$ and bias $B$ were chosen once and then frozen. The selection grid crossed \CalNLambda\ log-spaced values of $\lambda_D\in[\CalLambdaMin,\CalLambdaMax]$ with \CalNBias\ biases from 0 to \CalBiasMax\,MW. For each cell the exact QUBO ground state of every selection scenario was enumerated (\CalSel\ scenarios, seed \CalSelSeed). The rule was:
-\begin{enumerate}
-\item keep the cells where every scenario's ground state is adequate;
-\item among those, keep a cell only if its neighbouring $\lambda_D$ values at the same bias are also fully adequate (the plateau rule, $k=1$);
-\item choose the cell with the smallest worst-case encoding gap, breaking ties by the smaller Ising dynamic range and then the smaller bias.
-\end{enumerate}
-The plateau rule guards against choosing a cell that is fully adequate only by luck, at the edge of the adequate region. Without it the rule would have chosen $\lambda_D=\CalNoPlateauLambda$, $B=\CalNoPlateauBias$\,MW, which has a lower mean gap (\CalNoPlateauGapMean\%).
+$\lambda_D$ and $B$ were chosen once, by enumerating the exact QUBO ground state of \CalSel\ selection scenarios at each of \CalNLambda\ log-spaced $\lambda_D\in[\CalLambdaMin,\CalLambdaMax]$ and \CalNBias\ biases up to \CalBiasMax\,MW. The rule keeps cells where every ground state is adequate. It then requires the neighbouring $\lambda_D$ values to be fully adequate too (a plateau rule that rejects cells adequate only by luck at the edge of the region). Finally it picks the smallest worst-case encoding gap.
 
-\paragraph{History} The point was first calibrated on the finest model, L4, at $B=\FirstBias$\,MW. Re-verified on the main problem size, L2, that point gave only \FirstPointLtwoAdeq\% adequacy, below a pre-agreed \ReverifyThreshold\% threshold, so it was re-calibrated once on L2 by the same rule. The result, $\lambda_D=\LambdaD$ and $B=\BiasB$\,MW, is the frozen operating point.
+The point was first calibrated on L4. Re-verified on L2, the main problem size, it gave only \FirstPointLtwoAdeq\% adequacy, below a pre-agreed \ReverifyThreshold\% threshold, so it was re-calibrated once on L2. The result is $\lambda_D=\LambdaD$, $B=\BiasB$\,MW. On \CalTest\ held-out scenarios it is \CalTestAdeq\% adequate, with mean encoding gap \CalTestGapMean\% (worst \CalTestGapWorst\%).
 
-On the selection set it gives a mean encoding gap of \CalSelGapMean\% (worst \CalSelGapWorst\%). On \CalTest\ held-out scenarios (seed \CalTestSeed) it is \CalTestAdeq\% adequate, with a mean gap of \CalTestGapMean\% (worst \CalTestGapWorst\%). The point was frozen before any QAOA experiment was run and was never tuned afterwards. Every experiment uses it unless stated otherwise. The \NLfour-qubit result is repeated at L4's own calibrated point, and the size census uses each cell's own point, calibrated by the same rule.
+The point was \emph{frozen before any QAOA experiment ran} and never tuned afterwards. Robustness checks repeat the \NLfour-qubit result at L4's own calibrated point, and run the size census at each cell's own point.
 
 \subsection{The encoding gap}
 \label{sec:gap}
 
-For a schedule $\mathbf x$ we define the operating-cost gap
-\begin{equation}
-\mathrm{gap}(\mathbf x) = \frac{C(\mathbf x) - C(\mathbf x_{\mathrm{MILP}})}{C(\mathbf x_{\mathrm{MILP}})},
-\end{equation}
-where $C$ is fuel plus start-up cost (no penalty) and $\mathbf x_{\mathrm{MILP}}$ is the operational optimum. Evaluated at the exact QUBO ground state, this is the \emph{encoding gap}: the price of replacing the hard adequacy constraint by a soft penalty with weight $\lambda_D$ and bias $B$.
+For a schedule $\mathbf x$, $\mathrm{gap}(\mathbf x)=(C(\mathbf x)-C(\mathbf x_{\mathrm{MILP}}))/C(\mathbf x_{\mathrm{MILP}})$, where $C$ is fuel plus start-up cost. Evaluated at the QUBO ground state, this is the \emph{encoding gap}: the price of the soft penalty. It exists before any quantum computation, and it bounds every end-to-end result built on this QUBO, since even a perfect solver pays it. It is meaningful only for adequate schedules.
 
-The encoding gap is fixed before any quantum computation. A solver that returned the QUBO ground state every time would still pay it, so it bounds how close any end-to-end result built on this QUBO can come to the operational optimum. The gap is meaningful only for adequate schedules: an inadequate schedule can be cheaper than the optimum precisely because it does not serve demand.
-
-Table~\ref{tab:ladder} gives the ladder on \NLadderScen\ fresh scenarios (seed \LadderSeed). At the frozen point the mean encoding gap ranges from \GapFrozenMin\% to \GapFrozenMax\% across L0--L4, rising to \GapFrozenLfour\% at L4. There the ground state coincides with the MILP schedule (up to swapping identical blocks) in only \MatchLfour\% of scenarios. At each level's own calibrated point the mean gap is \GapOwnMin--\GapOwnMax\%; L4's own point ($\lambda_D=\OwnLambdaLfour$, $B=\OwnBiasLfour$\,MW) reduces it to \GapOwnLfour\%.
-
-\begin{table*}[t]
-\centering
-\caption{Encoding gap on the refinement ladder (\NLadderScen\ fresh scenarios, identical demand at every level, $T=\NHoursMain$). Left: the frozen operating point ($\lambda_D=\LambdaD$, $B=\BiasB$\,MW). $=$MILP: ground state equals the MILP schedule up to swapping identical blocks. Dyn.\ range: worst-case $\max|c|/\min|c|$ over the nonzero Ising coefficients. Right: each level at its own calibrated point, chosen by the same rule (used only for robustness checks).}
-\label{tab:ladder}
-\footnotesize
-\input{tables/ladder}
-\end{table*}
+At the frozen point the mean encoding gap is \GapFrozenMin--\GapFrozenMax\% across L0--L4 (Supplementary Table~S1, \NLadderScen\ fresh scenarios). At L4 the ground state matches the MILP schedule in only \MatchLfour\% of scenarios. L4's own point ($B=\OwnBiasLfour$\,MW) reduces the gap to \GapOwnLfour\%.
 
 \subsection{Ising form and normalisation}
 \label{sec:ising}
 
-With $x_j = (1-z_j)/2$ and $z_j\in\{\pm1\}$, the QUBO becomes $E = \mathrm{const} + s\,(\sum_j h_j z_j + \sum_{j<k}J_{jk}z_jz_k)$, which is the cost Hamiltonian $H_C$. We normalise so that $\max(|h|,|J|)=1$; the scale $s$ is about \IsingScaleLtwo\,INR at L2.
+With $x_j=(1-z_j)/2$, the QUBO becomes $\mathrm{const}+s(\sum_jh_jz_j+\sum_{j<k}J_{jk}z_jz_k)$, the cost Hamiltonian $H_C$. We normalise to $\max(|h|,|J|)=1$; the physical scale $s$ is about \IsingScaleLtwo\,INR.
 
-Normalisation is necessary for two reasons.
-\begin{itemize}
-\item \textbf{Scale.} The cost layer $e^{-i\gamma H_C}$ is periodic in each eigenvalue. In physical units, any $\gamma$ of order one would wrap the phase of the dominant terms around $2\pi$ many times. The cost layer would then alias the energy landscape instead of following it.
-\item \textbf{Dynamic range.} The Ising coefficients span a factor of \DynRangeMin--\DynRangeMax\ (worst case per level). After normalisation the largest coefficient sets the phase scale, so the smallest still turns by a resolvable angle.
-\end{itemize}
-The optimiser works on $\theta_k=\sigma\gamma_k$ with $\sigma=(\sum h^2+\sum J^2)^{1/2}$, the standard deviation of $H_C$ over the uniform distribution, so that all parameters are of order one. Approximation ratios are invariant to this rescaling.
+Normalisation is necessary. The cost layer $e^{-i\gamma H_C}$ is periodic in each eigenvalue, so in physical units any $\gamma$ of order one would wrap the dominant phases around $2\pi$ many times and alias the landscape. And since the coefficients span \DynRangeMin--\DynRangeMax, the scale must be set by the largest one for the smallest to turn by a resolvable angle.
 
-\subsection{Simulator}
+The optimiser works on $\theta_k=\sigma\gamma_k$, with $\sigma=(\sum h^2+\sum J^2)^{1/2}$, so that parameters are of order one.
+
+\subsection{Simulator and validation}
 \label{sec:sim}
 
-Because $H_C$ is a sum of $Z$ and $ZZ$ terms, it is diagonal in the computational basis. Its eigenvalues are exactly the energy vector $\mathbf E\in\mathbb R^{2^n}$ that brute-force enumeration produces. The cost layer is therefore the elementwise product $\psi\odot e^{-i\gamma \mathbf E}$, the mixer is $n$ single-qubit $2\times2$ unitaries, and $\langle H_C\rangle=\sum_k|\psi_k|^2E_k$. No $2^n\times2^n$ operator is ever formed.
+$H_C$ is a sum of $Z$ and $ZZ$ terms, hence diagonal, and its eigenvalues are the brute-force energy vector $\mathbf E$. The cost layer is then the elementwise product $\psi\odot e^{-i\gamma\mathbf E}$, the mixer is $n$ single-qubit unitaries (applied in Kronecker groups of \MixerGroup), and $\langle H_C\rangle=\sum_k|\psi_k|^2E_k$. No $2^n\times2^n$ operator is formed. One complex64 evaluation at \NLfour\ qubits takes \SimEvalLfourCsixfour\,s on one thread.
 
-The simulator is pure NumPy. It applies the mixer in Kronecker groups of \MixerGroup\ qubits as one matrix product, and uses complex64 at \NLfour\ qubits, where one evaluation takes \SimEvalLfourCsixfour\,s on one thread at $p=1$.
+Against PennyLane's \texttt{default.qubit}~\cite{bergholm2018pennylane} (standard QAOA, warm states, and the warm mixer; $n=\ValNMin$--\ValNMax, $p\leq\ValPMax$), the worst error over \ValCases\ cases is \ValWorst. A real UC instance agrees to \ValUCWorst. The exact best-of-$K$ formula matches Monte Carlo within \ValMCMaxZ\ standard errors.
 
-\paragraph{Validation} Every component was checked against PennyLane's \texttt{default.qubit}, an independent implementation:
-\begin{itemize}
-\item standard QAOA, warm initial states, and the warm-start mixer used by every warm arm;
-\item $n=\ValNMin$--\ValNMax, $p=1$--\ValPMax, random Ising models.
-\end{itemize}
-Over these \ValCases\ cases the worst amplitude or energy error is \ValWorst. A real \ValUCQubits-qubit UC instance agrees to \ValUCWorst. The exact best-of-$K$ formula (Section~\ref{sec:metrics}) agrees with Monte Carlo sampling within \ValMCMaxZ\ standard errors.
+We also injected \ValBugN\ bugs: reversed bit order, a flipped cost-phase sign, and transposed mixer unitaries. Each gave a state error of at least \ValBugMinState\ (Supplementary Table~S2). The bit-order bug leaves $\langle H_C\rangle$ unchanged, which is why whole states must be compared, not only energies.
 
-To show the oracle detects real mistakes, we injected \ValBugN\ bugs into the simulator at $n=\ValBugQubits$: a reversed bit order, a flipped sign of the cost phase, and transposed mixer unitaries. Each produced a state error of at least \ValBugMinState, against \ValCorrectState\ for the correct simulator. The reversed bit order leaves $\langle H_C\rangle$ unchanged, so the states themselves, not only energies, must be compared.
-
-\subsection{Warm starts}
+\subsection{Warm starts and arms}
 \label{sec:warm}
 
-A warm start is a vector $\mathbf c\in[0,1]^n$, the desired probability that each variable is 1. It is regularised to $c_j\leftarrow\min(\max(c_j,\varepsilon),1-\varepsilon)$, by default with $\varepsilon=\EpsDefault$. With $\theta_j=2\arcsin\sqrt{c_j}$, the initial state is the product state $|\psi_0\rangle=\bigotimes_j R_Y(\theta_j)|0\rangle$, in which qubit $j$ is $|1\rangle$ with probability $c_j$.
+A warm start is a vector $\mathbf c\in[0,1]^n$ of desired probabilities, regularised to $c_j\in[\varepsilon,1-\varepsilon]$ (default $\varepsilon=\EpsDefault$). With $\theta_j=2\arcsin\sqrt{c_j}$, the initial state is $|\psi_0\rangle=\bigotimes_jR_Y(\theta_j)|0\rangle$.
 
-\paragraph{Mixer} Following Egger et al., the mixer is $H_M=\sum_j H_M^{(j)}$ with $H_M^{(j)}=-(\cos\theta_j Z_j+\sin\theta_j X_j)$. Its ground state is exactly $|\psi_0\rangle$, whereas the standard $X$ mixer's extremal eigenstate $|+\rangle^{\otimes n}$ would pull a warm state back towards uniform. Regularisation is a correctness requirement, not cosmetics. At $c_j\in\{0,1\}$, $H_M^{(j)}=\mp Z_j$ commutes with $H_C$, so qubit $j$ can never flip: a bit pinned to a wrong value stays wrong, and if it disagrees with the ground state, the probability of sampling the ground state is exactly zero.
+\paragraph{Mixer} Following Egger et al.~\cite{egger2021warm}, the mixer is $H_M^{(j)}=-(\cos\theta_jZ_j+\sin\theta_jX_j)$. Its ground state is exactly $|\psi_0\rangle$, whereas the $X$ mixer would pull a warm state back towards uniform. Regularisation is a correctness requirement: at $c_j\in\{0,1\}$, $H_M^{(j)}=\mp Z_j$ commutes with $H_C$, so a wrongly pinned bit can never flip, and the ground-state probability is exactly zero.
 
-\paragraph{Sanity limit} At $\varepsilon=\EpsMax$ every $c_j=1/2$, so $|\psi_0\rangle=|+\rangle^{\otimes n}$ and $H_M^{(j)}=-X_j$: the warm mixer becomes the standard $X$ mixer with $\beta\to-\beta$. We verified this numerically.
-\begin{itemize}
-\item At $\varepsilon=\EpsMax$, all warm-mixer arms gave identical runs.
-\item The warm-state/$X$-mixer arm reproduced the cold start's initial state to numerical precision, and its results to the resolution of the stopping rule.
-\end{itemize}
+\paragraph{Sanity limit} At $\varepsilon=\EpsMax$, $|\psi_0\rangle=|+\rangle^{\otimes n}$ and $H_M^{(j)}=-X_j$: the standard $X$ mixer with $\beta\to-\beta$. Numerically, all warm-mixer arms were then identical, and the warm-state/$X$-mixer arm reproduced the cold start to the resolution of the stopping rule.
 
-\subsection{Arms}
-\label{sec:arms}
-
-The arms differ only in the source of $\mathbf c$, and in whether the warm state and warm mixer are used. Everything else is shared: the circuit, the optimiser, the stopping rule, the metrics, and the initial parameters.
+\paragraph{Arms} Arms differ only in the source of $\mathbf c$ and in whether the warm state and warm mixer are used; circuit, optimiser, stopping rule and initial parameters are shared.
 \begin{description}
-\item[A (cold)] $|+\rangle^{\otimes n}$ with the $X$ mixer; no $\mathbf c$.
-\item[B] the C-milp vector $\mathbf c$ as the initial state, with the standard $X$ mixer (a washout ablation).
-\item[C-milp] the GCN of Section~\ref{sec:gcn} trained on MILP schedules, with the warm mixer.
-\item[C-oracle] the same GCN trained on exact QUBO ground states, with the warm mixer. Its labels need brute force, so it serves as an upper bound on what learned labels can achieve, not as a scalable method.
-\item[D (LP)] the continuous relaxation of the MILP at the QUBO's own target, $\sum_i P_ix_{i,t}\geq D_t+B$ capped at capacity, solved with HiGHS, with the warm mixer.
-\item[E (random)] $c_j\sim U(\varepsilon,1-\varepsilon)$, a control.
-\item[F (merit order)] in each hour, blocks committed in order of cost per MW until $D_t+B$ is met; committed blocks get $c=\MeritOn$, the rest $\MeritOff$.
+\item[A (cold)] $|+\rangle^{\otimes n}$, $X$ mixer.
+\item[B] the C-milp $\mathbf c$ as initial state, with the $X$ mixer (washout ablation).
+\item[C-milp] the GCN below, trained on MILP schedules, with the warm mixer.
+\item[C-oracle] the same GCN trained on exact QUBO ground states. Its labels need brute force, so it is the labels upper bound, not a scalable method.
+\item[D (LP)] the LP relaxation at the QUBO's own target $D_t+B$ (capped at capacity).
+\item[E (random)] $c_j\sim U(\varepsilon,1-\varepsilon)$.
+\item[F (merit order)] blocks committed by cost per MW until $D_t+B$ is met; committed $c=\MeritOn$, others $\MeritOff$.
 \end{description}
 
 \subsection{Learned warm start}
 \label{sec:gcn}
 
-\paragraph{Architecture} The learned warm start is a two-layer graph convolutional network (GCN), applied once per hour: logits $=\hat A\,\mathrm{ReLU}(\hat A X W_1+b_1)W_2+b_2$, with $\hat A=D^{-1/2}(A+I)D^{-1/2}$ and \GCNHidden\ hidden units.
+\paragraph{Model} A two-layer GCN~\cite{kipf2017gcn}, applied once per hour: logits $=\hat A\,\mathrm{ReLU}(\hat AXW_1+b_1)W_2+b_2$, with $\hat A=D^{-1/2}(A+I)D^{-1/2}$ and \GCNHidden\ hidden units. The graph places the five stations on the generator buses of the IEEE 14-bus system; blocks are adjacent if they share a bus or a line. This mapping is an assumption, not Haryana's network.
 
-\paragraph{Graph} The graph places the five stations on the five generator buses of the IEEE 14-bus test system, largest at the slack bus. Two blocks are adjacent if they share a bus or their buses are joined by a line. This mapping is a modelling assumption, not Haryana's real network.
+\paragraph{Features} The \GCNNFeatures\ node features are capacity, the cost coefficients, the hour-$-1$ state, demand in the previous, current and next hour, the hour's position, and demand over capacity.
 
-\paragraph{Features} Each node carries \GCNNFeatures\ features, normalised by fleet-wide constants:
-\begin{itemize}
-\item capacity, no-load cost, marginal cost, start-up cost, and the hour-$-1$ state;
-\item the demand in the previous, current and next hour;
-\item the position of the hour in the horizon, and demand as a fraction of capacity.
-\end{itemize}
+\paragraph{Labels} Labels are the MILP commitments (C-oracle: the QUBO ground states), averaged within groups of interchangeable units.
 
-\paragraph{Labels} The primary labels are the MILP commitments. The C-oracle labels are the exact QUBO ground states at the frozen point, averaged over degenerate ground states. Identical blocks receive identical inputs, so their labels are averaged within each group of interchangeable blocks: the target is the symmetric product state.
+\paragraph{Training} Training used BCE and Adam (learning rate \GCNLr) on \GCNNTrain/\GCNNVal\ train/validation scenarios from disjoint seeds, with default hyperparameters and no tuning anywhere. At L2 it took \GCNLabelsMilpLtwo\,s for labels and \GCNTrainMilpLtwo\,s for training (oracle labels: \GCNLabelsOracleLtwo\,s). Inference takes \GCNInferUsLtwo\,$\mu$s.
 
-\paragraph{Training} We trained with binary cross-entropy and Adam (learning rate \GCNLr, weight decay \GCNWd) for up to \GCNEpochs\ epochs, keeping the weights with the lowest validation loss (patience \GCNPatience). We used \GCNNTrain\ training and \GCNNVal\ validation scenarios on seeds disjoint from every test set, with default hyperparameters and no tuning at any level or horizon.
+\paragraph{Accuracy} On held-out scenarios the mean absolute error is \GCNMaeLtwo\ (L2) and \GCNMaeLfour\ (L4), against \GCNMaeConstLtwo\ and \GCNMaeConstLfour\ for a constant predictor.
 
-At L2, the MILP labels took \GCNLabelsMilpLtwo\,s and training \GCNTrainMilpLtwo\,s. The brute-force oracle labels took \GCNLabelsOracleLtwo\,s and training \GCNTrainOracleLtwo\,s. At L4, C-milp took \GCNLabelsMilpLfour\,s for labels and \GCNTrainMilpLfour\,s for training. Inference (features plus forward pass) takes \GCNInferUsLtwo\,$\mu$s at L2.
-
-\paragraph{Accuracy and load conditioning} On \NHeldOutGCN\ held-out scenarios, the mean absolute error against the labels is \GCNMaeLtwo\ at L2 and \GCNMaeLfour\ at L4. A constant predictor (each variable's training mean) gives \GCNMaeConstLtwo\ and \GCNMaeConstLfour. Thresholded accuracy is misleading here because interchangeable units carry fractional labels: at L4 it is below the majority baseline (\GCNAccLfour\ vs.\ \GCNAccMajLfour) even though the error is lower.
-
-A model was kept only if it passed a load-conditioning test. Between a \LoadProbeLow\,MW and a \LoadProbeHigh\,MW instance its outputs had to change substantially (mean $|\Delta c|\geq\LoadCondMin$), with committed capacity rising by at least a fraction \LoadCondFrac\ of the load increase. The observed mean $|\Delta c|$ was \GCNLoadDiffLtwo\ at L2 and \GCNLoadDiffLfour\ at L4.
+\paragraph{Load conditioning} A model was kept only if, between \LoadProbeLow\ and \LoadProbeHigh\,MW instances, its outputs changed by mean $|\Delta c|\geq\LoadCondMin$ and committed capacity rose by at least a fraction \LoadCondFrac\ of the load increase. The observed values were $|\Delta c|=\GCNLoadDiffLtwo$ at L2 and \GCNLoadDiffLfour\ at L4.
 
 \subsection{Metrics}
 \label{sec:metrics}
 
-\paragraph{Approximation ratio and gain} The approximation ratio is $r=(E_{\max}-\langle H_C\rangle)/(E_{\max}-E_{\min})$, from the exact spectrum. Because $r$ depends on the instance, we report the common-reference gain $g=(r-r_{\mathrm{unif}})/(1-r_{\mathrm{unif}})$, where $r_{\mathrm{unif}}$ is the ratio of the uniform superposition. So $g=0$ is no better than a random bitstring, and $g=1$ is the ground state. $g$ is the same reference for every arm.
+\paragraph{Gain} The approximation ratio is $r=(E_{\max}-\langle H_C\rangle)/(E_{\max}-E_{\min})$. Because it depends on the instance, we report the common-reference gain $g=(r-r_{\mathrm{unif}})/(1-r_{\mathrm{unif}})$: $g=0$ is a random bitstring, $g=1$ the ground state.
 
-\paragraph{Exact best-of-$K$ sampling} The headline metric is the probability that the best of $K$ measurements is an exact ground state, $P_K$, with $K\in\{\KList\}$. It is computed exactly, not by Monte Carlo. Sort the states by energy and let $T_j$ be the total probability of state $j$ or worse. Then the best of $K$ independent samples is state $j$ with probability $T_j^K-T_{j+1}^K$. The same weights give the expected operating-cost gap of the best of $K$ samples, raw or after repair.
+\paragraph{Exact best-of-$K$ sampling} The headline metric is $P_K$, the probability that the best of $K$ samples ($K\in\{\KList\}$) is an exact ground state. It is computed exactly: with states sorted by energy and $T_j$ the probability of state $j$ or worse, the best of $K$ samples is state $j$ with probability $T_j^K-T_{j+1}^K$. The same weights give the expected cost gap of the best of $K$ samples, after repair.
 
-\paragraph{Initial-state quantities} The initial overlap is $\sum_{g\in\mathcal G}|\langle g|\psi_0\rangle|^2$, summed over the degenerate ground states $\mathcal G$. The band mass $m_\delta$ is the initial probability on all states with $E-E_{\min}\leq\delta(E_{\max}-E_{\min})$; we use $m_5$ ($\delta=\BandFivePct\%$) and $m_1$ ($\delta=\BandOnePct\%$). The \emph{band share} is the ground state's share of that band: the plain ratio overlap$/m_5$, and the fitted index $\log_{10}(\mathrm{overlap}) - k\log_{10} m_5$ (Section~\ref{sec:res-band}).
+\paragraph{Initial state} The \emph{overlap} is the initial probability on the ground state(s). The band mass $m_\delta$ is the initial probability on states with $E-E_{\min}\leq\delta(E_{\max}-E_{\min})$, with $\delta=\BandFivePct\%$ ($m_5$) or \BandOnePct\% ($m_1$). The \emph{band share} is the ground state's share of that band, either the plain ratio overlap$/m_5$ or the fitted index $\log_{10}(\mathrm{overlap}/m_5^{k})$.
 
-\paragraph{Wrong pins} A bit is \emph{pinned} if its raw (unregularised) $c_j\leq\PinTau$ or $\geq\PinTauHigh$. It is \emph{wrongly pinned} if its rounded value disagrees with the exact ground state; with degenerate ground states, the one that disagrees least is used.
+\paragraph{Wrong pins} A bit is \emph{wrongly pinned} if its raw $c_j\leq\PinTau$ or $\geq\PinTauHigh$ and its rounded value disagrees with the (least-disagreeing) ground state.
 
-\paragraph{Adequacy and repair} A schedule is adequate if it meets the true demand $D_t$ (never $D_t+B$) in every hour. Repair commits further blocks, cheapest per MW first, until every hour is adequate. Cost gaps are reported after repair, so they are always gaps of adequate schedules.
+\paragraph{Adequacy and repair} A schedule is adequate if it meets $D_t$ in every hour. Repair adds blocks, cheapest per MW first, until it does.
 
 \subsection{Experimental protocol}
 \label{sec:protocol}
 
-\paragraph{Scenarios} The main experiments used \NScen\ held-out scenarios at L2 ($n=\NLtwo$; seed \ScenSeed). That seed was never used for calibration, GCN training or validation, or any earlier pilot.
+\paragraph{Main experiments} We used \NScen\ held-out scenarios at L2 ($n=\NLtwo$, seed \ScenSeed, never used for calibration, training or pilots). COBYLA~\cite{powell1994cobyla} optimised $p=1$--3 layers under one stopping rule for every arm: trust radius \RhoBeg\ to \RhoEnd, a cap of \CapPerParam\ evaluations per parameter, and a patience stop after \Patience\ evaluations without a \MinDelta\ improvement in $r$. Initial parameters depend only on (seed, $p$), so all comparisons are paired on (scenario, seed). The main table used \NSeedsMain\ seeds at $\varepsilon=\EpsMain$; the $\varepsilon$ sweep used \NSeedsSweep\ seeds at $p=1$.
 
-\paragraph{Runs} Each run optimised $p\in\{1,2,3\}$ QAOA layers with COBYLA, under one stopping rule for every arm:
-\begin{itemize}
-\item initial trust radius \RhoBeg\ and final \RhoEnd;
-\item a cap of \CapPerParam\ evaluations per parameter;
-\item an external patience stop after \Patience\ evaluations without an improvement of \MinDelta\ in the approximation ratio.
-\end{itemize}
-The state at the best evaluation is reported.
+\paragraph{Statistics} Values are averaged over seeds within a scenario, then paired across scenarios, and reported as a mean difference with a 95\% $t$-interval (which can pass 1 for probabilities near 1).
 
-\paragraph{Pairing} The initial parameters depend only on the seed and $p$: $\theta_k\sim U(0,1)$ and $\beta_k\sim U(-\pi/4,\pi/4)$. Every arm therefore starts from the same parameters, and all comparisons are paired on (scenario, seed).
+At $n=\NLtwo$ many scenarios share a ground state and an LP pin pattern, so outcomes cluster: the \NScen\ scenarios form \NGroupsGL\ structural groups (\NGroupsG\ by ground state alone). Every headline comparison is therefore repeated with one value per group (effective $n=\NGroupsGL$).
 
-\paragraph{Main table and sweep} The main table used \NSeedsMain\ seeds at $\varepsilon=\EpsMain$. The regularisation sweep used \NSeedsSweep\ seeds at $p=1$ over $\varepsilon\in\{\EpsGrid\}$.
+When an arm's $\varepsilon$ is chosen on the data, we cross-validate by splitting the \emph{groups} in half, \NSplits\ times. Splitting scenarios instead leaked, because near-duplicate scenarios sat on both sides; group folds are primary.
 
-\paragraph{Statistics} Values were first averaged over seeds within each scenario. Comparisons are then paired across scenarios and reported as a mean difference with a 95\% $t$-interval. For probabilities near 1, these intervals can extend past 1.
+\paragraph{\NLfour\ qubits} From \LfourPool\ draws (\LfourPoolSignatures\ distinct ground-state/pin signatures) we selected \LfourNStruct\ structurally distinct instances by farthest-point sampling, each carrying its signature's population weight. They cover \LfourCoverage\% of the demand distribution, and over-represent instances where the LP pins two or more bits wrongly (\LfourSelFracTwo\% vs.\ \LfourPoolFracTwo\%). We report per-structure and reweighted means; the population frequency of hard instances comes from the census, which counted wrong pins on \NCensus\ paired draws per cell, without running QAOA.
 
-The \NScen\ scenarios are independent draws, but at $n=\NLtwo$ many share the same ground state and the same LP pin pattern, so their outcomes cluster. They fall into \NGroupsGL\ structural groups by (ground state, LP pin pattern) and \NGroupsG\ by ground state alone. We therefore report every headline comparison a second time with one value per group: effective $n=\NGroupsGL$ or \NGroupsG\ rather than \NScen.
-
-When an arm's regularisation is chosen on the data, the comparison is cross-validated by repeatedly splitting the \emph{groups} into two halves (\NSplits\ splits): $\varepsilon$ is chosen on one half and evaluated on the other. Splitting scenarios instead leaks, because near-duplicate scenarios then sit on both sides; group folds are the primary numbers.
-
-\paragraph{\NLfour\ qubits} At L4 ($n=\NLfour$, complex64) we drew \LfourPool\ scenarios and computed for each the exact ground state and the LP pin pattern. There were \LfourPoolSignatures\ distinct (ground state, pin pattern) signatures. We selected \LfourNStruct, one per signature, by farthest-point sampling in Hamming distance. Each selected scenario is its own structure (effective $n=\LfourNStruct$) and carries the population weight of its signature.
-
-The selection covers \LfourCoverage\% of the demand distribution and over-represents structures where the LP pins two or more bits wrong (\LfourSelFracTwo\% vs.\ \LfourPoolFracTwo\% in the pool). We therefore report per-structure means and estimates reweighted to the demand distribution; neither estimates the population fraction of hard instances, which comes from the census.
-
-\paragraph{Census} The size study counted wrong pins without running QAOA, on \NCensus\ independent demand draws per cell, with the same draws at every level and horizon (paired), each cell at its own calibrated point.
-
-\paragraph{Robustness and baselines} Robustness checks reused the main-table scenarios:
-\begin{itemize}
-\item finite-shot expectation estimates during optimisation, with every metric still evaluated exactly at the chosen parameters;
-\item a second optimiser (Nelder--Mead).
-\end{itemize}
-Out-of-distribution tests applied the unchanged L2 GCN to new demand ranges, forced outages and profile shapes. The classical baseline was simulated annealing on the identical QUBO, with the same energy function, compiled with numba (Section~\ref{sec:res-neg}).
+\paragraph{Robustness and baselines} These reuse the main scenarios: finite-shot optimisation (metrics still exact at the chosen parameters), Nelder--Mead, out-of-distribution tests of the unchanged L2 GCN, and simulated annealing on the identical QUBO, compiled with numba~\cite{lam2015numba}.

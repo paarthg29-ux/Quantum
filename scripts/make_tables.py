@@ -49,6 +49,12 @@ def unsign_zero(s: str) -> str:
     return re.sub(r"[+-](0\.0+)(?![\d])", lambda m: m.group(1), s)
 
 
+def math_signs(cell: str) -> str:
+    """Signed numbers in text mode ('-0.100') get a real minus sign: wrap them in \\ensuremath. Numbers already in
+    math (inside a CI '[...]' or after '\\,') are left alone."""
+    return re.sub(r"(?<![\[,\\\w{$])([+-]\d+\.\d+)", lambda m: "\\ensuremath{" + m.group(1) + "}", cell)
+
+
 def mac(name: str, value: str):
     value = unsign_zero(value)
     if not re.fullmatch(r"[A-Za-z]+", name):
@@ -118,7 +124,7 @@ def table(name: str, colspec: str, header: list[str], rows: list[list[str]], mid
     for i, r in enumerate(rows):
         if i in midrules:
             lines.append(r"\midrule")
-        lines.append(" & ".join(unsign_zero(c) for c in r) + r" \\")
+        lines.append(" & ".join(math_signs(unsign_zero(c)) for c in r) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}"]
     (TABLES / f"{name}.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -341,6 +347,7 @@ def validation_numbers():
     mac("ValBugMinState", f2(min(b["state"] for b in bugs)))
     mac("ValBugN", f"{len(bugs)}")
     mac("ValBugQubits", f"{v['injected_n']}")
+    mac("ValBugP", f"{v['injected_p']}")
     mac("ValCorrectState", sci(next(b["state"] for b in v["injected_bugs"] if b["bug"].startswith("none")), 0))
     rows = [[b["bug"].replace("_", " "), sci(b["state"], 1), sci(b["energy"], 1)] for b in v["injected_bugs"]]
     table("validation_bugs", "lrr", ["Simulator variant", "State error", "Energy error"], rows)
@@ -558,6 +565,34 @@ def cv_and_regret(A8, D1, groups, best, dec):
     table("regret", "l" + "c" * len(EPS), ["Arm"] + [rf"$\varepsilon{{=}}{e:g}$" for e in EPS], rows)
     m, lo, hi = tci(P["D"][pick("D", allg)] - P["D"][1])
     mac("RegretEpsFiveDCI", ciu(lo, hi))
+
+    # MERGED eps table (replaces besteps / decisive / cv / regret in the paper): per arm, its best eps, P and g there,
+    # g at the main eps, regret at eps = 0 and the second grid value, and the LP's deficit to it (scenario, group, CV)
+    rows = []
+    S3 = A8.SWEEP_SEEDS
+    for a in ("C-oracle", "C-milp", "B", "F", "D"):
+        ib = pick(a, allg)
+        pb = list(D1.scen(a, best[a], 1, "p_ground_K1024", S3).values())
+        m, lo, hi = tci(pb)
+        gb = np.mean(list(D1.scen(a, best[a], 1, "g_final", S3).values()))
+        g01 = np.mean(list(D1.scen(a, 0.1, 1, "g_final", S3).values()))
+        cells = [ARM_TEX[a], f"{best[a]:g}", f"{m:.3f} {ciu(lo, hi)}", f3(gb), f3(g01),
+                 f3(P[a][ib].mean() - P[a][0].mean()), f3(P[a][ib].mean() - P[a][1].mean())]
+        if a == "D":
+            cells += ["--", "--", "--"]
+        else:
+            xd = D1.scen("D", best["D"], 1, "p_ground_K1024", S3)
+            xa = D1.scen(a, best[a], 1, "p_ground_K1024", S3)
+            r = paired(xd, xa)
+            rg = paired(A8.to_groups(xd, gm), A8.to_groups(xa, gm))
+            d = held["D"] - held[a]
+            cells += [f"{r['mean']:+.3f} {ci(r['lo'], r['hi'])}", f"{rg['mean']:+.3f} {ci(rg['lo'], rg['hi'])}",
+                      f"{d.mean():+.3f} ({pct(np.mean(d < 0), 0)}\\%)"]
+        rows.append(cells)
+    table("epsmerged", "lcccccccccc",
+          ["Arm", r"$\varepsilon^\star$", r"$P_{\KMax}$ at $\varepsilon^\star$ [95\% CI]", r"$g$ at $\varepsilon^\star$",
+           r"$g$ at $\EpsMain$", r"Regret $\varepsilon{=}0$", r"Regret $\varepsilon{=}\EpsSecond$",
+           r"D $-$ arm, scenarios", r"D $-$ arm, GL groups", r"D $-$ arm, group CV"], rows, midrules=(4,))
     return P, EPS
 
 
@@ -636,6 +671,10 @@ def bandshare_section():
     mac("BSLfourSpreadBand", f3(r4["log10 overlap + log10 m_e05"]["spread"]))
     tr = j4["transfer"]
     mac("BSTransferOverlap", f3(tr["baseline: log10 overlap0"]["r2"]))
+    band_all = [band["r2"]] + [j2[p]["ov + m_e05"]["r2"] for p in ("1", "2", "3")] + \
+               [r4["log10 overlap + log10 m_e05"]["r2"]]
+    mac("BSBandRangeMin", f2(min(band_all)))
+    mac("BSBandRangeMax", f2(max(band_all)))
     mac("BSTransferBand", f3(tr["ov + m_e05"]["r2"]))
     warm = [v for a, v in tr["ov + m_e05"]["resid"].items() if a != "A"]
     mac("BSTransferWarmMax", f3(max(abs(x) for x in warm)))

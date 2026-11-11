@@ -1,0 +1,32 @@
+% Introduction. Numbers are macros from paper/numbers.tex.
+\section{Introduction}
+\label{sec:intro}
+
+Warm-starting has become a standard way to run the quantum approximate optimisation algorithm (QAOA)~\cite{farhi2014qaoa}. Instead of the uniform superposition, the circuit starts from a state biased towards a classical solution: a continuous relaxation~\cite{egger2021warm}, a semidefinite program~\cite{tate2023sdp}, or a learned predictor. The implicit assumption is that a better classical prior gives a better start, and a better start gives a better answer.
+
+What has not been asked is \emph{which property} of the initial state determines the quality of what QAOA actually returns. Studies report energies and approximation ratios because they are smooth and easy to optimise. What an operator wants is a usable solution: a sample that is the optimal schedule.
+
+These two can point in opposite directions. In our main experiment, a warm start from the LP relaxation reaches a \emph{higher} final approximation gain than a learned warm start in all \GfinalCoracleMinusDL\ held-out scenarios. Yet it samples the exact ground state \emph{less} reliably in \CoracleMinusDW\ of \CoracleMinusDN\ (Section~\ref{sec:res-tuned}). Overlap with the optimum is the obvious candidate property, and it is not enough: it explains only $R^2=\BSRtwoOverlap$ of the variation in ground-state sampling, and arms with the same overlap sample differently.
+
+We identify the property that does determine sampling: \emph{band share}, the ground state's share of the initial probability that lies in the low-energy band of the spectrum.
+\begin{itemize}
+\item Together with the overlap it explains the probability that the best of \KMax\ samples is the ground state with $R^2=\BSBandRangeMin$--$\BSBandRangeMax$, across seven warm-start sources, all regularisation strengths, depths $p=1$--3, and \NLtwo\ and \NLfour\ qubits.
+\item Fitted without the learned arms, it predicts them within \BSHeldOutBandMax.
+\item The curve fitted at \NLtwo\ qubits predicts \NLfour-qubit sampling unchanged ($R^2=\BSTransferBand$).
+\end{itemize}
+The sign matters: at fixed overlap, \emph{more} initial mass on other near-optimal states means \emph{less} ground-state sampling. Spreading a start over good candidates hurts; concentrating the band on the optimum helps.
+
+Applied to sources of warm start, band share explains why relaxation-based starts fail where they do. On unit commitment (UC), the LP relaxation pins small, expensive marginal units to the wrong value. This diverts band mass onto near-ground competitors, which the QAOA layers then amplify. Where the LP pins three or more bits wrongly, a graph-network warm start trained on MILP schedules leads it by up to \DoseLtwoThree\ in ground-state sampling. Where it pins at most one, the LP is as good.
+
+\paragraph{What we do not claim} We make no claim of quantum advantage. Simulated annealing on the identical QUBO, compiled, returns the exact ground state with probability \SAPgndLtwoEFive\ in \SAmsLtwoEFive\,ms at \NLtwo\ qubits and \SAPgndLfourESix\ in \SAmsLfourESix\,ms at \NLfour\ qubits, and a MILP solves the operational problem exactly in milliseconds (Section~\ref{sec:res-neg}). Our results are statements about what determines the quality of QAOA's output. They hold whatever the hardware does.
+
+\paragraph{Contributions}
+\begin{enumerate}
+\item \textbf{Band share explains sampling.} Overlap alone gives $R^2=\BSRtwoOverlap$ with arm-specific residuals; adding band mass gives $R^2=\BSRtwoBand$ and removes them. The fit predicts held-out arms within \BSHeldOutBandMax\ and transfers from \NLtwo\ to \NLfour\ qubits unchanged ($R^2=\BSTransferBand$).
+\item \textbf{A controlled comparison of warm-start sources}, measured by what QAOA returns: seven arms, with exact best-of-$K$ sampling and scenario- and group-level statistics. A GCN trained on MILP labels reaches $P_{\KMax}=\PgndCmilp$, against \PgndD\ for the LP relaxation and \PgndA\ for the cold start. With $\varepsilon$ cross-validated over structural groups, the LP still trails in \CVDMinusCmilpWorse\% of splits. At \NLfour\ qubits the advantage is \LfourOwnCmilpMinusDTen\ \LfourOwnCmilpMinusDTenCI.
+\item \textbf{The mechanism.} The LP's deficit is a dose--response in wrongly pinned marginal units (C-milp leads by \DoseLtwoThree\ at three or more). The LP also needs its regularisation tuned (regret up to \RegretEpsZeroD), while the learned start does not (at most \RegretMaxCmilp).
+\item \textbf{Scaling.} At fixed granularity the LP's wrong pins are extensive in problem size ($\SlopeHorLPLzero$ per variable), while the learned start's grow \SlopeRatioMin--\SlopeRatioMax\ times more slowly.
+\item \textbf{Negative results, stated as results.} The learned start fails below its training demand range (\OODLowC\ vs.\ \OODLowD\ for the LP). All warm starts are equivalent on operating cost. A classical sampler solves every instance in milliseconds.
+\end{enumerate}
+
+The rest of the paper covers related work (Section~\ref{sec:related}), methods (Section~\ref{sec:methods}), results (Section~\ref{sec:results}) and their implications and limits (Section~\ref{sec:discussion}).
