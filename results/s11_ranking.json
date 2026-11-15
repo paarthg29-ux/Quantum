@@ -1,0 +1,230 @@
+{
+ "UC-16 (a) sources at eps = 0.1": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 310.0,
+    "pair_n": 333,
+    "pairs": 0.9309309309309309,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 12.0,
+    "regret": 0.2448077497997456,
+    "pair_ok": 234.0,
+    "pair_n": 333,
+    "pairs": 0.7027027027027027,
+    "top1_frac": 0.4
+   },
+   "bandshare": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 323.0,
+    "pair_n": 333,
+    "pairs": 0.96996996996997,
+    "top1_frac": 1.0
+   },
+   "share": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 319.0,
+    "pair_n": 333,
+    "pairs": 0.9579579579579579,
+    "top1_frac": 1.0
+   }
+  }
+ },
+ "UC-16 (b) sweep sources (C-milp, C-oracle, D, F) at each eps (7 values)": {
+  "n": 158,
+  "trivial": 52,
+  "rules": {
+   "overlap": {
+    "top1": 157.5,
+    "regret": 2.796033319322464e-05,
+    "pair_ok": 595.0,
+    "pair_n": 601,
+    "pairs": 0.9900166389351082,
+    "top1_frac": 0.9968354430379747
+   },
+   "ratio0": {
+    "top1": 34.0,
+    "regret": 0.3798935696676506,
+    "pair_ok": 133.0,
+    "pair_n": 601,
+    "pairs": 0.22129783693843594,
+    "top1_frac": 0.21518987341772153
+   },
+   "bandshare": {
+    "top1": 158.0,
+    "regret": 0.0,
+    "pair_ok": 601.0,
+    "pair_n": 601,
+    "pairs": 1.0,
+    "top1_frac": 1.0
+   },
+   "share": {
+    "top1": 158.0,
+    "regret": 4.4069385061016434e-10,
+    "pair_ok": 601.0,
+    "pair_n": 601,
+    "pairs": 1.0,
+    "top1_frac": 1.0
+   }
+  }
+ },
+ "UC-16 (c) all (source, eps) configurations jointly (incl. A)": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 30.0,
+    "regret": 2.320987613213532e-09,
+    "pair_ok": 7383.0,
+    "pair_n": 7929,
+    "pairs": 0.9311388573590617,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 0.0,
+    "regret": 0.9999990178476623,
+    "pair_ok": 4903.0,
+    "pair_n": 7929,
+    "pairs": 0.6183629713709169,
+    "top1_frac": 0.0
+   },
+   "bandshare": {
+    "top1": 30.0,
+    "regret": 9.773098613719e-08,
+    "pair_ok": 7800.0,
+    "pair_n": 7929,
+    "pairs": 0.9837306091562619,
+    "top1_frac": 1.0
+   },
+   "share": {
+    "top1": 30.0,
+    "regret": 1.0005197375040353e-07,
+    "pair_ok": 7734.0,
+    "pair_n": 7929,
+    "pairs": 0.9754067347710934,
+    "top1_frac": 1.0
+   }
+  }
+ },
+ "UC-22 (a) sources at eps = 0.1": {
+  "n": 20,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 19.0,
+    "regret": 0.022040515323787223,
+    "pair_ok": 93.0,
+    "pair_n": 100,
+    "pairs": 0.93,
+    "top1_frac": 0.95
+   },
+   "ratio0": {
+    "top1": 1.0,
+    "regret": 0.39721206106793555,
+    "pair_ok": 51.0,
+    "pair_n": 100,
+    "pairs": 0.51,
+    "top1_frac": 0.05
+   },
+   "bandshare": {
+    "top1": 19.0,
+    "regret": 0.022040515323787223,
+    "pair_ok": 96.0,
+    "pair_n": 100,
+    "pairs": 0.96,
+    "top1_frac": 0.95
+   },
+   "share": {
+    "top1": 19.0,
+    "regret": 0.022040515323787223,
+    "pair_ok": 96.0,
+    "pair_n": 100,
+    "pairs": 0.96,
+    "top1_frac": 0.95
+   }
+  }
+ },
+ "UC-22 (b) sources at each eps (3 values)": {
+  "n": 37,
+  "trivial": 23,
+  "rules": {
+   "overlap": {
+    "top1": 36.0,
+    "regret": 0.011913792066912014,
+    "pair_ok": 107.0,
+    "pair_n": 114,
+    "pairs": 0.9385964912280702,
+    "top1_frac": 0.972972972972973
+   },
+   "ratio0": {
+    "top1": 10.0,
+    "regret": 0.2735729644083052,
+    "pair_ok": 57.0,
+    "pair_n": 114,
+    "pairs": 0.5,
+    "top1_frac": 0.2702702702702703
+   },
+   "bandshare": {
+    "top1": 36.0,
+    "regret": 0.011913792066912014,
+    "pair_ok": 110.0,
+    "pair_n": 114,
+    "pairs": 0.9649122807017544,
+    "top1_frac": 0.972972972972973
+   },
+   "share": {
+    "top1": 36.0,
+    "regret": 0.011913792066912014,
+    "pair_ok": 110.0,
+    "pair_n": 114,
+    "pairs": 0.9649122807017544,
+    "top1_frac": 0.972972972972973
+   }
+  }
+ },
+ "UC-22 (c) all (source, eps) configurations jointly": {
+  "n": 20,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 16.0,
+    "regret": 0.0251276212726456,
+    "pair_ok": 322.0,
+    "pair_n": 356,
+    "pairs": 0.9044943820224719,
+    "top1_frac": 0.8
+   },
+   "ratio0": {
+    "top1": 1.0,
+    "regret": 0.40029916701679386,
+    "pair_ok": 207.0,
+    "pair_n": 356,
+    "pairs": 0.5814606741573034,
+    "top1_frac": 0.05
+   },
+   "bandshare": {
+    "top1": 19.0,
+    "regret": 0.022040515323787223,
+    "pair_ok": 339.0,
+    "pair_n": 356,
+    "pairs": 0.952247191011236,
+    "top1_frac": 0.95
+   },
+   "share": {
+    "top1": 17.0,
+    "regret": 0.022818035951178324,
+    "pair_ok": 334.0,
+    "pair_n": 356,
+    "pairs": 0.9382022471910112,
+    "top1_frac": 0.85
+   }
+  }
+ }
+}

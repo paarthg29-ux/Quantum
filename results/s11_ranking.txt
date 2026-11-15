@@ -1,0 +1,37 @@
+Ranking warm-start sources by a depth-0 rule. Truth: P(best of 1024 = optimal), p = 1, mean over seeds. bandshare = 3.70 log10 overlap -4.79 log10 m_e05 (UC L2 fit, fixed). TOL 0.001.
+
+=== UC, 16 qubits (L2), 30 scenarios. Arm B is left out: it has C-milp's initial state and differs only in the mixer, so no depth-0 rule can separate them. IN-SAMPLE for bandshare's two exponents.
+  sources: ['A', 'C-milp', 'C-oracle', 'D', 'E', 'F'] (main table, eps = 0.1, 5 seeds)
+  UC-16 (a) sources at eps = 0.1: 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  93.1% of 333
+         ratio0: top-1   12.0/30 ( 40.0%) | regret 0.245 | pairs ordered correctly  70.3% of 333
+      bandshare: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  97.0% of 333
+          share: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  95.8% of 333
+  UC-16 (b) sweep sources (C-milp, C-oracle, D, F) at each eps (7 values): 158 problems (52 trivial excluded)
+        overlap: top-1  157.5/158 ( 99.7%) | regret 0.000 | pairs ordered correctly  99.0% of 601
+         ratio0: top-1   34.0/158 ( 21.5%) | regret 0.380 | pairs ordered correctly  22.1% of 601
+      bandshare: top-1  158.0/158 (100.0%) | regret 0.000 | pairs ordered correctly 100.0% of 601
+          share: top-1  158.0/158 (100.0%) | regret 0.000 | pairs ordered correctly 100.0% of 601
+  UC-16 (c) all (source, eps) configurations jointly (incl. A): 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  93.1% of 7929
+         ratio0: top-1    0.0/30 (  0.0%) | regret 1.000 | pairs ordered correctly  61.8% of 7929
+      bandshare: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  98.4% of 7929
+          share: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  97.5% of 7929
+
+=== UC-22 (L4, 20 structurally distinct scenarios; OUT-OF-SAMPLE for bandshare)
+  sources: ['A', 'C-milp', 'D', 'F']
+  UC-22 (a) sources at eps = 0.1: 20 problems (0 trivial excluded)
+        overlap: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  93.0% of 100
+         ratio0: top-1    1.0/20 (  5.0%) | regret 0.397 | pairs ordered correctly  51.0% of 100
+      bandshare: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  96.0% of 100
+          share: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  96.0% of 100
+  UC-22 (b) sources at each eps (3 values): 37 problems (23 trivial excluded)
+        overlap: top-1   36.0/37 ( 97.3%) | regret 0.012 | pairs ordered correctly  93.9% of 114
+         ratio0: top-1   10.0/37 ( 27.0%) | regret 0.274 | pairs ordered correctly  50.0% of 114
+      bandshare: top-1   36.0/37 ( 97.3%) | regret 0.012 | pairs ordered correctly  96.5% of 114
+          share: top-1   36.0/37 ( 97.3%) | regret 0.012 | pairs ordered correctly  96.5% of 114
+  UC-22 (c) all (source, eps) configurations jointly: 20 problems (0 trivial excluded)
+        overlap: top-1   16.0/20 ( 80.0%) | regret 0.025 | pairs ordered correctly  90.4% of 356
+         ratio0: top-1    1.0/20 (  5.0%) | regret 0.400 | pairs ordered correctly  58.1% of 356
+      bandshare: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  95.2% of 356
+          share: top-1   17.0/20 ( 85.0%) | regret 0.023 | pairs ordered correctly  93.8% of 356
