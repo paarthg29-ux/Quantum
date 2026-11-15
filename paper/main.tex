@@ -12,7 +12,7 @@
 
 \begin{document}
 
-\title{Band Share, Not Overlap: What Determines Warm-Start Quality in QAOA for Unit Commitment}
+\title{Wrongly Pinned Variables Predict Warm-Start Failure in QAOA: Unit Commitment and MaxCut}
 
 \author{\IEEEauthorblockN{Author names}
 \IEEEauthorblockA{Affiliation}}
@@ -20,7 +20,7 @@
 \maketitle
 
 \begin{abstract}
-Warm-started QAOA is usually judged by approximation ratio, but what an operator needs is the optimal solution in the samples, and the two are known to diverge. We ask which property of the initial state determines that, using multi-period unit commitment for a stylised Haryana fleet, encoded as a calibrated QUBO on \NLtwo--\NLfour\ qubits and simulated exactly. The answer is band share: the ground state's share of the initial low-energy band. Initial overlap with the optimum explains ground-state sampling with $R^2=\BSRtwoOverlap$ and leaves arm-specific residuals. Adding band mass gives $R^2=\BSBandRangeMin$--$\BSBandRangeMax$ across seven warm-start sources, depths and sizes, predicts held-out arms within \BSHeldOutBandMax, and transfers from \NLtwo\ to \NLfour\ qubits unchanged ($R^2=\BSTransferBand$). Band share explains why a learned graph-network warm start beats the LP relaxation, which has the higher approximation ratio: the LP pins marginal units wrongly, building a band of near-optimal competitors. The learned start returns the optimum among \KMax\ samples with probability \PgndCmilp, against \PgndD\ for the LP. It still leads by \LfourOwnCmilpMinusDTen\ at \NLfour\ qubits, but fails below its training demand range. We claim no quantum advantage: compiled simulated annealing solves these instances in milliseconds.
+Warm-started QAOA is usually judged by approximation ratio, but what an operator needs is the optimal solution in the samples, and the two are known to diverge. We ask what in a warm start decides whether QAOA returns the optimum, on two problem classes simulated exactly: multi-period unit commitment for a stylised Haryana fleet, encoded as a calibrated QUBO on \NLtwo--\NLfour\ qubits, and 3-regular MaxCut on \MCSizeTwelve--\MCSizeTwenty\ qubits. The answer common to both is wrongly pinned variables, those a warm start fixes confidently to a value the optimum does not take. Sampling degrades with their number in a dose--response. On MaxCut with deliberately wrong pins, the probability that the best of \KMax\ samples is optimal stays at \MCDoseTwoMin\ up to two wrong pins and falls to \MCDoseFourMin--\MCDoseFourMax\ at four, and Goemans--Williamson cuts follow the same pattern. On unit commitment the LP relaxation pins marginal units wrongly, increasingly so with problem size. This is why a learned graph-network start returns the optimum with probability \PgndCmilp, against \PgndD\ for the LP, which has the higher approximation ratio. Band share, the ground state's share of the initial low-energy band, explains sampling magnitude on unit commitment ($R^2=\BSRtwoBand$ against \BSRtwoOverlap\ for initial overlap) and transfers from \NLtwo\ to \NLfour\ qubits, but not to MaxCut, where overlap alone suffices. Initial overlap, the published heuristic, ranks warm-start sources well but chooses the regularisation badly for heuristic sources (regret up to \EROvWorst). The learned start needs no tuning, and fails below its training demand range. We claim no quantum advantage: compiled simulated annealing solves these instances in milliseconds.
 \end{abstract}
 
 \input{sections/introduction}

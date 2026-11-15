@@ -1027,6 +1027,73 @@ def classical_section():
           rows, midrules=(8,))
 
 
+def generalisation_section():
+    """MaxCut generalisation test, ranking against depth-0 rules, eps decision regret, band density
+    (scripts/s11_*.py, s12_band_density.py). Introduction, Discussion and Related Work quote these."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import s11_maxcut as X
+    from s11_maxcut_analysis import by_instance
+
+    mc = json.loads((RES / "s11_maxcut.json").read_text())
+    names = {12: "Twelve", 16: "Sixteen", 20: "Twenty"}
+    recs = X.load()
+    mac("MCRuns", f"{len(recs):,}".replace(",", "{,}"))
+    mac("MCGraphs", str(X.N_INST))
+    for n, w in names.items():
+        mac(f"MCSize{w}", str(n))
+        fits = mc["sizes"][f"n = {n}"]["fits"]
+        mac(f"MCOv{w}", f2(fits["log10 overlap"]["r2"]))
+        mac(f"MCBand{w}", f2(fits["ov + m_e05"]["r2"]))
+        mac(f"MCTransfer{w}", s2(mc["transfer"][f"n = {n}"]["ov + m_e05"]["r2"]))
+        cold = [r for r in recs if r["n"] == n and r["arm"] == "A"]
+        mac(f"MCCold{w}", f3(by_instance(cold).mean()))
+    mac("MCGWTwenty", f3(by_instance([r for r in recs if r["n"] == 20 and r["arm"] == "GW" and r["eps"] == 0.1]).mean()))
+    for d, w in ((2, "Two"), (3, "Three"), (4, "Four")):
+        v = [mc["dose"][f"{n}/0.05/{d}"]["mean"] for n in names]
+        mac(f"MCDose{w}Min", f2(min(v)))
+        mac(f"MCDose{w}Max", f2(max(v)))
+    mac("MCDoseEps", "0.05")
+    gw = [r for r in recs if r["arm"] == "GW" and r["eps"] == 0.1]
+    mac("MCGWPinsLow", f2(by_instance([r for r in gw if r["n_pinned_wrong"] <= 2]).min()))
+    mac("MCGWPinsFour", f2(by_instance([r for r in gw if r["n_pinned_wrong"] == 4]).mean()))
+    mac("MCGWPinsFive", f2(by_instance([r for r in gw if r["n_pinned_wrong"] == 5]).mean()))
+
+    rk = json.loads((RES / "s11_ranking.json").read_text())
+
+    def top(key, rule):
+        o = rk[key]
+        v = o["rules"][rule]["top1"]
+        return (f"{v:.0f}" if abs(v - round(v)) < 1e-9 else f"{v:.1f}"), str(o["n"])
+
+    for tag, key in (("UCSixteen", "UC-16 (a) sources at eps = 0.1"), ("UCTwentyTwo", "UC-22 (a) sources at eps = 0.1"),
+                     ("UCJoint", "UC-22 (c) all (source, eps) configurations jointly"),
+                     ("MCTwenty", "MaxCut-20 all non-oracle sources (a) sources at eps = 0.1"),
+                     ("MCTwelve", "MaxCut-12 all non-oracle sources (a) sources at eps = 0.1")):
+        mac(f"RK{tag}N", top(key, "overlap")[1])
+        for rule, w in (("overlap", "Ov"), ("bandshare", "Band"), ("ratio0", "Ratio")):
+            mac(f"RK{tag}{w}", top(key, rule)[0])
+
+    er = json.loads((RES / "s11_eps_regret.json").read_text())
+    full = er["UC-16 full sweep"]
+    cells = {("Sixteen", a): full[a] for a in ("D", "F", "C-milp", "C-oracle")}
+    cells.update({("TwentyTwo", a): er[f"UC-22 {a}"][a] for a in ("D", "F", "C-milp")})
+    for (size, a), c in cells.items():
+        if a in ("D", "F"):
+            mac(f"ER{a}Ov{size}", f3(c["overlap"]["mean"]))
+            mac(f"ER{a}OvWorst{size}", f3(c["overlap"]["worst"]))
+    heur = [c for (s, a), c in cells.items() if a in ("D", "F")]
+    mac("EROvWorst", f2(max(c["overlap"]["worst"] for c in heur)))
+    mac("ERBandMeanMax", f3(max(c["bandshare"]["mean"] for c in heur)))
+    mac("ERBandWorstMax", f3(max(c["bandshare"]["worst"] for c in heur)))
+    learned = [c for (s, a), c in cells.items() if a.startswith("C-")]
+    mac("ERLearnedMax", f3(max(c[k]["mean"] for c in learned for k in ("overlap", "bandshare", "share"))))
+
+    bd = json.loads((RES / "s12_band_density.json").read_text())["tests"]
+    mac("BDPooled", s2(bd["pooled/density"]["rho"]))
+    mac("BDWithin", s2(bd["pooled/density"]["rho_within"]))
+    mac("BDInstances", str(bd["pooled/density"]["n"]))
+
+
 def main():
     TABLES.mkdir(parents=True, exist_ok=True)
     A8, D1, D2, groups = load_s8()
@@ -1042,6 +1109,7 @@ def main():
     robust_section(A8, D2)
     ood_section()
     classical_section()
+    generalisation_section()
     import subprocess
 
     sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()

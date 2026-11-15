@@ -1,0 +1,32 @@
+Band density and where the band improves on overlap. Per instance: density = log10(states within 5% of the spectral range / ground states); levels = distinct energy levels in that band above the ground level; off_share = mean share of the band's initial mass not on the optimum; gain = MSE(overlap fit) - MSE(overlap + m_e05 fit) over the instance's runs (dataset-level fits).
+
+UC-16: 30 instances, 3171 runs | R^2 overlap 0.552 -> + band 0.952 | band: median 6070 states, 1312 levels above ground (range 484-3456), density median 3.70 (range 3.12-4.24) | off-optimum share of band mass 0.990 | mean gain +0.0280, band helps (gain > 1e-4) in 30/30
+    within UC-16: Spearman(gain, density) = -0.248 (p = 0.19, n = 30)
+    within UC-16: Spearman(gain, levels) = -0.286 (p = 0.13, n = 30)
+    within UC-16: Spearman(gain, off_share) = +0.022 (p = 0.91, n = 30)
+
+UC-22: 20 instances, 420 runs | R^2 overlap 0.859 -> + band 0.980 | band: median 359924 states, 32407 levels above ground (range 7159-89555), density median 5.31 (range 4.68-6.13) | off-optimum share of band mass 0.998 | mean gain +0.0191, band helps (gain > 1e-4) in 17/20
+    within UC-22: Spearman(gain, density) = -0.499 (p = 0.025, n = 20)
+    within UC-22: Spearman(gain, levels) = -0.603 (p = 0.0049, n = 20)
+    within UC-22: Spearman(gain, off_share) = -0.389 (p = 0.09, n = 20)
+
+MaxCut-12: 30 instances, 4791 runs | R^2 overlap 0.864 -> + band 0.864 | band: median 4 states, 0 levels above ground (range 0-0), density median 0.00 (range 0.00-0.00) | off-optimum share of band mass 0.000 | mean gain -0.0000, band helps (gain > 1e-4) in 0/30
+    within MaxCut-12: Spearman(gain, density) = +nan (p = nan, n = 30)
+    within MaxCut-12: Spearman(gain, levels) = +nan (p = nan, n = 30)
+    within MaxCut-12: Spearman(gain, off_share) = +nan (p = nan, n = 30)
+
+MaxCut-16: 30 instances, 4791 runs | R^2 overlap 0.837 -> + band 0.896 | band: median 33 states, 1 levels above ground (range 1-1), density median 0.89 (range 0.60-1.30) | off-optimum share of band mass 0.707 | mean gain +0.0025, band helps (gain > 1e-4) in 21/30
+    within MaxCut-16: Spearman(gain, density) = +0.068 (p = 0.72, n = 30)
+    within MaxCut-16: Spearman(gain, levels) = +nan (p = nan, n = 30)
+    within MaxCut-16: Spearman(gain, off_share) = +0.540 (p = 0.0021, n = 30)
+
+MaxCut-20: 30 instances, 4755 runs | R^2 overlap 0.720 -> + band 0.856 | band: median 62 states, 1 levels above ground (range 1-1), density median 0.97 (range 0.70-1.39) | off-optimum share of band mass 0.750 | mean gain +0.0092, band helps (gain > 1e-4) in 29/30
+    within MaxCut-20: Spearman(gain, density) = +0.134 (p = 0.48, n = 30)
+    within MaxCut-20: Spearman(gain, levels) = +nan (p = nan, n = 30)
+    within MaxCut-20: Spearman(gain, off_share) = +0.624 (p = 0.00023, n = 30)
+
+POOLED over all instances of both classes (confounded with the class difference; read with the within-dataset rows above):
+    Spearman(gain, density) = +0.591 (p = 1.5e-14, n = 140); with ranks taken within each dataset: -0.084 (p = 0.32)
+    Spearman(gain, levels) = +0.571 (p = 1.7e-13, n = 140); with ranks taken within each dataset: -0.225 (p = 0.0074)
+    Spearman(gain, off_share) = +0.661 (p = 6.3e-19, n = 140); with ranks taken within each dataset: +0.235 (p = 0.0052)
+  by density tercile (pooled): density 0.00-0.86: mean gain +0.0011, band helps in 15/47 | density 0.86-3.30: mean gain +0.0095, band helps in 38/46 | density 3.30-6.13: mean gain +0.0231, band helps in 44/47

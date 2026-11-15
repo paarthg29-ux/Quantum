@@ -2,6 +2,8 @@
 
 Status at 2026-11-15, branch `qguc-pipeline`, after the MaxCut generalisation round (T24-T27, added 2026-11-15; everything else as of 2026-11-06). **Committed** = the run data and the analysis output are in git (commit given). **Uncommitted** = the file exists but is not in git.
 
+**Framing (revised 2026-11-15):** the paper now leads with wrongly pinned variables (title: "Wrongly Pinned Variables Predict Warm-Start Failure in QAOA: Unit Commitment and MaxCut"); band share is contribution 2, scoped to UC. The claims skeleton below predates this and is kept for the UC numbers. **Open:** Methods and Results have no MaxCut text yet (T24-T28 are quoted only in the abstract, introduction and discussion).
+
 **Framing (locked): no quantum-advantage claim anywhere.** A classical sampler solves these instances in milliseconds (T19). The contribution is what determines warm-start quality within QAOA.
 
 Statistical convention for every comparison below:
@@ -55,6 +57,7 @@ The paper studies warm-started QAOA for Haryana unit commitment, encoded as a ca
 | T25 | **Wrong-pin dose-response on MaxCut** (artificial bad pins, and GW by its own wrong pins) | The mechanism reproduces outside UC: at eps = 0.05, P = 1.00 / 1.00 / 0.78-0.83 / 0.24-0.35 at 1 / 2 / 3 / 4 wrong pins, at every size; GW at eps = 0.1 falls from 1.00 (0-2 wrong) to 0.41 (4) and 0.06 (5). On MaxCut overlap alone already tracks it | `s11_maxcut.txt` (section 3) | yes |
 | T26 | **Ranking sources by a depth-0 rule** (overlap and initial approximation ratio of Bhattacharyya et al. vs band share), UC 16 / 22 qubits and MaxCut | Overlap picks the best source in 30/30 (UC-16), 19/20 (UC-22), 24/24, 29/29, 30/30 (MaxCut 12 / 16 / 20, all non-oracle sources) and 13/14, 22/25, 24/30 (MaxCut, realistic sources). Band share ties it on UC (30/30, 19/20; pairs ordered 97% / 96% vs 93% / 93%) and wins only the joint source-and-eps choice at 22 qubits (19/20 vs 16/20). **On MaxCut the UC-fitted index fails** (0/24, 20/29, 10/30); the plain ratio overlap/m5 is comparable to overlap only on the realistic sources at n = 16, 20 (23/25, 26/30). The initial approximation ratio is the poor rule everywhere (12/30, 1/20 on UC) | `s11_ranking.txt` (`s11_ranking.py`) | yes |
 | T27 | **Epsilon decision regret** of depth-0 rules, UC (existing runs) | Choosing eps by maximum overlap costs the LP 0.022 (worst 0.149) and merit order 0.057 (worst 0.289) at 16 qubits, 0.033 (0.492) and 0.038 (0.467) at 22; band share cuts this to ≤ 0.006 mean, ≤ 0.105 worst. Learned starts: every rule within 0.01. The 22-qubit choice is between two eps values only; the 16-qubit fitted index is in-sample (the plain ratio is not, and gives the same LP result) | `s11_eps_regret.txt` (`s11_eps_regret.py`) | yes (7f226fc) |
+| T28 | **Band density test** (140 instances of both classes; density = log10 of states within 5% of the spectral range per ground state) | Tests whether a dense low-energy band is the condition under which band share adds to overlap. **Not supported.** Pooled rank correlation of the per-instance improvement with density +0.59, but with ranks taken within each dataset −0.08; within UC 16 / 22 qubits −0.25 / −0.50, within MaxCut 16 / 20 +0.07 / +0.13. The pooled figure is the class difference (UC bands hold thousands of states, MaxCut bands 4-62). Certain only in the degenerate case: at n = 12 the band is the optimum alone, so band share equals overlap. No explanation is offered in the paper | `s12_band_density.txt` (`s12_band_density.py`) | yes |
 
 ## Figures
 
@@ -85,6 +88,7 @@ The paper studies warm-started QAOA for Haryana unit commitment, encoded as a ca
 | Overlap alone predicts sampling | **No** |
 | Band share explains sampling | **Holds for unit commitment** (R² 0.95–0.98, held-out arms within 0.015, transfers L2 → L4). Diagnostic, not predictive |
 | Band share is a property of warm-started QAOA, not of our encoding | **Not supported** (T24): the UC curve does not transfer to 3-regular MaxCut (R² ≈ 0), and on MaxCut overlap alone explains most of the variation. Scope the claim to UC |
+| Band density is the condition under which band share beats overlap | **Not supported** (T28): it separates the problem classes, not instances within them. Dropped; band share is reported as UC-specific with no explanation |
 | Wrong pins degrade sampling outside UC | **Holds** on MaxCut with artificial and GW pins (T25) |
 | Band share ranks sources better than depth-0 overlap | **Not supported** (T26): overlap ranks as well on UC and better on MaxCut. Overlap fails on magnitude (R² 0.55 on UC) and on choosing eps for heuristic sources (T27), not on ranking |
 | Approximation ratio and optimum sampling diverge | **Reproduces on MaxCut** (GW final g 0.84 vs cold 0.48, yet lower P at n = 20). Prior work, not our claim |
