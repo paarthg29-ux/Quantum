@@ -1,0 +1,121 @@
+3-regular MaxCut, p = 1: 15390 runs in the store (0 of 15390 planned runs missing); sizes [12, 16, 20], 90 graphs.
+
+0. SOURCES (per graph; cut as a fraction of the maximum cut; wrong pins against the nearest optimum)
+  n = 12: ground states per graph median 4 (range 2-8); SDP dual-slack min eigenvalue >= -8.0e-08; GW: cut/opt 0.932, optimal in 10/30, wrong pins mean 1.43 (max 5); GW-LS: cut/opt 0.984, optimal in 23/30, wrong pins mean 0.83 (max 5)
+  n = 16: ground states per graph median 4 (range 2-24); SDP dual-slack min eigenvalue >= -1.1e-07; GW: cut/opt 0.953, optimal in 14/30, wrong pins mean 1.33 (max 8); GW-LS: cut/opt 0.991, optimal in 25/30, wrong pins mean 0.60 (max 5)
+  n = 20: ground states per graph median 6 (range 2-26); SDP dual-slack min eigenvalue >= -7.4e-08; GW: cut/opt 0.954, optimal in 11/30, wrong pins mean 1.93 (max 9); GW-LS: cut/opt 0.984, optimal in 20/30, wrong pins mean 1.30 (max 9)
+
+   mean P(best of 1024 = optimal) by source and eps (mean over graphs of the seed mean)
+  n = 12:   eps     0.0   0.05    0.1   0.15   0.25   0.35    0.5
+         A            -      -  1.000      -      -      -      -
+        GW        0.333  0.825  0.925  0.969  0.998  1.000  1.000
+     GW-LS        0.767  0.823  0.925  0.953  0.996  1.000  1.000
+         E        0.873  0.965  0.991  0.998  1.000  1.000  1.000
+      BAD0        1.000  1.000  1.000  1.000  1.000  1.000  1.000
+      BAD1        0.000  1.000  1.000  1.000  1.000  1.000  1.000
+      BAD2        0.000  1.000  1.000  1.000  1.000  1.000  1.000
+      BAD3        0.000  0.834  0.994  1.000  1.000  1.000  1.000
+      BAD4        0.000  0.374  0.822  0.982  1.000  1.000  1.000
+  n = 16:   eps     0.0   0.05    0.1   0.15   0.25   0.35    0.5
+         A            -      -  0.998      -      -      -      -
+        GW        0.467  0.841  0.918  0.957  0.981  0.998  0.998
+     GW-LS        0.833  0.863  0.937  0.972  0.998  1.000  0.998
+         E        0.623  0.801  0.902  0.953  0.990  0.997  0.998
+      BAD0        1.000  1.000  1.000  1.000  1.000  1.000  0.998
+      BAD1        0.000  1.000  1.000  1.000  1.000  1.000  0.998
+      BAD2        0.000  0.999  1.000  1.000  1.000  1.000  0.998
+      BAD3        0.000  0.809  0.994  1.000  1.000  1.000  0.998
+      BAD4        0.000  0.289  0.824  0.985  1.000  1.000  0.998
+  n = 20:   eps     0.0   0.05    0.1   0.15   0.25   0.35    0.5
+         A            -      -  0.881      -      -      -      -
+        GW        0.367  0.708  0.815  0.876  0.938  0.968  0.881
+     GW-LS        0.667  0.731  0.882  0.931  0.961  0.978  0.881
+         E        0.285  0.433  0.559  0.663  0.799  0.860  0.881
+      BAD0        1.000  1.000  1.000  1.000  1.000  1.000  0.881
+      BAD1        0.000  1.000  1.000  1.000  1.000  1.000  0.881
+      BAD2        0.033  0.999  1.000  1.000  1.000  1.000  0.881
+      BAD3        0.000  0.789  0.997  1.000  1.000  0.999  0.881
+      BAD4        0.000  0.260  0.795  0.971  0.999  0.993  0.881
+   mean final gain g by source at eps = 0.1 (for the approximation-ratio vs sampling comparison)
+  n = 12: A g 0.492 / P 1.000, GW g 0.798 / P 0.925, GW-LS g 0.886 / P 0.925, E g 0.443 / P 0.991, BAD0 g 0.924 / P 1.000, BAD1 g 0.694 / P 1.000, BAD2 g 0.495 / P 1.000, BAD3 g 0.375 / P 0.994, BAD4 g 0.291 / P 0.822
+  n = 16: A g 0.478 / P 0.998, GW g 0.843 / P 0.918, GW-LS g 0.910 / P 0.937, E g 0.416 / P 0.902, BAD0 g 0.931 / P 1.000, BAD1 g 0.757 / P 1.000, BAD2 g 0.616 / P 1.000, BAD3 g 0.486 / P 0.994, BAD4 g 0.409 / P 0.824
+  n = 20: A g 0.482 / P 0.881, GW g 0.843 / P 0.815, GW-LS g 0.893 / P 0.882, E g 0.421 / P 0.559, BAD0 g 0.932 / P 1.000, BAD1 g 0.799 / P 1.000, BAD2 g 0.692 / P 1.000, BAD3 g 0.573 / P 0.997, BAD4 g 0.496 / P 0.795
+
+1. REFIT ON MAXCUT (logistic least squares, runs with overlap0 > 0; residual = observed - fitted, mean by source). UC reference at L2: overlap R^2 0.552, overlap + m_e05 R^2 0.952.
+
+  --- n = 12: 4791 runs (339 with overlap 0 excluded); the 5% band is the optimum alone (m_e05 = overlap) in 100% of runs; Spearman with P: log10 overlap +0.861, log10 m_e05 +0.861, log10(ov/m_e05) +nan
+  log10 overlap              R^2  0.864 | + arm intercepts R^2  0.907 (dR^2 +0.043, F  273.7, p 0.0e+00) | resid range 0.050 | A +0.016 GW -0.014 GW-LS -0.015 E +0.027 BAD0 +0.003 BAD1 +0.003 BAD2 +0.006 BAD3 +0.006 BAD4 +0.035
+  ov + m_e05                 R^2  0.864 | + arm intercepts R^2  0.907 (dR^2 +0.043, F  273.6, p 0.0e+00) | resid range 0.050 | A +0.016 GW -0.014 GW-LS -0.015 E +0.027 BAD0 +0.003 BAD1 +0.003 BAD2 +0.006 BAD3 +0.006 BAD4 +0.035
+  band share log10(ov/m_e05) R^2 -0.000 | + arm intercepts R^2  0.044 (dR^2 +0.044, F   27.7, p 2.1e-42) | resid range 0.151 | A +0.054 GW -0.015 GW-LS +0.009 E +0.030 BAD0 +0.054 BAD1 -0.023 BAD2 +0.022 BAD3 -0.001 BAD4 -0.097
+  ov + m_e01 [sens.]         R^2  0.864 | + arm intercepts R^2  0.907 (dR^2 +0.043, F  273.6, p 0.0e+00) | resid range 0.050 | A +0.016 GW -0.014 GW-LS -0.015 E +0.027 BAD0 +0.003 BAD1 +0.003 BAD2 +0.006 BAD3 +0.006 BAD4 +0.035
+  ov + m_cut1 [sens.]        R^2  0.929 | + arm intercepts R^2  0.934 (dR^2 +0.005, F   46.6, p 1.1e-72) | resid range 0.022 | A +0.008 GW +0.001 GW-LS +0.005 E +0.016 BAD0 +0.001 BAD1 +0.002 BAD2 +0.003 BAD3 -0.006 BAD4 +0.009
+  ov + m_cut2 [sens.]        R^2  0.951 | + arm intercepts R^2  0.958 (dR^2 +0.006, F   90.0, p 1.1e-139) | resid range 0.022 | A +0.007 GW +0.004 GW-LS +0.004 E +0.018 BAD0 +0.001 BAD1 +0.001 BAD2 +0.003 BAD3 -0.004 BAD4 +0.008
+    held-out BAD1-4 (fit on the other sources), log10 overlap: R^2 on the held-out runs 0.842; observed - predicted BAD1 +0.002, BAD2 +0.004, BAD3 +0.011, BAD4 +0.072
+    held-out BAD1-4 (fit on the other sources), ov + m_e05: R^2 on the held-out runs 0.842; observed - predicted BAD1 +0.002, BAD2 +0.004, BAD3 +0.011, BAD4 +0.072
+    held-out BAD1-4 (fit on the other sources), ov + m_cut1 [sens.]: R^2 on the held-out runs 0.910; observed - predicted BAD1 +0.001, BAD2 +0.001, BAD3 -0.012, BAD4 +0.002
+    TRANSFER of the UC L2 fit 'baseline: log10 overlap0' (coef [6.01, 1.28]), unchanged: R^2 0.675, mean |error| 0.083; observed - predicted by source: A +0.113, GW +0.033, GW-LS +0.023, E +0.131, BAD0 +0.027, BAD1 +0.038, BAD2 +0.067, BAD3 +0.107, BAD4 +0.125
+    TRANSFER of the UC L2 fit 'ov + m_e05' (coef [13.08, 3.7, -4.79]), unchanged: R^2 -0.073, mean |error| 0.054; observed - predicted by source: A -0.000, GW -0.069, GW-LS -0.045, E -0.025, BAD0 +0.000, BAD1 -0.077, BAD2 -0.032, BAD3 -0.055, BAD4 -0.151
+
+  --- n = 16: 4791 runs (339 with overlap 0 excluded); the 5% band is the optimum alone (m_e05 = overlap) in 5% of runs; Spearman with P: log10 overlap +0.906, log10 m_e05 +0.773, log10(ov/m_e05) +0.677
+  log10 overlap              R^2  0.837 | + arm intercepts R^2  0.880 (dR^2 +0.043, F  216.9, p 1.5e-314) | resid range 0.096 | A +0.026 GW -0.014 GW-LS -0.016 E +0.053 BAD0 +0.004 BAD1 +0.004 BAD2 +0.004 BAD3 -0.025 BAD4 -0.043
+  ov + m_e05                 R^2  0.896 | + arm intercepts R^2  0.930 (dR^2 +0.034, F  294.8, p 0.0e+00) | resid range 0.084 | A +0.028 GW -0.004 GW-LS +0.001 E +0.047 BAD0 +0.004 BAD1 +0.004 BAD2 +0.005 BAD3 -0.018 BAD4 -0.036
+  band share log10(ov/m_e05) R^2  0.386 | + arm intercepts R^2  0.503 (dR^2 +0.117, F  140.2, p 2.7e-212) | resid range 0.131 | A +0.054 GW +0.032 GW-LS +0.037 E -0.038 BAD0 +0.029 BAD1 -0.019 BAD2 +0.041 BAD3 +0.030 BAD4 -0.076
+  ov + m_e01 [sens.]         R^2  0.837 | + arm intercepts R^2  0.880 (dR^2 +0.043, F  216.8, p 1.6e-314) | resid range 0.096 | A +0.026 GW -0.014 GW-LS -0.016 E +0.053 BAD0 +0.004 BAD1 +0.004 BAD2 +0.004 BAD3 -0.025 BAD4 -0.043
+  ov + m_cut1 [sens.]        R^2  0.896 | + arm intercepts R^2  0.930 (dR^2 +0.034, F  294.8, p 0.0e+00) | resid range 0.084 | A +0.028 GW -0.004 GW-LS +0.001 E +0.047 BAD0 +0.004 BAD1 +0.004 BAD2 +0.005 BAD3 -0.018 BAD4 -0.036
+  ov + m_cut2 [sens.]        R^2  0.893 | + arm intercepts R^2  0.940 (dR^2 +0.047, F  460.9, p 0.0e+00) | resid range 0.095 | A +0.033 GW +0.003 GW-LS +0.005 E +0.054 BAD0 +0.005 BAD1 +0.005 BAD2 +0.006 BAD3 -0.016 BAD4 -0.040
+    held-out BAD1-4 (fit on the other sources), log10 overlap: R^2 on the held-out runs 0.844; observed - predicted BAD1 +0.003, BAD2 +0.003, BAD3 -0.026, BAD4 -0.065
+    held-out BAD1-4 (fit on the other sources), ov + m_e05: R^2 on the held-out runs 0.862; observed - predicted BAD1 +0.003, BAD2 +0.003, BAD3 -0.021, BAD4 -0.060
+    held-out BAD1-4 (fit on the other sources), ov + m_cut1 [sens.]: R^2 on the held-out runs 0.862; observed - predicted BAD1 +0.003, BAD2 +0.003, BAD3 -0.021, BAD4 -0.060
+    TRANSFER of the UC L2 fit 'baseline: log10 overlap0' (coef [6.01, 1.28]), unchanged: R^2 -0.118, mean |error| 0.159; observed - predicted by source: A +0.342, GW +0.091, GW-LS +0.074, E +0.325, BAD0 +0.069, BAD1 +0.089, BAD2 +0.129, BAD3 +0.187, BAD4 +0.207
+    TRANSFER of the UC L2 fit 'ov + m_e05' (coef [13.08, 3.7, -4.79]), unchanged: R^2 0.258, mean |error| 0.047; observed - predicted by source: A -0.002, GW -0.032, GW-LS -0.012, E -0.105, BAD0 -0.000, BAD1 -0.056, BAD2 -0.006, BAD3 -0.029, BAD4 -0.149
+
+  --- n = 20: 4755 runs (375 with overlap 0 excluded); the 5% band is the optimum alone (m_e05 = overlap) in 5% of runs; Spearman with P: log10 overlap +0.930, log10 m_e05 +0.791, log10(ov/m_e05) +0.699
+  log10 overlap              R^2  0.720 | + arm intercepts R^2  0.762 (dR^2 +0.042, F  104.9, p 1.1e-161) | resid range 0.180 | A +0.103 GW -0.033 GW-LS -0.026 E +0.019 BAD0 +0.016 BAD1 +0.019 BAD2 +0.022 BAD3 -0.003 BAD4 -0.077
+  ov + m_e05                 R^2  0.856 | + arm intercepts R^2  0.888 (dR^2 +0.031, F  166.5, p 3.2e-248) | resid range 0.151 | A +0.068 GW +0.008 GW-LS +0.016 E +0.021 BAD0 +0.010 BAD1 +0.012 BAD2 +0.013 BAD3 -0.015 BAD4 -0.083
+  band share log10(ov/m_e05) R^2  0.309 | + arm intercepts R^2  0.519 (dR^2 +0.209, F  257.9, p 0.0e+00) | resid range 0.268 | A +0.013 GW +0.058 GW-LS +0.072 E -0.196 BAD0 +0.049 BAD1 +0.044 BAD2 +0.072 BAD3 +0.056 BAD4 -0.052
+  ov + m_e01 [sens.]         R^2  0.720 | + arm intercepts R^2  0.762 (dR^2 +0.042, F  104.9, p 1.2e-161) | resid range 0.180 | A +0.103 GW -0.033 GW-LS -0.026 E +0.019 BAD0 +0.016 BAD1 +0.019 BAD2 +0.022 BAD3 -0.003 BAD4 -0.077
+  ov + m_cut1 [sens.]        R^2  0.856 | + arm intercepts R^2  0.888 (dR^2 +0.031, F  166.5, p 3.2e-248) | resid range 0.151 | A +0.068 GW +0.008 GW-LS +0.016 E +0.021 BAD0 +0.010 BAD1 +0.012 BAD2 +0.013 BAD3 -0.015 BAD4 -0.083
+  ov + m_cut2 [sens.]        R^2  0.892 | + arm intercepts R^2  0.911 (dR^2 +0.019, F  127.8, p 1.1e-194) | resid range 0.124 | A +0.054 GW +0.015 GW-LS +0.014 E +0.017 BAD0 +0.008 BAD1 +0.009 BAD2 +0.011 BAD3 -0.016 BAD4 -0.070
+    held-out BAD1-4 (fit on the other sources), log10 overlap: R^2 on the held-out runs 0.620; observed - predicted BAD1 +0.013, BAD2 +0.014, BAD3 -0.015, BAD4 -0.099
+    held-out BAD1-4 (fit on the other sources), ov + m_e05: R^2 on the held-out runs 0.701; observed - predicted BAD1 +0.007, BAD2 +0.008, BAD3 -0.023, BAD4 -0.100
+    held-out BAD1-4 (fit on the other sources), ov + m_cut1 [sens.]: R^2 on the held-out runs 0.701; observed - predicted BAD1 +0.007, BAD2 +0.008, BAD3 -0.023, BAD4 -0.100
+    TRANSFER of the UC L2 fit 'baseline: log10 overlap0' (coef [6.01, 1.28]), unchanged: R^2 -0.529, mean |error| 0.238; observed - predicted by source: A +0.555, GW +0.158, GW-LS +0.140, E +0.384, BAD0 +0.120, BAD1 +0.157, BAD2 +0.205, BAD3 +0.281, BAD4 +0.315
+    TRANSFER of the UC L2 fit 'ov + m_e05' (coef [13.08, 3.7, -4.79]), unchanged: R^2 -0.021, mean |error| 0.111; observed - predicted by source: A -0.119, GW -0.107, GW-LS -0.059, E -0.360, BAD0 -0.017, BAD1 -0.045, BAD2 -0.035, BAD3 -0.060, BAD4 -0.188
+
+  --- pooled: 14337 runs (1053 with overlap 0 excluded); the 5% band is the optimum alone (m_e05 = overlap) in 37% of runs; Spearman with P: log10 overlap +0.910, log10 m_e05 +0.796, log10(ov/m_e05) +0.513
+  log10 overlap              R^2  0.719 | + arm intercepts R^2  0.774 (dR^2 +0.055, F  436.6, p 0.0e+00) | resid range 0.136 | A +0.082 GW -0.017 GW-LS -0.016 E +0.032 BAD0 +0.013 BAD1 +0.016 BAD2 +0.020 BAD3 +0.003 BAD4 -0.054
+  ov + m_e05                 R^2  0.763 | + arm intercepts R^2  0.806 (dR^2 +0.044, F  404.1, p 0.0e+00) | resid range 0.134 | A +0.059 GW -0.008 GW-LS -0.003 E +0.018 BAD0 +0.009 BAD1 +0.011 BAD2 +0.013 BAD3 -0.009 BAD4 -0.076
+  band share log10(ov/m_e05) R^2  0.245 | + arm intercepts R^2  0.347 (dR^2 +0.102, F  281.0, p 0.0e+00) | resid range 0.119 | A +0.037 GW +0.018 GW-LS +0.032 E -0.073 BAD0 +0.040 BAD1 -0.003 BAD2 +0.041 BAD3 +0.025 BAD4 -0.078
+  ov + m_e01 [sens.]         R^2  0.719 | + arm intercepts R^2  0.774 (dR^2 +0.055, F  436.6, p 0.0e+00) | resid range 0.136 | A +0.082 GW -0.017 GW-LS -0.016 E +0.032 BAD0 +0.013 BAD1 +0.016 BAD2 +0.020 BAD3 +0.003 BAD4 -0.054
+  ov + m_cut1 [sens.]        R^2  0.858 | + arm intercepts R^2  0.893 (dR^2 +0.035, F  582.7, p 0.0e+00) | resid range 0.106 | A +0.048 GW +0.007 GW-LS +0.015 E +0.019 BAD0 +0.007 BAD1 +0.008 BAD2 +0.010 BAD3 -0.010 BAD4 -0.057
+  ov + m_cut2 [sens.]        R^2  0.895 | + arm intercepts R^2  0.916 (dR^2 +0.021, F  438.0, p 0.0e+00) | resid range 0.085 | A +0.037 GW +0.012 GW-LS +0.014 E +0.015 BAD0 +0.006 BAD1 +0.006 BAD2 +0.008 BAD3 -0.010 BAD4 -0.048
+    held-out BAD1-4 (fit on the other sources), log10 overlap: R^2 on the held-out runs 0.707; observed - predicted BAD1 +0.011, BAD2 +0.014, BAD3 -0.008, BAD4 -0.075
+    held-out BAD1-4 (fit on the other sources), ov + m_e05: R^2 on the held-out runs 0.693; observed - predicted BAD1 +0.005, BAD2 +0.006, BAD3 -0.020, BAD4 -0.098
+    held-out BAD1-4 (fit on the other sources), ov + m_cut1 [sens.]: R^2 on the held-out runs 0.778; observed - predicted BAD1 +0.005, BAD2 +0.006, BAD3 -0.019, BAD4 -0.079
+    TRANSFER of the UC L2 fit 'baseline: log10 overlap0' (coef [6.01, 1.28]), unchanged: R^2 -0.062, mean |error| 0.160; observed - predicted by source: A +0.337, GW +0.094, GW-LS +0.079, E +0.280, BAD0 +0.072, BAD1 +0.094, BAD2 +0.134, BAD3 +0.191, BAD4 +0.215
+    TRANSFER of the UC L2 fit 'ov + m_e05' (coef [13.08, 3.7, -4.79]), unchanged: R^2 0.063, mean |error| 0.071; observed - predicted by source: A -0.040, GW -0.069, GW-LS -0.038, E -0.163, BAD0 -0.006, BAD1 -0.060, BAD2 -0.024, BAD3 -0.048, BAD4 -0.163
+
+3. DOSE-RESPONSE IN WRONG PINS. BAD sources: P(best of 1024 = optimal) by the number of variables pinned against the nearest optimum (mean over graphs of the seed mean, 95% t interval). UC reference: the LP's deficit grows with its wrong pins.
+  n = 12, eps = 0.05: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [0.999, 1.000] (n=30) | 3: 0.828 [0.745, 0.912] (n=29) | 4: 0.352 [0.225, 0.479] (n=29)
+  n = 12, eps = 0.1: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [1.000, 1.000] (n=30) | 3: 0.994 [0.989, 0.999] (n=29) | 4: 0.816 [0.748, 0.883] (n=29)
+  n = 12, eps = 0.25: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [1.000, 1.000] (n=30) | 3: 1.000 [1.000, 1.000] (n=29) | 4: 1.000 [1.000, 1.000] (n=29)
+  n = 16, eps = 0.05: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 0.999 [0.999, 1.000] (n=30) | 3: 0.809 [0.738, 0.880] (n=30) | 4: 0.238 [0.176, 0.300] (n=28)
+  n = 16, eps = 0.1: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [1.000, 1.000] (n=30) | 3: 0.994 [0.988, 1.001] (n=30) | 4: 0.812 [0.754, 0.869] (n=28)
+  n = 16, eps = 0.25: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [1.000, 1.000] (n=30) | 3: 1.000 [1.000, 1.000] (n=30) | 4: 1.000 [1.000, 1.000] (n=28)
+  n = 20, eps = 0.05: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 0.999 [0.999, 1.000] (n=30) | 3: 0.782 [0.725, 0.839] (n=29) | 4: 0.235 [0.165, 0.304] (n=29)
+  n = 20, eps = 0.1: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [1.000, 1.000] (n=30) | 3: 0.997 [0.996, 0.998] (n=29) | 4: 0.788 [0.724, 0.852] (n=29)
+  n = 20, eps = 0.25: 0: 1.000 [1.000, 1.000] (n=30) | 1: 1.000 [1.000, 1.000] (n=30) | 2: 1.000 [1.000, 1.000] (n=30) | 3: 1.000 [1.000, 1.000] (n=29) | 4: 0.999 [0.998, 0.999] (n=29)
+  Spearman of P with the wrong-pin count over BAD runs (per size, eps = 0.1), and with the features:
+    n = 12: wrong pins -0.890; mean log10 overlap by dose 0: -0.55, 1: -1.50, 2: -2.44, 3: -3.36, 4: -4.25; mean log10 m_e05 by dose 0: -0.55, 1: -1.50, 2: -2.44, 3: -3.36, 4: -4.25
+    n = 16: wrong pins -0.912; mean log10 overlap by dose 0: -0.73, 1: -1.65, 2: -2.56, 3: -3.50, 4: -4.44; mean log10 m_e05 by dose 0: -0.51, 1: -1.19, 2: -1.88, 3: -2.58, 4: -3.33
+    n = 20: wrong pins -0.916; mean log10 overlap by dose 0: -0.91, 1: -1.84, 2: -2.77, 3: -3.70, 4: -4.60; mean log10 m_e05 by dose 0: -0.66, 1: -1.27, 2: -1.97, 3: -2.85, 4: -3.57
+  GW by its own wrong pins (eps = 0.1), all sizes pooled:
+    0 wrong: 1.000 [1.000, 1.000] (n=35)
+    1 wrong: 1.000 [1.000, 1.000] (n=18)
+    2 wrong: 1.000 [1.000, 1.000] (n=14)
+    3 wrong: 0.920 [0.887, 0.953] (n=11)
+    4 wrong: 0.411 [0.303, 0.518] (n=6)
+    5 wrong: 0.056 [0.045, 0.068] (n=3)
+    6 wrong: 0.013 (n=1)
+    8 wrong: 0.001 (n=1)
+    9 wrong: 0.000 (n=1)

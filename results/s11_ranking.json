@@ -226,5 +226,689 @@
     "top1_frac": 0.85
    }
   }
+ },
+ "MaxCut-12 all non-oracle sources (a) sources at eps = 0.1": {
+  "n": 24,
+  "trivial": 6,
+  "rules": {
+   "overlap": {
+    "top1": 24.0,
+    "regret": 0.0,
+    "pair_ok": 252.5,
+    "pair_n": 263,
+    "pairs": 0.9600760456273765,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 18.333333333333332,
+    "regret": 0.07863340572363355,
+    "pair_ok": 142.0,
+    "pair_n": 263,
+    "pairs": 0.5399239543726235,
+    "top1_frac": 0.7638888888888888
+   },
+   "bandshare": {
+    "top1": 0.0,
+    "regret": 0.2770635204011698,
+    "pair_ok": 10.5,
+    "pair_n": 263,
+    "pairs": 0.039923954372623575,
+    "top1_frac": 0.0
+   },
+   "share": {
+    "top1": 17.0,
+    "regret": 0.05356127439214644,
+    "pair_ok": 131.5,
+    "pair_n": 263,
+    "pairs": 0.5,
+    "top1_frac": 0.7083333333333334
+   }
+  }
+ },
+ "MaxCut-12 all non-oracle sources (b) sources at each eps (7 values)": {
+  "n": 101,
+  "trivial": 109,
+  "rules": {
+   "overlap": {
+    "top1": 101.0,
+    "regret": 0.0,
+    "pair_ok": 1032.5,
+    "pair_n": 1060,
+    "pairs": 0.9740566037735849,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 76.83333333333331,
+    "regret": 0.13292905963494145,
+    "pair_ok": 654.0,
+    "pair_n": 1060,
+    "pairs": 0.6169811320754717,
+    "top1_frac": 0.7607260726072606
+   },
+   "bandshare": {
+    "top1": 0.0,
+    "regret": 0.5602828535592765,
+    "pair_ok": 27.5,
+    "pair_n": 1060,
+    "pairs": 0.025943396226415096,
+    "top1_frac": 0.0
+   },
+   "share": {
+    "top1": 52.142857142857125,
+    "regret": 0.2696426037061473,
+    "pair_ok": 530.0,
+    "pair_n": 1060,
+    "pairs": 0.5,
+    "top1_frac": 0.5162659123055161
+   }
+  }
+ },
+ "MaxCut-12 all non-oracle sources (c) all (source, eps) configurations jointly": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 12899.5,
+    "pair_n": 13025,
+    "pairs": 0.9903646833013435,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 23.0,
+    "regret": 0.23333333333333334,
+    "pair_ok": 5419.0,
+    "pair_n": 13025,
+    "pairs": 0.4160460652591171,
+    "top1_frac": 0.7666666666666667
+   },
+   "bandshare": {
+    "top1": 0.0,
+    "regret": 1.0,
+    "pair_ok": 125.5,
+    "pair_n": 13025,
+    "pairs": 0.00963531669865643,
+    "top1_frac": 0.0
+   },
+   "share": {
+    "top1": 22.94,
+    "regret": 0.1330562601060269,
+    "pair_ok": 6512.5,
+    "pair_n": 13025,
+    "pairs": 0.5,
+    "top1_frac": 0.7646666666666667
+   }
+  }
+ },
+ "MaxCut-12 realistic sources (a) sources at eps = 0.1": {
+  "n": 14,
+  "trivial": 16,
+  "rules": {
+   "overlap": {
+    "top1": 13.0,
+    "regret": 0.0005210092564932878,
+    "pair_ok": 38.0,
+    "pair_n": 41,
+    "pairs": 0.926829268292683,
+    "top1_frac": 0.9285714285714286
+   },
+   "ratio0": {
+    "top1": 7.0,
+    "regret": 0.16098436159470908,
+    "pair_ok": 11.0,
+    "pair_n": 41,
+    "pairs": 0.2682926829268293,
+    "top1_frac": 0.5
+   },
+   "bandshare": {
+    "top1": 0.5,
+    "regret": 0.19038061105671014,
+    "pair_ok": 3.0,
+    "pair_n": 41,
+    "pairs": 0.07317073170731707,
+    "top1_frac": 0.03571428571428571
+   },
+   "share": {
+    "top1": 8.25,
+    "regret": 0.08519463118794236,
+    "pair_ok": 20.5,
+    "pair_n": 41,
+    "pairs": 0.5,
+    "top1_frac": 0.5892857142857143
+   }
+  }
+ },
+ "MaxCut-12 realistic sources (b) sources at each eps (7 values)": {
+  "n": 71,
+  "trivial": 139,
+  "rules": {
+   "overlap": {
+    "top1": 70.0,
+    "regret": 0.00011579669339692338,
+    "pair_ok": 148.5,
+    "pair_n": 152,
+    "pairs": 0.9769736842105263,
+    "top1_frac": 0.9859154929577465
+   },
+   "ratio0": {
+    "top1": 44.0,
+    "regret": 0.20527253923172709,
+    "pair_ok": 68.0,
+    "pair_n": 152,
+    "pairs": 0.4473684210526316,
+    "top1_frac": 0.6197183098591549
+   },
+   "bandshare": {
+    "top1": 0.5,
+    "regret": 0.42577056848820566,
+    "pair_ok": 3.5,
+    "pair_n": 152,
+    "pairs": 0.023026315789473683,
+    "top1_frac": 0.007042253521126761
+   },
+   "share": {
+    "top1": 34.583333333333336,
+    "regret": 0.2067464338856045,
+    "pair_ok": 76.0,
+    "pair_n": 152,
+    "pairs": 0.5,
+    "top1_frac": 0.4870892018779343
+   }
+  }
+ },
+ "MaxCut-12 realistic sources (c) all (source, eps) configurations jointly": {
+  "n": 27,
+  "trivial": 3,
+  "rules": {
+   "overlap": {
+    "top1": 27.0,
+    "regret": 2.5832617106967703e-06,
+    "pair_ok": 1801.5,
+    "pair_n": 1820,
+    "pairs": 0.9898351648351649,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 20.0,
+    "regret": 0.2592591178370228,
+    "pair_ok": 548.0,
+    "pair_n": 1820,
+    "pairs": 0.3010989010989011,
+    "top1_frac": 0.7407407407407407
+   },
+   "bandshare": {
+    "top1": 0.0,
+    "regret": 0.7718268354454081,
+    "pair_ok": 18.5,
+    "pair_n": 1820,
+    "pairs": 0.010164835164835165,
+    "top1_frac": 0.0
+   },
+   "share": {
+    "top1": 21.18181818181818,
+    "regret": 0.08374383458628128,
+    "pair_ok": 910.0,
+    "pair_n": 1820,
+    "pairs": 0.5,
+    "top1_frac": 0.7845117845117845
+   }
+  }
+ },
+ "MaxCut-16 all non-oracle sources (a) sources at eps = 0.1": {
+  "n": 29,
+  "trivial": 1,
+  "rules": {
+   "overlap": {
+    "top1": 29.0,
+    "regret": 0.0,
+    "pair_ok": 352.0,
+    "pair_n": 380,
+    "pairs": 0.9263157894736842,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 25.833333333333336,
+    "regret": 0.02596395556164644,
+    "pair_ok": 273.0,
+    "pair_n": 380,
+    "pairs": 0.718421052631579,
+    "top1_frac": 0.8908045977011495
+   },
+   "bandshare": {
+    "top1": 20.0,
+    "regret": 0.044201129122379154,
+    "pair_ok": 192.0,
+    "pair_n": 380,
+    "pairs": 0.5052631578947369,
+    "top1_frac": 0.6896551724137931
+   },
+   "share": {
+    "top1": 28.0,
+    "regret": 5.204034214920967e-05,
+    "pair_ok": 318.0,
+    "pair_n": 380,
+    "pairs": 0.8368421052631579,
+    "top1_frac": 0.9655172413793104
+   }
+  }
+ },
+ "MaxCut-16 all non-oracle sources (b) sources at each eps (7 values)": {
+  "n": 137,
+  "trivial": 73,
+  "rules": {
+   "overlap": {
+    "top1": 137.0,
+    "regret": 0.0,
+    "pair_ok": 1346.5,
+    "pair_n": 1413,
+    "pairs": 0.9529370134465676,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 121.5,
+    "regret": 0.04438119041238672,
+    "pair_ok": 1038.0,
+    "pair_n": 1413,
+    "pairs": 0.7346072186836518,
+    "top1_frac": 0.8868613138686131
+   },
+   "bandshare": {
+    "top1": 67.0,
+    "regret": 0.24601840825267116,
+    "pair_ok": 657.0,
+    "pair_n": 1413,
+    "pairs": 0.46496815286624205,
+    "top1_frac": 0.48905109489051096
+   },
+   "share": {
+    "top1": 111.91666666666667,
+    "regret": 0.14460540218556475,
+    "pair_ok": 1083.5,
+    "pair_n": 1413,
+    "pairs": 0.7668082094833687,
+    "top1_frac": 0.8169099756690998
+   }
+  }
+ },
+ "MaxCut-16 all non-oracle sources (c) all (source, eps) configurations jointly": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 15097.5,
+    "pair_n": 15895,
+    "pairs": 0.9498269896193772,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 25.0,
+    "regret": 0.16666666666666666,
+    "pair_ok": 6865.5,
+    "pair_n": 15895,
+    "pairs": 0.4319282793331236,
+    "top1_frac": 0.8333333333333334
+   },
+   "bandshare": {
+    "top1": 0.0,
+    "regret": 0.967538218544447,
+    "pair_ok": 7634.0,
+    "pair_n": 15895,
+    "pairs": 0.4802768166089965,
+    "top1_frac": 0.0
+   },
+   "share": {
+    "top1": 9.316666666666666,
+    "regret": 0.6894444444444445,
+    "pair_ok": 10249.5,
+    "pair_n": 15895,
+    "pairs": 0.6448254167977351,
+    "top1_frac": 0.31055555555555553
+   }
+  }
+ },
+ "MaxCut-16 realistic sources (a) sources at eps = 0.1": {
+  "n": 25,
+  "trivial": 5,
+  "rules": {
+   "overlap": {
+    "top1": 22.0,
+    "regret": 0.007860425012079847,
+    "pair_ok": 79.0,
+    "pair_n": 85,
+    "pairs": 0.9294117647058824,
+    "top1_frac": 0.88
+   },
+   "ratio0": {
+    "top1": 20.0,
+    "regret": 0.07529071138726526,
+    "pair_ok": 57.0,
+    "pair_n": 85,
+    "pairs": 0.6705882352941176,
+    "top1_frac": 0.8
+   },
+   "bandshare": {
+    "top1": 11.0,
+    "regret": 0.062119917042997234,
+    "pair_ok": 32.0,
+    "pair_n": 85,
+    "pairs": 0.3764705882352941,
+    "top1_frac": 0.44
+   },
+   "share": {
+    "top1": 23.0,
+    "regret": 0.010192142237073862,
+    "pair_ok": 67.0,
+    "pair_n": 85,
+    "pairs": 0.788235294117647,
+    "top1_frac": 0.92
+   }
+  }
+ },
+ "MaxCut-16 realistic sources (b) sources at each eps (7 values)": {
+  "n": 128,
+  "trivial": 82,
+  "rules": {
+   "overlap": {
+    "top1": 121.0,
+    "regret": 0.012198677104998508,
+    "pair_ok": 252.0,
+    "pair_n": 267,
+    "pairs": 0.9438202247191011,
+    "top1_frac": 0.9453125
+   },
+   "ratio0": {
+    "top1": 109.0,
+    "regret": 0.0626802492099469,
+    "pair_ok": 199.0,
+    "pair_n": 267,
+    "pairs": 0.7453183520599251,
+    "top1_frac": 0.8515625
+   },
+   "bandshare": {
+    "top1": 46.0,
+    "regret": 0.10577418325959839,
+    "pair_ok": 112.0,
+    "pair_n": 267,
+    "pairs": 0.41947565543071164,
+    "top1_frac": 0.359375
+   },
+   "share": {
+    "top1": 116.0,
+    "regret": 0.022695259184677144,
+    "pair_ok": 213.0,
+    "pair_n": 267,
+    "pairs": 0.797752808988764,
+    "top1_frac": 0.90625
+   }
+  }
+ },
+ "MaxCut-16 realistic sources (c) all (source, eps) configurations jointly": {
+  "n": 29,
+  "trivial": 1,
+  "rules": {
+   "overlap": {
+    "top1": 26.0,
+    "regret": 0.0002652829030764918,
+    "pair_ok": 2598.0,
+    "pair_n": 2764,
+    "pairs": 0.9399421128798843,
+    "top1_frac": 0.896551724137931
+   },
+   "ratio0": {
+    "top1": 24.0,
+    "regret": 0.1723619690872919,
+    "pair_ok": 1537.0,
+    "pair_n": 2764,
+    "pairs": 0.5560781476121563,
+    "top1_frac": 0.8275862068965517
+   },
+   "bandshare": {
+    "top1": 12.0,
+    "regret": 0.26805528143435753,
+    "pair_ok": 1393.0,
+    "pair_n": 2764,
+    "pairs": 0.5039797395079595,
+    "top1_frac": 0.41379310344827586
+   },
+   "share": {
+    "top1": 25.0,
+    "regret": 0.10527460459933248,
+    "pair_ok": 2373.0,
+    "pair_n": 2764,
+    "pairs": 0.8585383502170767,
+    "top1_frac": 0.8620689655172413
+   }
+  }
+ },
+ "MaxCut-20 all non-oracle sources (a) sources at eps = 0.1": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 496.5,
+    "pair_n": 552,
+    "pairs": 0.8994565217391305,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 21.666666666666664,
+    "regret": 0.1013226339384979,
+    "pair_ok": 406.5,
+    "pair_n": 552,
+    "pairs": 0.7364130434782609,
+    "top1_frac": 0.7222222222222221
+   },
+   "bandshare": {
+    "top1": 10.0,
+    "regret": 0.11372278437470536,
+    "pair_ok": 226.0,
+    "pair_n": 552,
+    "pairs": 0.40942028985507245,
+    "top1_frac": 0.3333333333333333
+   },
+   "share": {
+    "top1": 28.416666666666668,
+    "regret": 0.0024813348846783414,
+    "pair_ok": 447.0,
+    "pair_n": 552,
+    "pairs": 0.8097826086956522,
+    "top1_frac": 0.9472222222222223
+   }
+  }
+ },
+ "MaxCut-20 all non-oracle sources (b) sources at each eps (7 values)": {
+  "n": 177,
+  "trivial": 33,
+  "rules": {
+   "overlap": {
+    "top1": 177.0,
+    "regret": 0.0,
+    "pair_ok": 1924.5,
+    "pair_n": 2032,
+    "pairs": 0.9470964566929134,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 134.5,
+    "regret": 0.09067424552308326,
+    "pair_ok": 1519.0,
+    "pair_n": 2032,
+    "pairs": 0.7475393700787402,
+    "top1_frac": 0.7598870056497176
+   },
+   "bandshare": {
+    "top1": 50.0,
+    "regret": 0.26026890527974833,
+    "pair_ok": 749.0,
+    "pair_n": 2032,
+    "pairs": 0.3686023622047244,
+    "top1_frac": 0.2824858757062147
+   },
+   "share": {
+    "top1": 151.26666666666665,
+    "regret": 0.09063031958779284,
+    "pair_ok": 1631.5,
+    "pair_n": 2032,
+    "pairs": 0.8029035433070866,
+    "top1_frac": 0.8546139359698681
+   }
+  }
+ },
+ "MaxCut-20 all non-oracle sources (c) all (source, eps) configurations jointly": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 30.0,
+    "regret": 0.0,
+    "pair_ok": 22339.5,
+    "pair_n": 23925,
+    "pairs": 0.933730407523511,
+    "top1_frac": 1.0
+   },
+   "ratio0": {
+    "top1": 20.0,
+    "regret": 0.3333333333333333,
+    "pair_ok": 12961.5,
+    "pair_n": 23925,
+    "pairs": 0.5417554858934169,
+    "top1_frac": 0.6666666666666666
+   },
+   "bandshare": {
+    "top1": 0.0,
+    "regret": 0.9365387626116034,
+    "pair_ok": 9748.0,
+    "pair_n": 23925,
+    "pairs": 0.40743991640543364,
+    "top1_frac": 0.0
+   },
+   "share": {
+    "top1": 7.883333333333333,
+    "regret": 0.7372222222222222,
+    "pair_ok": 16903.5,
+    "pair_n": 23925,
+    "pairs": 0.7065203761755486,
+    "top1_frac": 0.2627777777777778
+   }
+  }
+ },
+ "MaxCut-20 realistic sources (a) sources at eps = 0.1": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 24.0,
+    "regret": 0.027484552313319914,
+    "pair_ok": 125.0,
+    "pair_n": 146,
+    "pairs": 0.8561643835616438,
+    "top1_frac": 0.8
+   },
+   "ratio0": {
+    "top1": 22.0,
+    "regret": 0.08074123205254802,
+    "pair_ok": 100.0,
+    "pair_n": 146,
+    "pairs": 0.684931506849315,
+    "top1_frac": 0.7333333333333333
+   },
+   "bandshare": {
+    "top1": 6.0,
+    "regret": 0.19993584075974896,
+    "pair_ok": 44.0,
+    "pair_n": 146,
+    "pairs": 0.3013698630136986,
+    "top1_frac": 0.2
+   },
+   "share": {
+    "top1": 26.0,
+    "regret": 0.01620966430862363,
+    "pair_ok": 118.0,
+    "pair_n": 146,
+    "pairs": 0.8082191780821918,
+    "top1_frac": 0.8666666666666667
+   }
+  }
+ },
+ "MaxCut-20 realistic sources (b) sources at each eps (7 values)": {
+  "n": 177,
+  "trivial": 33,
+  "rules": {
+   "overlap": {
+    "top1": 164.0,
+    "regret": 0.017872606975058485,
+    "pair_ok": 411.0,
+    "pair_n": 448,
+    "pairs": 0.9174107142857143,
+    "top1_frac": 0.9265536723163842
+   },
+   "ratio0": {
+    "top1": 147.0,
+    "regret": 0.058013708116735174,
+    "pair_ok": 343.0,
+    "pair_n": 448,
+    "pairs": 0.765625,
+    "top1_frac": 0.8305084745762712
+   },
+   "bandshare": {
+    "top1": 32.0,
+    "regret": 0.25780279767912756,
+    "pair_ok": 117.0,
+    "pair_n": 448,
+    "pairs": 0.2611607142857143,
+    "top1_frac": 0.1807909604519774
+   },
+   "share": {
+    "top1": 147.5,
+    "regret": 0.02939617633452802,
+    "pair_ok": 365.5,
+    "pair_n": 448,
+    "pairs": 0.8158482142857143,
+    "top1_frac": 0.8333333333333334
+   }
+  }
+ },
+ "MaxCut-20 realistic sources (c) all (source, eps) configurations jointly": {
+  "n": 30,
+  "trivial": 0,
+  "rules": {
+   "overlap": {
+    "top1": 21.0,
+    "regret": 0.005411969936070256,
+    "pair_ok": 4534.0,
+    "pair_n": 4948,
+    "pairs": 0.9163298302344381,
+    "top1_frac": 0.7
+   },
+   "ratio0": {
+    "top1": 20.0,
+    "regret": 0.32343288774932755,
+    "pair_ok": 2998.0,
+    "pair_n": 4948,
+    "pairs": 0.6059013742926435,
+    "top1_frac": 0.6666666666666666
+   },
+   "bandshare": {
+    "top1": 4.0,
+    "regret": 0.3166393444570291,
+    "pair_ok": 2018.0,
+    "pair_n": 4948,
+    "pairs": 0.4078415521422797,
+    "top1_frac": 0.13333333333333333
+   },
+   "share": {
+    "top1": 21.5,
+    "regret": 0.09233422318505828,
+    "pair_ok": 4229.5,
+    "pair_n": 4948,
+    "pairs": 0.8547898140662894,
+    "top1_frac": 0.7166666666666667
+   }
+  }
  }
 }

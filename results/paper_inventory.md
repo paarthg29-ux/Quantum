@@ -1,6 +1,6 @@
 # Paper inventory: what we can support, where it comes from, and what is missing
 
-Status at 2026-11-06, branch `qguc-pipeline`, after the last experimental round. **Committed** = the run data and the analysis output are in git (commit given). **Uncommitted** = the file exists but is not in git.
+Status at 2026-11-15, branch `qguc-pipeline`, after the MaxCut generalisation round (T24-T27, added 2026-11-15; everything else as of 2026-11-06). **Committed** = the run data and the analysis output are in git (commit given). **Uncommitted** = the file exists but is not in git.
 
 **Framing (locked): no quantum-advantage claim anywhere.** A classical sampler solves these instances in milliseconds (T19). The contribution is what determines warm-start quality within QAOA.
 
@@ -51,6 +51,10 @@ The paper studies warm-started QAOA for Haryana unit commitment, encoded as a ca
 | T21 | **Finite-shot optimisation (G3 scoped)**: 128 / 1024 / 8192 shots, exact evaluation | Claim 7. Loss at 128 shots: C-milp −0.021, D −0.041, A −0.106, F −0.142. C-milp − D advantage change +0.02 (not significant). Under shot noise COBYLA stops after 21–34 evaluations (72–183 exact) | `s10_robust.txt` (`s10_robust.py`) | **uncommitted** |
 | T22 | **Second optimiser (G11)**: Nelder–Mead, exact expectations | Claim 7: C-milp − D +0.172 (COBYLA +0.174); all pairs within 0.01 | `s10_robust.txt` | **uncommitted** |
 | T23 | **Simulator validation (G12)** against PennyLane default.qubit; best-of-K vs Monte Carlo | Worst error over 45 cases 1.5 × 10⁻¹⁴; a real UC instance to 2.2 × 10⁻¹⁴; Monte Carlo within 2.5 standard errors | `s10_simulator_validation.txt` (`s10_validation.py`) | **uncommitted** |
+| T24 | **Band share on 3-regular MaxCut, p = 1** (n = 12, 16, 20; 30 graphs each; sources A, GW, GW + local search, random, badly pinned k = 0-4; same eps sweep, mixer, optimiser and best-of-K metric as UC; 15,390 runs) | **Band share does not generalise as stated.** The UC curve does not transfer: R² −0.07 / 0.26 / −0.02 at n = 12 / 16 / 20 (it transferred to UC 22 qubits at 0.91). Refit on MaxCut: overlap alone R² 0.86 / 0.84 / 0.72; adding the 5% band 0.86 / 0.90 / 0.86, and per-source intercepts still matter (ΔR² 0.03-0.04). The 5% band is the optimum alone at n = 12 and optimum + one cut level at n = 16, 20. Sensitivity only: a band of two cut levels gives 0.95 / 0.89 / 0.89. n = 12 and 16 are near ceiling (cold start 1.000 / 0.998); only n = 20 discriminates (cold start 0.881, above GW at eps = 0.1) | `s11_maxcut.txt` (`s11_maxcut.py`, `s11_maxcut_analysis.py`), runs `s11_maxcut_runs.jsonl` | yes |
+| T25 | **Wrong-pin dose-response on MaxCut** (artificial bad pins, and GW by its own wrong pins) | The mechanism reproduces outside UC: at eps = 0.05, P = 1.00 / 1.00 / 0.78-0.83 / 0.24-0.35 at 1 / 2 / 3 / 4 wrong pins, at every size; GW at eps = 0.1 falls from 1.00 (0-2 wrong) to 0.41 (4) and 0.06 (5). On MaxCut overlap alone already tracks it | `s11_maxcut.txt` (section 3) | yes |
+| T26 | **Ranking sources by a depth-0 rule** (overlap and initial approximation ratio of Bhattacharyya et al. vs band share), UC 16 / 22 qubits and MaxCut | Overlap picks the best source in 30/30 (UC-16), 19/20 (UC-22), 24/24, 29/29, 30/30 (MaxCut 12 / 16 / 20, all non-oracle sources) and 13/14, 22/25, 24/30 (MaxCut, realistic sources). Band share ties it on UC (30/30, 19/20; pairs ordered 97% / 96% vs 93% / 93%) and wins only the joint source-and-eps choice at 22 qubits (19/20 vs 16/20). **On MaxCut the UC-fitted index fails** (0/24, 20/29, 10/30); the plain ratio overlap/m5 is comparable to overlap only on the realistic sources at n = 16, 20 (23/25, 26/30). The initial approximation ratio is the poor rule everywhere (12/30, 1/20 on UC) | `s11_ranking.txt` (`s11_ranking.py`) | yes |
+| T27 | **Epsilon decision regret** of depth-0 rules, UC (existing runs) | Choosing eps by maximum overlap costs the LP 0.022 (worst 0.149) and merit order 0.057 (worst 0.289) at 16 qubits, 0.033 (0.492) and 0.038 (0.467) at 22; band share cuts this to ≤ 0.006 mean, ≤ 0.105 worst. Learned starts: every rule within 0.01. The 22-qubit choice is between two eps values only; the 16-qubit fitted index is in-sample (the plain ratio is not, and gives the same LP result) | `s11_eps_regret.txt` (`s11_eps_regret.py`) | yes (7f226fc) |
 
 ## Figures
 
@@ -79,7 +83,11 @@ The paper studies warm-started QAOA for Haryana unit commitment, encoded as a ca
 | C-oracle beats C-milp | **Not supported** (tie). **Writing (G7):** present C-oracle as the labels upper bound. Its labels need the exact QUBO ground state (brute force: 15 s for 350 instances at 16 qubits, about 8 min at 22), so it does not scale, and it buys nothing over MILP labels |
 | B matches C-milp | On sampling yes (tie); on final g and single-shot P(ground) no |
 | Overlap alone predicts sampling | **No** |
-| Band share explains sampling | **Holds** (R² 0.95–0.98, held-out arms within 0.015, transfers L2 → L4). Diagnostic, not predictive |
+| Band share explains sampling | **Holds for unit commitment** (R² 0.95–0.98, held-out arms within 0.015, transfers L2 → L4). Diagnostic, not predictive |
+| Band share is a property of warm-started QAOA, not of our encoding | **Not supported** (T24): the UC curve does not transfer to 3-regular MaxCut (R² ≈ 0), and on MaxCut overlap alone explains most of the variation. Scope the claim to UC |
+| Wrong pins degrade sampling outside UC | **Holds** on MaxCut with artificial and GW pins (T25) |
+| Band share ranks sources better than depth-0 overlap | **Not supported** (T26): overlap ranks as well on UC and better on MaxCut. Overlap fails on magnitude (R² 0.55 on UC) and on choosing eps for heuristic sources (T27), not on ranking |
+| Approximation ratio and optimum sampling diverge | **Reproduces on MaxCut** (GW final g 0.84 vs cold 0.48, yet lower P at n = 20). Prior work, not our claim |
 | The LP needs ε tuned; learned starts do not | **Holds** |
 | ~~The LP's best ε is unstable~~ | **Dropped**; replaced by the regret claim |
 | The LP's wrong pins grow with problem size | **Holds** generally (horizon and granularity), one fleet |
