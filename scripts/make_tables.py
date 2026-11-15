@@ -1088,6 +1088,18 @@ def generalisation_section():
     learned = [c for (s, a), c in cells.items() if a.startswith("C-")]
     mac("ERLearnedMax", f3(max(c[k]["mean"] for c in learned for k in ("overlap", "bandshare", "share"))))
 
+    rows = []
+    for n in names:
+        fits = mc["sizes"][f"n = {n}"]["fits"]
+        d = [mc["dose"][f"{n}/0.05/{k}"]["mean"] for k in range(5)]
+        key = f"MaxCut-{n} all non-oracle sources (a) sources at eps = 0.1"
+        rows.append([str(n), f3(by_instance([r for r in recs if r["n"] == n and r["arm"] == "A"]).mean()),
+                     f2(min(d[:3])), f2(d[3]), f2(d[4]), f2(fits["log10 overlap"]["r2"]),
+                     f2(fits["ov + m_e05"]["r2"]), f"{mc['transfer'][f'n = {n}']['ov + m_e05']['r2']:+.2f}",
+                     "/".join(top(key, "overlap")), "/".join(top(key, "bandshare"))])
+    table("maxcut", "c|c|ccc|ccc|cc",
+          ["$n$", "Cold", r"$\leq$2", "3", "4", "Ov.", "+Band", "UC curve", "Ov.", "Band"], rows)
+
     bd = json.loads((RES / "s12_band_density.json").read_text())["tests"]
     mac("BDPooled", s2(bd["pooled/density"]["rho"]))
     mac("BDWithin", s2(bd["pooled/density"]["rho_within"]))

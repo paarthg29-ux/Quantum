@@ -1,291 +1,114 @@
 % Results. Every number is a macro from paper/numbers.tex (scripts/make_tables.py).
 % Convention: P_K = probability that the best of K samples is an exact ground state; "scenario level" = paired over
 % the \NScen held-out scenarios (seed means first); "group level" = one value per structural group (n = \NGroupsGL).
+% Full tables moved to paper/supplement.tex: main table (S3), 22 qubits (S4), band-share fits (S5), wrong-pin
+% census (S6), robustness (S7), out of distribution (S8), classical samplers (S9); figures S1 (eps), S2 (classical).
 \section{Results}
 \label{sec:results}
 
-\subsection{Learned warm starts sample the ground state far more reliably}
-\label{sec:res-arms}
-
-At $n=\NLtwo$ and $p=1$, the learned warm starts make QAOA return an exact ground state among \KMax{} samples almost always. The LP relaxation, the merit-order heuristic and the cold start do so much less often.
-
-Table~\ref{tab:arms} gives the main table: \NScen\ held-out scenarios $\times$ \NSeedsMain\ seeds, $\varepsilon=\EpsMain$.
-\begin{itemize}
-\item C-milp reaches $P_{\KMax}=\PgndCmilp$ \PgndCICmilp, and C-oracle \PgndCoracle.
-\item The LP relaxation (D) reaches \PgndD\ \PgndCID, merit order (F) \PgndF, the cold start (A) \PgndA, and the random control (E) \PgndE.
-\end{itemize}
-
-The paired scenario-level differences are:
-\begin{itemize}
-\item C-milp $-$ D $=\CmilpMinusD$ \CmilpMinusDCI, with C-milp ahead in \CmilpMinusDW\ of \CmilpMinusDN\ scenarios;
-\item C-milp $-$ F $=\CmilpMinusF$ \CmilpMinusFCI;
-\item C-milp $-$ A $=\CmilpMinusA$ \CmilpMinusACI.
-\end{itemize}
-At the group level ($n=\NGroupsGL$), C-milp $-$ F and C-milp $-$ A keep intervals clear of zero (\CmilpMinusFGL\ \CmilpMinusFGLCI\ and \CmilpMinusAGL\ \CmilpMinusAGLCI). C-milp $-$ D is \CmilpMinusDGL\ \CmilpMinusDGLCI, an interval that touches zero. The effect against D is large in a minority of structures and zero in the rest (Section~\ref{sec:res-pins}).
-
-\paragraph{Other comparisons}
-\begin{itemize}
-\item \textbf{C-oracle and C-milp tie:} C-oracle $-$ C-milp $=\CoracleMinusCmilp$ \CoracleMinusCmilpCI\ (group level \CoracleMinusCmilpGL\ \CoracleMinusCmilpGLCI). Exact ground-state labels buy nothing over MILP labels.
-\item \textbf{B (the learned state with the $X$ mixer) ties C-milp on $P_{\KMax}$} (\BMinusCmilp\ \BMinusCmilpCI). It is worse on final gain ($\GfinalBMinusCmilp$, lower in \GfinalBMinusCmilpL\ of \GfinalBMinusCmilpN\ scenarios) and on single-shot $P_1$ ($\PoneBMinusCmilp$ \PoneBMinusCmilpCI).
-\item \textbf{The random control is worse than starting cold:} E $-$ A $=\EMinusA$ \EMinusACI.
-\item \textbf{Merit order improves gain over the cold start, but not sampling:} F $-$ A $=\FMinusA$ \FMinusACI.
-\end{itemize}
-
-\paragraph{Depth} Depth barely helps the warm arms. From $p=1$ to $p=3$, C-milp moves from \PgndCmilp\ to \PgndPthreeCmilp\ and D from \PgndD\ to \PgndPthreeD. Only the cold start improves (\PgndA\ to \PgndPthreeA).
-
-\begin{table*}[t]
-\centering
-\caption{Main table: L2 ($n=\NLtwo$), \NScen\ held-out scenarios $\times$ \NSeedsMain\ seeds, $\varepsilon=\EpsMain$. $P_{\KMax}$: probability that the best of \KMax{} samples is an exact ground state, scenario mean with 95\% $t$-interval over scenarios (columns $p{=}2,3$: means). $P_1$: single-shot probability of the ground state. $g$: final common-reference gain at $p=1$. Gap: expected repaired operating-cost gap of the best of \KMax{} samples, \%. Wrong: wrongly pinned bits of the raw warm start.}
-\label{tab:arms}
-\footnotesize
-\input{tables/arms}
-\end{table*}
-
-\subsection{The advantage survives tuning the LP and reaching \NLfour\ qubits}
-\label{sec:res-tuned}
-
-Tuning the LP's regularisation for sampling does not close the gap.
-
-\paragraph{Each arm at its own best $\varepsilon$} Table~\ref{tab:eps} gives $p=1$ over the $\varepsilon$ sweep, with each arm at the $\varepsilon$ that maximises its scenario-mean $P_{\KMax}$ ($\varepsilon=\EpsMax$ excluded). The LP is best at $\varepsilon=\BestEpsD$, where it reaches \PgndBestD\ \PgndBestCID. C-oracle reaches \PgndBestCoracle\ at $\varepsilon=\BestEpsCoracle$ and C-milp \PgndBestCmilp\ at $\varepsilon=\BestEpsCmilp$.
-
-The paired comparisons are:
-\begin{itemize}
-\item D $-$ C-oracle $=\BestDMinusCoracle$ \BestDMinusCoracleCI\ (D behind in \BestDMinusCoracleL\ of \BestDMinusCoracleN\ scenarios), and \BestDMinusCoracleGL\ \BestDMinusCoracleGLCI\ at the group level.
-\item D $-$ C-milp $=\BestDMinusCmilp$ \BestDMinusCmilpCI\ at the scenario level. At the group level it is \BestDMinusCmilpGL\ \BestDMinusCmilpGLCI, so granting D its in-sample best $\varepsilon$ leaves the group-level gap to C-milp borderline.
-\end{itemize}
-
-\paragraph{Cross-validated $\varepsilon$} Choosing each arm's $\varepsilon$ on the same scenarios it is evaluated on flatters the arm whose optimum is noisiest. Our primary numbers therefore choose $\varepsilon$ on half of the structural groups and evaluate on the other half, over \NSplits\ random splits (Table~\ref{tab:eps}, last column):
-\begin{itemize}
-\item D $-$ C-oracle $=\CVDMinusCoracle$, with D worse in \CVDMinusCoracleWorse\% of splits;
-\item D $-$ C-milp $=\CVDMinusCmilp$, with D worse in \CVDMinusCmilpWorse\%;
-\item D $-$ F $=\CVDMinusF$, so at its best the LP is indistinguishable from merit order.
-\end{itemize}
-
-\begin{table*}[t]
-\centering
-\caption{Regularisation. Each arm at its best $\varepsilon^\star$ (maximising scenario-mean $P_{\KMax}$; $\varepsilon=\EpsMax$ excluded); L2, $p=1$, \NScen\ scenarios $\times$ \NSeedsSweep\ seeds. $g$: final gain. Regret: drop in group-level $P_{\KMax}$ from $\varepsilon^\star$. Last three columns: the LP (at its own $\varepsilon^\star$) minus the arm, paired over scenarios and over the \NGroupsGL\ structural groups (95\% $t$-intervals), and group-fold cross-validated over \NSplits\ splits (mean; share of splits in which D is worse).}
-\label{tab:eps}
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\input{tables/epsmerged}
-\end{table*}
-
-\paragraph{The gain ranking flips between the two tables} This follows from the $\varepsilon$ trade-off and is not a contradiction.
-\begin{itemize}
-\item \textbf{At $\varepsilon=\EpsMain$} the LP has the highest final gain of any arm (\GfinalD, against \GfinalCoracle\ for C-oracle): C-oracle $-$ D $=\GfinalCoracleMinusD$ \GfinalCoracleMinusDCI, with D higher in all \GfinalCoracleMinusDL\ scenarios.
-\item \textbf{At each arm's own best $\varepsilon$} the order reverses: D $-$ C-oracle $=\GfinalBestDMinusCoracle$ \GfinalBestDMinusCoracleCI, with D lower in all \GfinalBestDMinusCoracleL.
-\end{itemize}
-Every warm arm has a lower final gain at its larger-$\varepsilon$ setting (Table~\ref{tab:eps}), because a larger $\varepsilon$ moves the initial state towards uniform. The LP's sampling optimum ($\varepsilon=\BestEpsD$) lies well above the learned arms' ($\varepsilon=\BestEpsCoracle$ and \BestEpsCmilp). The LP therefore gives up gain to dilute its wrongly pinned bits; the learned arms get high gain and high sampling at small $\varepsilon$.
-
-\paragraph{At \NLfour\ qubits} Table~\ref{tab:lfour} gives the result over \LfourNStruct\ structurally distinct L4 instances $\times$ \NSeedsLfour\ seeds. At L4's own calibrated operating point:
-\begin{itemize}
-\item C-milp $-$ D $=\LfourOwnCmilpMinusDTen$ \LfourOwnCmilpMinusDTenCI\ per structure at $\varepsilon=\EpsMain$ (C-milp ahead in \LfourOwnCmilpMinusDTenW\ of \LfourNStruct), and \LfourOwnCmilpMinusDTenRw\ \LfourOwnCmilpMinusDTenRwCI\ reweighted to the demand distribution;
-\item at each arm's Phase-1 best $\varepsilon$, it is \LfourOwnCmilpMinusDBest\ \LfourOwnCmilpMinusDBestCI.
-\end{itemize}
-At the frozen (L2-calibrated) point the same comparison is \LfourFrzCmilpMinusDTen\ \LfourFrzCmilpMinusDTenCI. The paired change between the two operating points is \LfourChangeTen\ \LfourChangeTenCI: consistent with zero, so the advantage is not an artefact of the L2-calibrated encoding, although the interval is wide.
-
-Every arm does worse at \NLfour\ qubits than at \NLtwo: at the own point, C-milp reaches \LfourOwnPgndCmilp, D \LfourOwnPgndD\ and the cold start \LfourOwnPgndA.
-
-\begin{table}[t]
-\centering
-\caption{L4 ($n=\NLfour$, complex64): \LfourNStruct\ structurally distinct instances (one per ground-state/LP-pin signature, covering \LfourCoverage\% of the demand distribution) $\times$ \NSeedsLfour\ seeds, $p=1$. Per-structure mean with 95\% $t$-interval, and the mean reweighted to the demand distribution, at the frozen point and at L4's own calibrated point ($\lambda_D=\OwnLambdaLfour$, $B=\OwnBiasLfour$\,MW).}
-\label{tab:lfour}
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\input{tables/lfour}
-\end{table}
-
-\subsection{The mechanism: the LP pins marginal units to the wrong value}
+\subsection{Wrong pins degrade sampling with a dose--response}
 \label{sec:res-pins}
 
-The LP's deficit is confined to instances where it pins several bits to values the ground state does not take, and it grows with the number of such bits (Table~\ref{tab:dose}).
+\paragraph{Unit commitment} At $n=\NLtwo$, $p=1$ and $\varepsilon=\EpsMain$, the learned start C-milp reaches $P_{\KMax}=\PgndCmilp$ \PgndCICmilp\ and the LP relaxation (D) \PgndD\ \PgndCID. The LP's deficit is confined to instances where it pins several bits to values the ground state does not take, and it grows with their number (Table~\ref{tab:dose}). C-milp $-$ D is $\DoseLtwoLow$ for the \DoseLtwoLowN\ scenarios with 0--1 wrong pins, $\DoseLtwoTwo$ for the \DoseLtwoTwoN\ with exactly two, and $\DoseLtwoThree$ for the \DoseLtwoThreeN\ with three or more. The same pattern holds at \NLfour\ qubits at both operating points: with three or more wrong pins C-milp leads by \DoseLfourFrzThree\ and \DoseLfourOwnThree, with intervals clear of zero; with 0--1 the LP is slightly better (\DoseLfourFrzLow\ and \DoseLfourOwnLow, intervals including zero). The learned start pins far fewer bits wrongly: \LfourOwnWrongCmilp\ per instance at L4's own point, against \LfourOwnWrongD\ for the LP.
 
-\paragraph{At L2} At the scenario level, $P_{\KMax}$ for C-milp $-$ D, by the LP's wrong-pin count, is:
-\begin{itemize}
-\item $\DoseLtwoLow$ for the \DoseLtwoLowN\ scenarios with 0--1 wrong pins;
-\item $\DoseLtwoTwo$ for the \DoseLtwoTwoN\ with exactly two;
-\item $\DoseLtwoThree$ for the \DoseLtwoThreeN\ with three or more.
-\end{itemize}
-In all, the LP falls below $P_{\KMax}=\LowThreshold$ in \NLowD\ of \NScen\ scenarios, C-milp in \NLowCmilp, and C-oracle in \NLowCoracle.
+The wrong pins fall on small, expensive marginal units. In the L4 census the per-block wrong-pin rate has Spearman correlation \ConcCapLfour\ with capacity and \ConcRankLfour\ with merit-order rank; the large, cheap units are never wrongly pinned.
 
-\paragraph{At L4} The same pattern holds at both operating points. With three or more wrong pins, C-milp leads by \DoseLfourFrzThree\ (frozen point, \DoseLfourFrzThreeN\ structures) and \DoseLfourOwnThree\ (own point, \DoseLfourOwnThreeN), with both intervals clear of zero. With 0--1 wrong pins the LP is slightly better (\DoseLfourFrzLow\ and \DoseLfourOwnLow, intervals including zero). With exactly two, no system shows a significant difference.
-
-The learned start pins far fewer bits wrongly: \LfourOwnWrongCmilp\ per instance at L4's own point, against \LfourOwnWrongD\ for the LP.
-
-\paragraph{Which units} The wrong pins fall on small, expensive marginal units. In the L4 census the per-block wrong-pin rate has Spearman correlation \ConcCapLfour\ with capacity and \ConcRankLfour\ with merit-order rank. The large, cheap units (every IGSTPP and RGTPP unit) are never wrongly pinned.
+\paragraph{MaxCut} On UC the dose comes with the source. On MaxCut we set it by hand (Table~\ref{tab:maxcut}). At $\varepsilon=\MCDoseEps$, a start with up to two wrongly pinned vertices returns a maximum cut with probability \MCDoseTwoMin\ at every size. With three it is \MCDoseThreeMin--\MCDoseThreeMax\ and with four \MCDoseFourMin--\MCDoseFourMax. Goemans--Williamson cuts, binned by their own wrong pins at $\varepsilon=\EpsMain$, follow the same curve: \MCGWPinsLow\ with at most two, \MCGWPinsFour\ with four and \MCGWPinsFive\ with five. A larger $\varepsilon$ flattens the curve, as on UC. The mechanism therefore needs neither a relaxation nor the UC encoding.
 
 \begin{table}[t]
 \centering
-\caption{Dose--response: $P_{\KMax}$ by the number of bits the LP pins wrongly ($p=1$, $\varepsilon=\EpsMain$). Inst.: scenarios (L2) or structures (L4) in the bin; 95\% $t$-interval of the paired difference.}
+\caption{Dose--response on UC: $P_{\KMax}$ by the number of bits the LP pins wrongly ($p=1$, $\varepsilon=\EpsMain$). Inst.: scenarios (L2) or structures (L4) in the bin; 95\% $t$-interval of the paired difference.}
 \label{tab:dose}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
 \input{tables/dose}
 \end{table}
 
-\subsection{Band share, not overlap, predicts sampling}
-\label{sec:res-band}
-
-The initial ground-state overlap does not explain sampling across arms. The ground state's share of the initial low-energy band does.
-
-\paragraph{The fit} We pooled every $p=1$ run of the $\varepsilon$ sweep with nonzero overlap (all arms and all $\varepsilon$) and fitted $P_{\KMax}$ by logistic least squares (Fig.~\ref{fig:bandshare}, Table~\ref{tab:bandshare}).
-\begin{itemize}
-\item $\log_{10}$ overlap alone gives $R^2=\BSRtwoOverlap$. The arms separate: the per-arm mean residuals span \BSSpreadOverlap, and arm-specific intercepts add $\Delta R^2=\BSdRtwoOverlap$.
-\item Adding the band mass $m_5$ gives $R^2=\BSRtwoBand$, cuts the residual spread to \BSSpreadBand, and leaves nothing for arm intercepts ($\Delta R^2=\BSdRtwoBand$).
-\end{itemize}
-
-The coefficient on $\log_{10}m_5$ is \emph{negative} (\BSCoefBand, against \BSCoefOverlap\ on $\log_{10}$ overlap). At fixed overlap, more initial mass on other near-ground states means \emph{lower} ground-state sampling. Spreading the initial state over several low-energy states hurts; what matters is the ground state's share of that band.
-
-The fitted combination is the band-share index $\log_{10}(\mathrm{overlap}/m_5^{k})$ with $k=\BSExponent$. The plain ratio ($k=1$) reaches $R^2=\BSRtwoShare$ but leaves a residual spread of \BSSpreadShare.
-
-\paragraph{The fit is predictive, not curve-fitted}
-\begin{itemize}
-\item \textbf{Held-out arms.} Fitted only on the non-learned runs (A, D, F and every arm at $\varepsilon=\EpsMax$), overlap alone under-predicts the learned arms by \BSHeldOutOverlapMin--\BSHeldOutOverlapMax. Overlap plus band mass predicts them within \BSHeldOutBandMax.
-\item \textbf{Held-out structures.} Leaving out one structural group at a time, the cross-validated $R^2$ is \BSLogoOverlap\ for overlap alone and \BSLogoBand\ with band mass.
-\item \textbf{Instance hardness.} For the cold start, where the overlap barely differs across instances, $P_{\KMax}$ has Spearman correlation \BSColdSpearmanOverlap\ with overlap and \BSColdSpearmanBand\ with band mass. The same variable that separates the arms also explains instance hardness.
-\item \textbf{Depth.} With the main-table runs (seven arms, \NSeedsMain\ seeds), overlap plus band mass gives $R^2=\BSPhaseTwoBandPOne$, \BSPhaseTwoBandPTwo\ and \BSPhaseTwoBandPThree\ at $p=1,2,3$, against \BSPhaseTwoOverlapPOne, \BSPhaseTwoOverlapPTwo\ and \BSPhaseTwoOverlapPThree\ for overlap alone.
-\item \textbf{System size.} At L4 the refit gives \BSLfourBand\ (overlap alone: \BSLfourOverlap). The L2 curve applied \emph{unchanged} to L4 gives $R^2=\BSTransferBand$, against \BSTransferOverlap\ for the transferred overlap-only curve. It predicts the warm arms within \BSTransferWarmMax; the cold start lies \BSTransferColdResid\ above it.
-\end{itemize}
-
-Band share is a diagnostic, not a predictor: computing it needs the full spectrum.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/fig_bandshare.pdf}
-\caption{$P_{\KMax}$ against (a) the initial ground-state overlap and (b) the band-share index $\log_{10}(\mathrm{overlap}/m_5^{k})$, $k=\BSExponent$ fitted. Points: arm $\times$ $\varepsilon$ $\times$ scenario means ($p=1$, L2); curves: one logistic fit pooled over all arms and $\varepsilon$. On overlap the arms separate; on band share they collapse onto one curve. D at $\varepsilon=0$ has overlap exactly zero or below the axis range ($\triangleleft$ at the edge), and $P_{\KMax}=0$.}
-\label{fig:bandshare}
-\end{figure*}
-
 \begin{table}[t]
 \centering
-\caption{Logistic fits of $P_{\KMax}$ pooled over all arms and $\varepsilon$ (L2, $p=1$). Arm resid.\ spread: range of the per-arm mean residuals. $\Delta R^2$ arm int.: gain from adding arm-specific intercepts.}
-\label{tab:bandshare}
+\caption{3-regular MaxCut, $p=1$, \MCGraphs\ graphs per size. Cold: $P_{\KMax}$ of the cold start. Columns 3--5: $P_{\KMax}$ of the badly pinned starts by wrong pins ($\varepsilon=\MCDoseEps$). Columns 6--8: $R^2$ of the logistic fit of $P_{\KMax}$ on overlap, on overlap and band mass, and of the UC curve applied unchanged. Last two: graphs on which the rule picks the best source ($\varepsilon=\EpsMain$; graphs where all sources tie are left out).}
+\label{tab:maxcut}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
-\input{tables/bandshare}
+\input{tables/maxcut}
 \end{table}
 
-\subsection{The LP needs its regularisation tuned; the learned start does not}
-\label{sec:res-eps}
-
-A wrong $\varepsilon$ is expensive for the LP and nearly free for the learned starts (Fig.~\ref{fig:eps}, Table~\ref{tab:eps}). Regret is the drop in group-level $P_{\KMax}$ from an arm's best $\varepsilon$.
-\begin{itemize}
-\item \textbf{The LP:} regret is \RegretEpsFiveD\ \RegretEpsFiveDCI\ at $\varepsilon=\EpsSecond$, and \RegretEpsZeroD\ at $\varepsilon=0$, where a wrongly pinned bit can never flip.
-\item \textbf{The learned starts:} regret is at most \RegretMaxCmilp\ (C-milp) and \RegretMaxCoracle\ (C-oracle) anywhere in $0\leq\varepsilon\leq\RegretRange$.
-\end{itemize}
-
-The LP's chosen $\varepsilon$ is not unstable. Over \NBoot\ bootstrap resamples of the groups, the LP picks $\varepsilon=\BestEpsD$ in \BootPickD\% of them, as consistently as C-oracle picks its own optimum (\BootPickCoracle\%). What distinguishes the two is sensitivity: the LP's curve is steep, the learned arms' curves are flat.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/fig_eps.pdf}
-\caption{$P_{\KMax}$ against the regularisation $\varepsilon$ ($p=1$, L2): structural-group means with 95\% $t$-bands ($n=\NGroupsGL$). At $\varepsilon=\EpsMax$ every warm start reduces to the uniform state.}
-\label{fig:eps}
-\end{figure}
-
-
-\subsection{Wrong pins grow with problem size; the learned start's grow more slowly}
+\subsection{The LP's wrong pins grow with problem size}
 \label{sec:res-size}
 
-Refining the fleet adds exactly the small marginal units that attract wrong pins, so a size study along granularity alone would be circular. We therefore separated two axes (Fig.~\ref{fig:size}, Table~\ref{tab:size}): the horizon at fixed blocks, and granularity at $T=\NHoursMain$. Each census cell used \NCensus\ paired demand draws at its own calibrated point, with no QAOA.
+Refining the fleet adds exactly the small marginal units that attract wrong pins, so a size study along granularity alone would be circular. We separated two axes (Fig.~\ref{fig:size}; Supplementary Table~S6): the horizon at fixed blocks, and granularity at $T=\NHoursMain$. Each cell used \NCensus\ paired demand draws at its own calibrated point, with no QAOA.
 
-\paragraph{Horizon: the LP's wrong pins are extensive} Along the horizon at fixed granularity, no new units appear, yet the LP's wrong pins grow linearly with the number of hours. Per hour they are flat: L0 gives \PerHourLPLzero\ for $T=1$--4 and L1 \PerHourLPLone\ for $T=1$--3. Each added variable adds $\SlopeHorLPLzero$ \SlopeHorLPLzeroCI\ wrongly pinned bits at L0, $\SlopeHorLPLone$ at L1 and $\SlopeHorLPLtwo$ at L2. The fraction of draws with two or more wrong pins at L0 rises from \FracTwoLzeroTOne\ at $T=1$ to \FracTwoLzeroTFour\ at $T=4$.
+Along the horizon no new units appear, yet the LP's wrong pins grow linearly with the number of hours: each added variable adds $\SlopeHorLPLzero$ \SlopeHorLPLzeroCI\ wrongly pinned bits at L0, $\SlopeHorLPLone$ at L1 and $\SlopeHorLPLtwo$ at L2. The fraction of draws with two or more wrong pins at L0 rises from \FracTwoLzeroTOne\ at $T=1$ to \FracTwoLzeroTFour\ at $T=4$. Along granularity they grow at $\SlopeGranLP$ \SlopeGranLPCI\ per added variable.
 
-\paragraph{Granularity} Along granularity the LP's wrong pins grow too, at $\SlopeGranLP$ \SlopeGranLPCI\ per added variable, about half the horizon rate. Granularity also raises the per-hour rate, from \PerHourGranLzero\ at L0 to \PerHourGranLfour\ at L4, though not monotonically. The data therefore support growth with problem size in general, with finer granularity adding to it.
-
-\paragraph{The learned start} Its wrong pins grow too, but more slowly. A GCN trained at each horizon gains $\SlopeHorGCNLzero$ \SlopeHorGCNLzeroCI, $\SlopeHorGCNLone$ \SlopeHorGCNLoneCI\ and $\SlopeHorGCNLtwo$ \SlopeHorGCNLtwoCI\ wrongly pinned bits per variable at L0, L1 and L2. That is \SlopeRatioMin--\SlopeRatioMax\ times slower than the LP. Paired per draw, the learned start's deficit relative to the LP widens from $\GapGCNLPLzeroTOne$ \GapGCNLPLzeroTOneCI\ wrong pins at $T=1$ to $\GapGCNLPLzeroTFour$ \GapGCNLPLzeroTFourCI\ at $T=4$ (L0).
-
-A model trained at $T=2$ and applied unchanged at $T=4$ is worse than one trained there (\TransferTTwoLzeroTFour\ against \GCNLzeroTFour\ wrong pins), but still below the LP (\LPLzeroTFour).
+The learned start's wrong pins grow too, but \SlopeRatioMin--\SlopeRatioMax\ times more slowly: a GCN trained at each horizon gains $\SlopeHorGCNLzero$, $\SlopeHorGCNLone$ and $\SlopeHorGCNLtwo$ per variable at L0, L1 and L2.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_size.pdf}
+\includegraphics[width=0.72\textwidth]{figures/fig_size.pdf}
 \caption{Mean wrongly pinned bits against problem size, \NCensus\ paired demand draws per cell, each cell at its own calibrated point. (a) Horizon at fixed granularity: the LP (solid) and a GCN trained at each horizon (dashed). (b) Granularity at $T=\NHoursMain$, L0--L4 (LP).}
 \label{fig:size}
 \end{figure*}
 
-\begin{table}[t]
+\subsection{Band share explains sampling on UC, not on MaxCut}
+\label{sec:res-band}
+
+\paragraph{The fit on UC} We pooled every $p=1$ run of the $\varepsilon$ sweep with nonzero overlap (all arms and all $\varepsilon$) and fitted $P_{\KMax}$ by logistic least squares (Fig.~\ref{fig:bandshare}; Supplementary Table~S5). $\log_{10}$ overlap alone gives $R^2=\BSRtwoOverlap$, and the arms separate: the per-arm mean residuals span \BSSpreadOverlap. Adding the band mass $m_5$ gives $R^2=\BSRtwoBand$, cuts the residual spread to \BSSpreadBand, and leaves nothing for arm-specific intercepts ($\Delta R^2=\BSdRtwoBand$). The coefficient on $\log_{10}m_5$ is \emph{negative} (\BSCoefBand, against \BSCoefOverlap\ on $\log_{10}$ overlap): at fixed overlap, more initial mass on other near-ground states means lower ground-state sampling.
+
+\paragraph{Held-out checks on UC} Fitted only on the non-learned runs, overlap alone under-predicts the learned arms by \BSHeldOutOverlapMin--\BSHeldOutOverlapMax; overlap plus band mass predicts them within \BSHeldOutBandMax. Leaving out one structural group at a time, the cross-validated $R^2$ is \BSLogoOverlap\ for overlap alone and \BSLogoBand\ with band mass. At L4 the refit gives \BSLfourBand\ (overlap alone: \BSLfourOverlap), and the L2 curve applied \emph{unchanged} to L4 gives $R^2=\BSTransferBand$, against \BSTransferOverlap\ for the transferred overlap-only curve.
+
+\paragraph{No transfer to MaxCut} The same curve applied unchanged to MaxCut fails: $R^2=\MCTransferTwelve$, \MCTransferSixteen\ and \MCTransferTwenty\ at $n=\MCSizeTwelve$, \MCSizeSixteen\ and \MCSizeTwenty\ (Table~\ref{tab:maxcut}). Refitted there, overlap alone already gives \MCOvTwelve, \MCOvSixteen\ and \MCOvTwenty, and band mass raises this to \MCBandTwelve, \MCBandSixteen\ and \MCBandTwenty, with source-specific residuals remaining. At $n=\MCSizeTwelve$ the band holds only the maximum cuts, so band share and overlap coincide. Band density does not explain the difference: across the \BDInstances\ instances of both classes it correlates with the improvement from the band (rank correlation \BDPooled), but within classes it does not (\BDWithin). Band share is a diagnostic for unit commitment; computing it needs the full spectrum.
+
+\begin{figure*}[t]
 \centering
-\caption{Wrong-pin census. Top: granularity axis at $T=\NHoursMain$. Bottom: horizon axis at fixed granularity. LP per h: LP wrong pins per hour. GCN: C-milp trained at that horizon (not available at L3, L4). \NCensus\ paired draws per cell.}
-\label{tab:size}
+\includegraphics[width=0.72\textwidth]{figures/fig_bandshare.pdf}
+\caption{UC, L2, $p=1$: $P_{\KMax}$ against (a) the initial ground-state overlap and (b) the band-share index $\log_{10}(\mathrm{overlap}/m_5^{k})$, $k=\BSExponent$ fitted. Points: arm $\times$ $\varepsilon$ $\times$ scenario means; curves: one logistic fit pooled over all arms and $\varepsilon$. On overlap the arms separate; on band share they collapse onto one curve.}
+\label{fig:bandshare}
+\end{figure*}
+
+\subsection{Overlap ranks sources well and chooses $\varepsilon$ badly}
+\label{sec:res-eps}
+
+\paragraph{Ranking sources} Earlier work ranks warm starts by depth-zero quantities: initial overlap and initial approximation ratio~\cite{bhattacharyya2025qubo}. As a rule for picking the source with the highest $P_{\KMax}$ at $\varepsilon=\EpsMain$, overlap is right in \RKUCSixteenOv\ of \RKUCSixteenN\ UC instances at \NLtwo\ qubits and \RKUCTwentyTwoOv\ of \RKUCTwentyTwoN\ at \NLfour, and on every MaxCut graph where sources differ (Table~\ref{tab:maxcut}). Band share matches it on UC (\RKUCSixteenBand\ and \RKUCTwentyTwoBand) and is worse on MaxCut. The initial approximation ratio is right in only \RKUCSixteenRatio\ and \RKUCTwentyTwoRatio.
+
+\paragraph{Choosing $\varepsilon$} A wrong $\varepsilon$ is expensive for the LP and nearly free for the learned starts (Table~\ref{tab:eps}). Measured from an arm's best $\varepsilon$ at the group level, the LP's regret is \RegretEpsFiveD\ \RegretEpsFiveDCI\ at $\varepsilon=\EpsSecond$ and \RegretEpsZeroD\ at $\varepsilon=0$, where a wrongly pinned bit can never flip. For the learned starts it is at most \RegretMaxCmilp\ (C-milp) and \RegretMaxCoracle\ (C-oracle) anywhere in $0\leq\varepsilon\leq\RegretRange$.
+
+Choosing $\varepsilon$ per instance by maximum overlap does not remove this cost for heuristic sources, because overlap favours small $\varepsilon$. Against each instance's own best $\varepsilon$, the LP loses \ERDOvSixteen\ on average (worst instance \ERDOvWorstSixteen) and merit order \ERFOvSixteen\ (\ERFOvWorstSixteen) at \NLtwo\ qubits, and \ERDOvTwentyTwo\ (\ERDOvWorstTwentyTwo) and \ERFOvTwentyTwo\ (\ERFOvWorstTwentyTwo) at \NLfour, where the choice is between two values only. Choosing by band share loses at most \ERBandMeanMax\ on average and \ERBandWorstMax\ on one instance. For the learned starts every rule is within \ERLearnedMax\ of the best.
+
+\begin{table*}[t]
+\centering
+\caption{Regularisation on UC. Each arm at its best $\varepsilon^\star$ (maximising scenario-mean $P_{\KMax}$; $\varepsilon=\EpsMax$ excluded); L2, $p=1$, \NScen\ scenarios $\times$ \NSeedsSweep\ seeds. $g$: final gain. Regret: drop in group-level $P_{\KMax}$ from $\varepsilon^\star$. Last three columns: the LP (at its own $\varepsilon^\star$) minus the arm, paired over scenarios and over the \NGroupsGL\ structural groups (95\% $t$-intervals), and group-fold cross-validated over \NSplits\ splits (mean; share of splits in which D is worse).}
+\label{tab:eps}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
-\input{tables/size}
-\end{table}
+\resizebox{\textwidth}{!}{\input{tables/epsmerged}}
+\end{table*}
 
-\subsection{Robustness to the optimiser's view}
+\subsection{The unit-commitment study}
+\label{sec:res-arms}
+
+\paragraph{Sources at $\varepsilon=\EpsMain$} Over \NScen\ held-out scenarios $\times$ \NSeedsMain\ seeds (Supplementary Table~S3), C-milp reaches $P_{\KMax}=\PgndCmilp$ and C-oracle \PgndCoracle; the LP reaches \PgndD, merit order (F) \PgndF, the cold start (A) \PgndA\ and the random control (E) \PgndE. Paired over scenarios, C-milp $-$ D $=\CmilpMinusD$ \CmilpMinusDCI\ (C-milp ahead in \CmilpMinusDW\ of \CmilpMinusDN), C-milp $-$ F $=\CmilpMinusF$ \CmilpMinusFCI\ and C-milp $-$ A $=\CmilpMinusA$ \CmilpMinusACI.
+
+At the group level ($n=\NGroupsGL$), C-milp $-$ F and C-milp $-$ A keep intervals clear of zero (\CmilpMinusFGL\ \CmilpMinusFGLCI\ and \CmilpMinusAGL\ \CmilpMinusAGLCI). C-milp $-$ D is \CmilpMinusDGL\ \CmilpMinusDGLCI, an interval that touches zero: the effect against D is large in a minority of structures and zero in the rest (Section~\ref{sec:res-pins}).
+
+Exact ground-state labels buy nothing over MILP labels (C-oracle $-$ C-milp $=\CoracleMinusCmilp$ \CoracleMinusCmilpCI). The learned state with the $X$ mixer (B) ties C-milp on $P_{\KMax}$ but is worse on single-shot $P_1$ ($\PoneBMinusCmilp$ \PoneBMinusCmilpCI). The random control is worse than starting cold (E $-$ A $=\EMinusA$ \EMinusACI). Depth barely helps the warm arms: from $p=1$ to $p=3$ C-milp moves from \PgndCmilp\ to \PgndPthreeCmilp\ and D from \PgndD\ to \PgndPthreeD.
+
+\label{sec:res-tuned}
+\paragraph{The advantage survives tuning the LP} At its own best $\varepsilon=\BestEpsD$ the LP reaches \PgndBestD\ \PgndBestCID\ (Table~\ref{tab:eps}). Paired, D $-$ C-oracle $=\BestDMinusCoracle$ \BestDMinusCoracleCI\ (group level \BestDMinusCoracleGL\ \BestDMinusCoracleGLCI), and D $-$ C-milp $=\BestDMinusCmilp$ \BestDMinusCmilpCI. At the group level the latter is \BestDMinusCmilpGL\ \BestDMinusCmilpGLCI, so granting D its in-sample best $\varepsilon$ leaves the group-level gap to C-milp borderline.
+
+Choosing $\varepsilon$ on the scenarios it is evaluated on flatters the arm whose optimum is noisiest. Our primary numbers therefore choose $\varepsilon$ on half of the structural groups and evaluate on the other half, over \NSplits\ random splits: D $-$ C-oracle $=\CVDMinusCoracle$ (D worse in \CVDMinusCoracleWorse\% of splits), D $-$ C-milp $=\CVDMinusCmilp$ (\CVDMinusCmilpWorse\%), and D $-$ F $=\CVDMinusF$, so at its best the LP is indistinguishable from merit order.
+
+\paragraph{Approximation ratio and sampling disagree} At $\varepsilon=\EpsMain$ the LP has the highest final gain of any arm (\GfinalD, against \GfinalCoracle\ for C-oracle), higher than C-oracle in all \GfinalCoracleMinusDL\ scenarios, while sampling the ground state less reliably in \CoracleMinusDW\ of \CoracleMinusDN. At each arm's own best $\varepsilon$ the gain order reverses, because the LP's sampling optimum lies at a larger $\varepsilon$, which moves the initial state towards uniform: the LP gives up gain to dilute its wrongly pinned bits.
+
+\paragraph{At \NLfour\ qubits} Over \LfourNStruct\ structurally distinct L4 instances $\times$ \NSeedsLfour\ seeds at L4's own operating point (Supplementary Table~S4), C-milp $-$ D $=\LfourOwnCmilpMinusDTen$ \LfourOwnCmilpMinusDTenCI\ per structure at $\varepsilon=\EpsMain$ (C-milp ahead in \LfourOwnCmilpMinusDTenW\ of \LfourNStruct), and \LfourOwnCmilpMinusDTenRw\ \LfourOwnCmilpMinusDTenRwCI\ reweighted to the demand distribution. At the frozen point it is \LfourFrzCmilpMinusDTen\ \LfourFrzCmilpMinusDTenCI; the paired change between the two points is \LfourChangeTen\ \LfourChangeTenCI, consistent with zero though wide. Every arm does worse than at \NLtwo\ qubits: C-milp reaches \LfourOwnPgndCmilp, D \LfourOwnPgndD\ and the cold start \LfourOwnPgndA.
+
 \label{sec:res-robust}
-
-The comparison holds when the optimiser sees noisy expectation values, and under a second optimiser (Table~\ref{tab:robust}; \NScen\ scenarios $\times$ \NSeedsRobust\ seeds, $p=1$). Every metric was evaluated exactly at the chosen parameters.
-
-\paragraph{Finite shots} With \ShotsMin-shot estimates, the arms lose the following in $P_{\KMax}$ relative to exact expectations:
-\begin{itemize}
-\item C-milp \ShotLossCmilp\ \ShotLossCmilpCI;
-\item the LP \ShotLossD\ \ShotLossDCI;
-\item the cold start \ShotLossA\ \ShotLossACI;
-\item merit order \ShotLossF\ \ShotLossFCI.
-\end{itemize}
-The learned start's advantage over the cold start therefore grows, from \ShotCmilpMinusAExact\ to \ShotCmilpMinusAOneTwoEight, and over merit order from \ShotCmilpMinusFExact\ to \ShotCmilpMinusFOneTwoEight. Its advantage over the LP does not grow significantly (change \ShotAdvChange\ \ShotAdvChangeCI).
-
-Under shot noise COBYLA stopped after \ShotEvalsMin--\ShotEvalsMax\ evaluations, against \ExactEvalsMin--\ExactEvalsMax\ with exact expectations. These results therefore describe a lightly optimised regime, in which a warm start's head start matters most.
-
-\paragraph{Second optimiser} Nelder--Mead with exact expectations gives C-milp $-$ D $=\NMCmilpMinusD$ \NMCmilpMinusDCI, against \ExactThreeSeedCmilpMinusD\ with COBYLA on the same runs. The three paired comparisons with C-milp (against D, F and A) agree within \NMMaxPairDiff.
-
-\begin{table}[t]
-\centering
-\caption{Robustness: mean $P_{\KMax}$ under each optimiser view (L2, $p=1$, $\varepsilon=\EpsMain$, \NScen\ scenarios $\times$ \NSeedsRobust\ seeds; metrics exact at the chosen parameters). Evals: mean objective evaluations of C-milp's optimisation.}
-\label{tab:robust}
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\input{tables/robust}
-\end{table}
+\paragraph{Robustness} With \ShotsMin-shot expectation estimates (Supplementary Table~S7), C-milp loses \ShotLossCmilp\ in $P_{\KMax}$, the LP \ShotLossD, the cold start \ShotLossA\ and merit order \ShotLossF. The learned start's advantage over the LP does not change significantly (\ShotAdvChange\ \ShotAdvChangeCI). Under shot noise COBYLA stops early, so this is a lightly optimised regime. Nelder--Mead with exact expectations gives C-milp $-$ D $=\NMCmilpMinusD$ \NMCmilpMinusDCI, against \ExactThreeSeedCmilpMinusD\ with COBYLA on the same runs.
 
 \subsection{Negative results}
 \label{sec:res-neg}
 
-\paragraph{The learned start fails below its training range} We applied the unchanged L2 GCN to new conditions, \OODNScen\ scenarios $\times$ \NSeedsOOD\ seeds per test set (Table~\ref{tab:ood}).
+\paragraph{The learned start fails below its training range} We applied the unchanged L2 GCN to new conditions, \OODNScen\ scenarios $\times$ \NSeedsOOD\ seeds per test set (Supplementary Table~S8). Below the training demand range the learned start is worse than the LP: its wrong pins rise to \OODLowWrongC\ per instance (LP \OODLowWrongD), and its $P_{\KMax}$ falls to \OODLowC\ against \OODLowD: C-milp $-$ D $=\OODLowDiff$ \OODLowDiffCI, with C-milp behind in \OODLowDiffL\ of \OODNScen\ scenarios. With a changed hourly profile it falls to LP level (flat: \OODFlatC\ against \OODFlatD; reversed: \OODRevC\ against \OODRevD). A forced outage, which changes the graph, does not break it: it keeps $P_{\KMax}$ between \OODOutMin\ and \OODOutMax, at or above the LP. The LP has no training distribution to fall out of, which is a genuine advantage.
 
-Below the training demand range, the learned start is worse than the LP. Its wrong pins rise to \OODLowWrongC\ per instance (LP \OODLowWrongD), and its $P_{\KMax}$ falls to \OODLowC\ against the LP's \OODLowD: C-milp $-$ D $=\OODLowDiff$ \OODLowDiffCI, with C-milp behind in \OODLowDiffL\ of \OODNScen\ scenarios.
+\paragraph{All warm starts are equivalent on cost} The learned starts sample the ground state more often, but their best-of-\KMax operating cost is no better than the LP's. At L2, C-milp $-$ D in repaired cost gap is \GapCmilpMinusD\ percentage points \GapCmilpMinusDCI\ at the scenario level and \GapCmilpMinusDGL\ \GapCmilpMinusDGLCI\ at the group level; at L4 it is \LfourFrzGapCmilpMinusD\ \LfourFrzGapCmilpMinusDCI\ (frozen point) and \LfourOwnGapCmilpMinusD\ \LfourOwnGapCmilpMinusDCI\ (own point). When the LP misses the ground state, it lands on a near-optimal adequate schedule.
 
-With a changed hourly profile, the learned start falls to LP level: flat demand gives \OODFlatC\ against \OODFlatD, and reversed demand gives \OODRevC\ against \OODRevD.
-
-A forced outage, which removes a node and so changes the graph, does \emph{not} break it: over three outages it keeps $P_{\KMax}$ between \OODOutMin\ and \OODOutMax, at or above the LP. Above the training range all arms reach about $P_{\KMax}=1$, because $D_t+B$ exceeds capacity and every block must be committed.
-
-The LP has no training distribution to fall out of, which is a genuine advantage.
-
-\begin{table}[t]
-\centering
-\caption{Out of distribution: the unchanged L2 C-milp model vs.\ the LP (D) and the cold start (A), \OODNScen\ scenarios $\times$ \NSeedsOOD\ seeds per set, $p=1$, $\varepsilon=\EpsMain$. Wrong: wrongly pinned bits; columns C-milp, D, A: mean $P_{\KMax}$.}
-\label{tab:ood}
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\input{tables/ood}
-\end{table}
-
-\paragraph{All warm starts are equivalent on cost} The learned starts sample the ground state more often, but their best-of-\KMax operating cost is no better than the LP's. At L2, C-milp $-$ D in repaired cost gap is \GapCmilpMinusD\ percentage points \GapCmilpMinusDCI\ at the scenario level, and \GapCmilpMinusDGL\ \GapCmilpMinusDGLCI\ at the group level. At L4 it is \LfourFrzGapCmilpMinusD\ \LfourFrzGapCmilpMinusDCI\ (frozen point) and \LfourOwnGapCmilpMinusD\ \LfourOwnGapCmilpMinusDCI\ (own point). When the LP misses the ground state, it lands on a near-optimal adequate schedule.
-
-\paragraph{A classical sampler solves these instances in milliseconds} We ran simulated annealing on the identical QUBO, with every returned state's energy checked against the brute-force energy vector, compiled with numba (Table~\ref{tab:classical}, Fig.~\ref{fig:classical}).
-\begin{itemize}
-\item \textbf{At $n=\NLtwo$}, \SABudgetMid\ flips (\SAmsLtwoEFive\,ms per run) reach $P(\text{ground})=\SAPgndLtwoEFive$, against QAOA C-milp's \QAOAPgndLtwo\ in \QAOATimeLtwo\,s of simulation.
-\item \textbf{At $n=\NLfour$}, \SABudgetHigh\ flips (\SAmsLfourESix\,ms) reach \SAPgndLfourESix, against QAOA C-milp's \QAOAPgndLfour\ in \QAOATimeLfour\,s.
-\item \textbf{Tabu search} with random restarts, given QAOA's wall time, reaches \TabuPgndLtwo\ and \TabuPgndLfour.
-\end{itemize}
-Only when SA is limited to the number of objective evaluations QAOA's optimiser makes (counting each expectation estimate as one evaluation, a counting generous to QAOA) does QAOA win: SA then reaches \SAPgndEvalLtwo\ and \SAPgndEvalLfour.
-
-Both classical baselines were lightly tuned on L2 scenarios, in their own favour: SA's final temperature among three options, and tabu's tenure and restart rule among six. We make no claim of quantum advantage. The contribution is what determines warm-start quality within QAOA.
-
-\begin{table}[t]
-\centering
-\caption{Classical samplers on the identical QUBO vs.\ QAOA ($p=1$, $\varepsilon=\EpsMain$). $P(\text{ground})$: for QAOA, the best of \KMax{} samples; for SA and tabu, the returned state of one run (\SAReplicas\ replicas). Time: measured per run (QAOA: exact simulation).}
-\label{tab:classical}
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\input{tables/classical}
-\end{table}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/fig_classical.pdf}
-\caption{Probability that the returned state is an exact ground state against measured time per run: compiled simulated annealing at four budgets vs.\ QAOA (best of \KMax{} samples, exact simulation), at $n=\NLtwo$ (circles) and $n=\NLfour$ (squares).}
-\label{fig:classical}
-\end{figure}
+\paragraph{A classical sampler solves these instances in milliseconds} Simulated annealing on the identical QUBO, compiled, with every returned state checked against the brute-force energy vector (Supplementary Table~S9), reaches $P(\text{ground})=\SAPgndLtwoEFive$ in \SAmsLtwoEFive\,ms at $n=\NLtwo$, against QAOA C-milp's \QAOAPgndLtwo\ in \QAOATimeLtwo\,s of simulation, and \SAPgndLfourESix\ in \SAmsLfourESix\,ms at $n=\NLfour$, against \QAOAPgndLfour\ in \QAOATimeLfour\,s. Tabu search given QAOA's wall time reaches \TabuPgndLtwo\ and \TabuPgndLfour. Only when SA is limited to the number of objective evaluations QAOA's optimiser makes, a counting generous to QAOA, does QAOA win (SA: \SAPgndEvalLtwo\ and \SAPgndEvalLfour). Both classical baselines were lightly tuned in their own favour. On MaxCut the cold start alone returns a maximum cut with probability \MCColdTwelve\ and \MCColdSixteen\ at $n=\MCSizeTwelve$ and \MCSizeSixteen, and at $n=\MCSizeTwenty$ it does better than the Goemans--Williamson start at $\varepsilon=\EpsMain$ (\MCColdTwenty\ against \MCGWTwenty): warm-starting is no advantage on that benchmark at these sizes.
