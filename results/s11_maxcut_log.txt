@@ -1,0 +1,29 @@
+15390 runs in total (0 done, 15390 left) in 270 jobs; 8 workers
+15390 runs in total (456 done, 14934 left) in 262 jobs; 8 workers
+  10/262 jobs, 0 failed, 5755 s
+  20/262 jobs, 0 failed, 6551 s
+  30/262 jobs, 0 failed, 7653 s
+  40/262 jobs, 0 failed, 8746 s
+  50/262 jobs, 0 failed, 9766 s
+  60/262 jobs, 0 failed, 10796 s
+  70/262 jobs, 0 failed, 11708 s
+  80/262 jobs, 0 failed, 12335 s
+  90/262 jobs, 0 failed, 12481 s
+  100/262 jobs, 0 failed, 12567 s
+  110/262 jobs, 0 failed, 12644 s
+  120/262 jobs, 0 failed, 12710 s
+  130/262 jobs, 0 failed, 12770 s
+  140/262 jobs, 0 failed, 12816 s
+  150/262 jobs, 0 failed, 12868 s
+  160/262 jobs, 0 failed, 12914 s
+  170/262 jobs, 0 failed, 12955 s
+  180/262 jobs, 0 failed, 12971 s
+  190/262 jobs, 0 failed, 12982 s
+  200/262 jobs, 0 failed, 12991 s
+  210/262 jobs, 0 failed, 13003 s
+  220/262 jobs, 0 failed, 13013 s
+  230/262 jobs, 0 failed, 13023 s
+  240/262 jobs, 0 failed, 13031 s
+  250/262 jobs, 0 failed, 13042 s
+  260/262 jobs, 0 failed, 13052 s
+  262/262 jobs, 0 failed, 13055 s

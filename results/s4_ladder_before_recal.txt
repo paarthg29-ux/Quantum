@@ -1,0 +1,17 @@
+Frozen point: lambda_D = 100, demand_bias = 150 MW, lambda_switch = 0; T = 2; 100 scenarios (seed 4242), identical demand at every level
+gap = (C(QUBO ground) - C(MILP)) / C(MILP), C = fuel + start-up, over scenarios whose ground state is adequate;
+=MILP: ground state is the MILP schedule up to swapping identical blocks.
+
+  level blocks qubits | adequate | gap mean  median     p90   worst |  =MILP | dynIsing degen |  time
+     L0      5     10 |      75% |    0.60%   0.00%   1.01%   7.01% |    55% |     2105     1 |    2s
+     L1      6     12 |      78% |    0.60%   0.00%   1.27%   7.01% |    58% |     2105     2 |    2s
+     L2      8     16 |      89% |    0.98%   0.00%   4.25%   7.01% |    54% |      994     3 |    3s
+     L3      9     18 |      93% |    0.73%   0.00%   3.71%   5.92% |    74% |      994     3 |    7s
+     L4     11     22 |     100% |    1.85%   1.44%   3.79%   6.03% |    18% |      853     4 |  112s
+  L0 inadequate ground states: s003_L0_peak2805_T2, s005_L0_peak2759_T2, s008_L0_peak3424_T2, s009_L0_peak4060_T2, s010_L0_peak3255_T2, s015_L0_peak4109_T2, s016_L0_peak4056_T2, s018_L0_peak2709_T2, s021_L0_peak3101_T2, s026_L0_peak4137_T2, s029_L0_peak3154_T2, s034_L0_peak3173_T2, s035_L0_peak2813_T2, s038_L0_peak4059_T2, s039_L0_peak3219_T2, s043_L0_peak3118_T2, s046_L0_peak3985_T2, s048_L0_peak3907_T2, s063_L0_peak3119_T2, s068_L0_peak4081_T2, s078_L0_peak2795_T2, s079_L0_peak3452_T2, s092_L0_peak3102_T2, s094_L0_peak2737_T2, s097_L0_peak3462_T2
+  L1 inadequate ground states: s005_L1_peak2759_T2, s008_L1_peak3424_T2, s009_L1_peak4060_T2, s015_L1_peak4109_T2, s016_L1_peak4056_T2, s018_L1_peak2709_T2, s021_L1_peak3101_T2, s026_L1_peak4137_T2, s029_L1_peak3154_T2, s038_L1_peak4059_T2, s043_L1_peak3118_T2, s046_L1_peak3985_T2, s048_L1_peak3907_T2, s063_L1_peak3119_T2, s068_L1_peak4081_T2, s079_L1_peak3452_T2, s082_L1_peak3213_T2, s087_L1_peak2824_T2, s090_L1_peak3224_T2, s092_L1_peak3102_T2, s094_L1_peak2737_T2, s097_L1_peak3462_T2
+  L2 inadequate ground states: s005_L2_peak2759_T2, s009_L2_peak4060_T2, s015_L2_peak4109_T2, s016_L2_peak4056_T2, s018_L2_peak2709_T2, s026_L2_peak4137_T2, s038_L2_peak4059_T2, s068_L2_peak4081_T2, s079_L2_peak3452_T2, s094_L2_peak2737_T2, s097_L2_peak3462_T2
+  L3 inadequate ground states: s005_L3_peak2759_T2, s008_L3_peak3424_T2, s012_L3_peak3478_T2, s018_L3_peak2709_T2, s032_L3_peak4145_T2, s052_L3_peak4188_T2, s094_L3_peak2737_T2
+
+Re-verification rule (L2 adequacy >= 95%): 89% -> FAIL -> re-calibrate once on L2
+wrote results\s4_ladder.csv

@@ -1,0 +1,145 @@
+Ranking warm-start sources by a depth-0 rule. Truth: P(best of 1024 = optimal), p = 1, mean over seeds. bandshare = 3.70 log10 overlap -4.79 log10 m_e05 (UC L2 fit, fixed). TOL 0.001.
+
+=== UC, 16 qubits (L2), 30 scenarios. Arm B is left out: it has C-milp's initial state and differs only in the mixer, so no depth-0 rule can separate them. IN-SAMPLE for bandshare's two exponents.
+  sources: ['A', 'C-milp', 'C-oracle', 'D', 'E', 'F'] (main table, eps = 0.1, 5 seeds)
+  UC-16 (a) sources at eps = 0.1: 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  93.1% of 333
+         ratio0: top-1   12.0/30 ( 40.0%) | regret 0.245 | pairs ordered correctly  70.3% of 333
+      bandshare: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  97.0% of 333
+          share: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  95.8% of 333
+  UC-16 (b) sweep sources (C-milp, C-oracle, D, F) at each eps (7 values): 158 problems (52 trivial excluded)
+        overlap: top-1  157.5/158 ( 99.7%) | regret 0.000 | pairs ordered correctly  99.0% of 601
+         ratio0: top-1   34.0/158 ( 21.5%) | regret 0.380 | pairs ordered correctly  22.1% of 601
+      bandshare: top-1  158.0/158 (100.0%) | regret 0.000 | pairs ordered correctly 100.0% of 601
+          share: top-1  158.0/158 (100.0%) | regret 0.000 | pairs ordered correctly 100.0% of 601
+  UC-16 (c) all (source, eps) configurations jointly (incl. A): 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  93.1% of 7929
+         ratio0: top-1    0.0/30 (  0.0%) | regret 1.000 | pairs ordered correctly  61.8% of 7929
+      bandshare: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  98.4% of 7929
+          share: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  97.5% of 7929
+
+=== UC-22 (L4, 20 structurally distinct scenarios; OUT-OF-SAMPLE for bandshare)
+  sources: ['A', 'C-milp', 'D', 'F']
+  UC-22 (a) sources at eps = 0.1: 20 problems (0 trivial excluded)
+        overlap: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  93.0% of 100
+         ratio0: top-1    1.0/20 (  5.0%) | regret 0.397 | pairs ordered correctly  51.0% of 100
+      bandshare: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  96.0% of 100
+          share: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  96.0% of 100
+  UC-22 (b) sources at each eps (3 values): 37 problems (23 trivial excluded)
+        overlap: top-1   36.0/37 ( 97.3%) | regret 0.012 | pairs ordered correctly  93.9% of 114
+         ratio0: top-1   10.0/37 ( 27.0%) | regret 0.274 | pairs ordered correctly  50.0% of 114
+      bandshare: top-1   36.0/37 ( 97.3%) | regret 0.012 | pairs ordered correctly  96.5% of 114
+          share: top-1   36.0/37 ( 97.3%) | regret 0.012 | pairs ordered correctly  96.5% of 114
+  UC-22 (c) all (source, eps) configurations jointly: 20 problems (0 trivial excluded)
+        overlap: top-1   16.0/20 ( 80.0%) | regret 0.025 | pairs ordered correctly  90.4% of 356
+         ratio0: top-1    1.0/20 (  5.0%) | regret 0.400 | pairs ordered correctly  58.1% of 356
+      bandshare: top-1   19.0/20 ( 95.0%) | regret 0.022 | pairs ordered correctly  95.2% of 356
+          share: top-1   17.0/20 ( 85.0%) | regret 0.023 | pairs ordered correctly  93.8% of 356
+
+=== MaxCut-12 all non-oracle sources (OUT-OF-SAMPLE; BAD0, the optimum itself, is left out)
+  sources: ['A', 'BAD1', 'BAD2', 'BAD3', 'BAD4', 'E', 'GW', 'GW-LS']
+  MaxCut-12 all non-oracle sources (a) sources at eps = 0.1: 24 problems (6 trivial excluded)
+        overlap: top-1   24.0/24 (100.0%) | regret 0.000 | pairs ordered correctly  96.0% of 263
+         ratio0: top-1   18.3/24 ( 76.4%) | regret 0.079 | pairs ordered correctly  54.0% of 263
+      bandshare: top-1    0.0/24 (  0.0%) | regret 0.277 | pairs ordered correctly   4.0% of 263
+          share: top-1   17.0/24 ( 70.8%) | regret 0.054 | pairs ordered correctly  50.0% of 263
+  MaxCut-12 all non-oracle sources (b) sources at each eps (7 values): 101 problems (109 trivial excluded)
+        overlap: top-1  101.0/101 (100.0%) | regret 0.000 | pairs ordered correctly  97.4% of 1060
+         ratio0: top-1   76.8/101 ( 76.1%) | regret 0.133 | pairs ordered correctly  61.7% of 1060
+      bandshare: top-1    0.0/101 (  0.0%) | regret 0.560 | pairs ordered correctly   2.6% of 1060
+          share: top-1   52.1/101 ( 51.6%) | regret 0.270 | pairs ordered correctly  50.0% of 1060
+  MaxCut-12 all non-oracle sources (c) all (source, eps) configurations jointly: 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  99.0% of 13025
+         ratio0: top-1   23.0/30 ( 76.7%) | regret 0.233 | pairs ordered correctly  41.6% of 13025
+      bandshare: top-1    0.0/30 (  0.0%) | regret 1.000 | pairs ordered correctly   1.0% of 13025
+          share: top-1   22.9/30 ( 76.5%) | regret 0.133 | pairs ordered correctly  50.0% of 13025
+
+=== MaxCut-12 realistic sources (A, GW, GW-LS, E only)
+  sources: ['A', 'E', 'GW', 'GW-LS']
+  MaxCut-12 realistic sources (a) sources at eps = 0.1: 14 problems (16 trivial excluded)
+        overlap: top-1   13.0/14 ( 92.9%) | regret 0.001 | pairs ordered correctly  92.7% of 41
+         ratio0: top-1    7.0/14 ( 50.0%) | regret 0.161 | pairs ordered correctly  26.8% of 41
+      bandshare: top-1    0.5/14 (  3.6%) | regret 0.190 | pairs ordered correctly   7.3% of 41
+          share: top-1    8.2/14 ( 58.9%) | regret 0.085 | pairs ordered correctly  50.0% of 41
+  MaxCut-12 realistic sources (b) sources at each eps (7 values): 71 problems (139 trivial excluded)
+        overlap: top-1   70.0/71 ( 98.6%) | regret 0.000 | pairs ordered correctly  97.7% of 152
+         ratio0: top-1   44.0/71 ( 62.0%) | regret 0.205 | pairs ordered correctly  44.7% of 152
+      bandshare: top-1    0.5/71 (  0.7%) | regret 0.426 | pairs ordered correctly   2.3% of 152
+          share: top-1   34.6/71 ( 48.7%) | regret 0.207 | pairs ordered correctly  50.0% of 152
+  MaxCut-12 realistic sources (c) all (source, eps) configurations jointly: 27 problems (3 trivial excluded)
+        overlap: top-1   27.0/27 (100.0%) | regret 0.000 | pairs ordered correctly  99.0% of 1820
+         ratio0: top-1   20.0/27 ( 74.1%) | regret 0.259 | pairs ordered correctly  30.1% of 1820
+      bandshare: top-1    0.0/27 (  0.0%) | regret 0.772 | pairs ordered correctly   1.0% of 1820
+          share: top-1   21.2/27 ( 78.5%) | regret 0.084 | pairs ordered correctly  50.0% of 1820
+
+=== MaxCut-16 all non-oracle sources (OUT-OF-SAMPLE; BAD0, the optimum itself, is left out)
+  sources: ['A', 'BAD1', 'BAD2', 'BAD3', 'BAD4', 'E', 'GW', 'GW-LS']
+  MaxCut-16 all non-oracle sources (a) sources at eps = 0.1: 29 problems (1 trivial excluded)
+        overlap: top-1   29.0/29 (100.0%) | regret 0.000 | pairs ordered correctly  92.6% of 380
+         ratio0: top-1   25.8/29 ( 89.1%) | regret 0.026 | pairs ordered correctly  71.8% of 380
+      bandshare: top-1   20.0/29 ( 69.0%) | regret 0.044 | pairs ordered correctly  50.5% of 380
+          share: top-1   28.0/29 ( 96.6%) | regret 0.000 | pairs ordered correctly  83.7% of 380
+  MaxCut-16 all non-oracle sources (b) sources at each eps (7 values): 137 problems (73 trivial excluded)
+        overlap: top-1  137.0/137 (100.0%) | regret 0.000 | pairs ordered correctly  95.3% of 1413
+         ratio0: top-1  121.5/137 ( 88.7%) | regret 0.044 | pairs ordered correctly  73.5% of 1413
+      bandshare: top-1   67.0/137 ( 48.9%) | regret 0.246 | pairs ordered correctly  46.5% of 1413
+          share: top-1  111.9/137 ( 81.7%) | regret 0.145 | pairs ordered correctly  76.7% of 1413
+  MaxCut-16 all non-oracle sources (c) all (source, eps) configurations jointly: 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  95.0% of 15895
+         ratio0: top-1   25.0/30 ( 83.3%) | regret 0.167 | pairs ordered correctly  43.2% of 15895
+      bandshare: top-1    0.0/30 (  0.0%) | regret 0.968 | pairs ordered correctly  48.0% of 15895
+          share: top-1    9.3/30 ( 31.1%) | regret 0.689 | pairs ordered correctly  64.5% of 15895
+
+=== MaxCut-16 realistic sources (A, GW, GW-LS, E only)
+  sources: ['A', 'E', 'GW', 'GW-LS']
+  MaxCut-16 realistic sources (a) sources at eps = 0.1: 25 problems (5 trivial excluded)
+        overlap: top-1   22.0/25 ( 88.0%) | regret 0.008 | pairs ordered correctly  92.9% of 85
+         ratio0: top-1   20.0/25 ( 80.0%) | regret 0.075 | pairs ordered correctly  67.1% of 85
+      bandshare: top-1   11.0/25 ( 44.0%) | regret 0.062 | pairs ordered correctly  37.6% of 85
+          share: top-1   23.0/25 ( 92.0%) | regret 0.010 | pairs ordered correctly  78.8% of 85
+  MaxCut-16 realistic sources (b) sources at each eps (7 values): 128 problems (82 trivial excluded)
+        overlap: top-1  121.0/128 ( 94.5%) | regret 0.012 | pairs ordered correctly  94.4% of 267
+         ratio0: top-1  109.0/128 ( 85.2%) | regret 0.063 | pairs ordered correctly  74.5% of 267
+      bandshare: top-1   46.0/128 ( 35.9%) | regret 0.106 | pairs ordered correctly  41.9% of 267
+          share: top-1  116.0/128 ( 90.6%) | regret 0.023 | pairs ordered correctly  79.8% of 267
+  MaxCut-16 realistic sources (c) all (source, eps) configurations jointly: 29 problems (1 trivial excluded)
+        overlap: top-1   26.0/29 ( 89.7%) | regret 0.000 | pairs ordered correctly  94.0% of 2764
+         ratio0: top-1   24.0/29 ( 82.8%) | regret 0.172 | pairs ordered correctly  55.6% of 2764
+      bandshare: top-1   12.0/29 ( 41.4%) | regret 0.268 | pairs ordered correctly  50.4% of 2764
+          share: top-1   25.0/29 ( 86.2%) | regret 0.105 | pairs ordered correctly  85.9% of 2764
+
+=== MaxCut-20 all non-oracle sources (OUT-OF-SAMPLE; BAD0, the optimum itself, is left out)
+  sources: ['A', 'BAD1', 'BAD2', 'BAD3', 'BAD4', 'E', 'GW', 'GW-LS']
+  MaxCut-20 all non-oracle sources (a) sources at eps = 0.1: 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  89.9% of 552
+         ratio0: top-1   21.7/30 ( 72.2%) | regret 0.101 | pairs ordered correctly  73.6% of 552
+      bandshare: top-1   10.0/30 ( 33.3%) | regret 0.114 | pairs ordered correctly  40.9% of 552
+          share: top-1   28.4/30 ( 94.7%) | regret 0.002 | pairs ordered correctly  81.0% of 552
+  MaxCut-20 all non-oracle sources (b) sources at each eps (7 values): 177 problems (33 trivial excluded)
+        overlap: top-1  177.0/177 (100.0%) | regret 0.000 | pairs ordered correctly  94.7% of 2032
+         ratio0: top-1  134.5/177 ( 76.0%) | regret 0.091 | pairs ordered correctly  74.8% of 2032
+      bandshare: top-1   50.0/177 ( 28.2%) | regret 0.260 | pairs ordered correctly  36.9% of 2032
+          share: top-1  151.3/177 ( 85.5%) | regret 0.091 | pairs ordered correctly  80.3% of 2032
+  MaxCut-20 all non-oracle sources (c) all (source, eps) configurations jointly: 30 problems (0 trivial excluded)
+        overlap: top-1   30.0/30 (100.0%) | regret 0.000 | pairs ordered correctly  93.4% of 23925
+         ratio0: top-1   20.0/30 ( 66.7%) | regret 0.333 | pairs ordered correctly  54.2% of 23925
+      bandshare: top-1    0.0/30 (  0.0%) | regret 0.937 | pairs ordered correctly  40.7% of 23925
+          share: top-1    7.9/30 ( 26.3%) | regret 0.737 | pairs ordered correctly  70.7% of 23925
+
+=== MaxCut-20 realistic sources (A, GW, GW-LS, E only)
+  sources: ['A', 'E', 'GW', 'GW-LS']
+  MaxCut-20 realistic sources (a) sources at eps = 0.1: 30 problems (0 trivial excluded)
+        overlap: top-1   24.0/30 ( 80.0%) | regret 0.027 | pairs ordered correctly  85.6% of 146
+         ratio0: top-1   22.0/30 ( 73.3%) | regret 0.081 | pairs ordered correctly  68.5% of 146
+      bandshare: top-1    6.0/30 ( 20.0%) | regret 0.200 | pairs ordered correctly  30.1% of 146
+          share: top-1   26.0/30 ( 86.7%) | regret 0.016 | pairs ordered correctly  80.8% of 146
+  MaxCut-20 realistic sources (b) sources at each eps (7 values): 177 problems (33 trivial excluded)
+        overlap: top-1  164.0/177 ( 92.7%) | regret 0.018 | pairs ordered correctly  91.7% of 448
+         ratio0: top-1  147.0/177 ( 83.1%) | regret 0.058 | pairs ordered correctly  76.6% of 448
+      bandshare: top-1   32.0/177 ( 18.1%) | regret 0.258 | pairs ordered correctly  26.1% of 448
+          share: top-1  147.5/177 ( 83.3%) | regret 0.029 | pairs ordered correctly  81.6% of 448
+  MaxCut-20 realistic sources (c) all (source, eps) configurations jointly: 30 problems (0 trivial excluded)
+        overlap: top-1   21.0/30 ( 70.0%) | regret 0.005 | pairs ordered correctly  91.6% of 4948
+         ratio0: top-1   20.0/30 ( 66.7%) | regret 0.323 | pairs ordered correctly  60.6% of 4948
+      bandshare: top-1    4.0/30 ( 13.3%) | regret 0.317 | pairs ordered correctly  40.8% of 4948
+          share: top-1   21.5/30 ( 71.7%) | regret 0.092 | pairs ordered correctly  85.5% of 4948

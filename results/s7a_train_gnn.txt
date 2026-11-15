@@ -1,0 +1,38 @@
+L2: 8 blocks x 2 h; train 300, val 50, held-out 100 scenarios; frozen point OperatingPoint(model='L2', lambda_demand=100.0, demand_bias_mw=250.0, lambda_switch=0.0, calibrated_n_hours=2)
+
+===== C-milp: labels in 9.7 s =====
+trained in 54.1 s: best epoch 5976 of 6000, val BCE 0.2106
+held-out accuracy (threshold 0.5 vs label > 0.5), mean |c - label| and the majority-class baseline accuracy, per block and hour:
+         block | h0 acc   mae  base | h1 acc   mae  base | all acc  base
+       Panipat |  0.720 0.311  0.77 |  0.800 0.282  0.66 |  0.760  0.71
+     Faridabad |  0.920 0.151  0.89 |  0.640 0.393  0.63 |  0.780  0.76
+       RGTPP-1 |  1.000 0.033  1.00 |  1.000 0.032  1.00 |  1.000  1.00
+       RGTPP-2 |  1.000 0.033  1.00 |  1.000 0.032  1.00 |  1.000  1.00
+   Yamunanagar |  0.790 0.314  0.48 |  0.810 0.374  0.60 |  0.800  0.54
+      IGSTPP-1 |  1.000 0.043  1.00 |  1.000 0.022  1.00 |  1.000  1.00
+      IGSTPP-2 |  1.000 0.043  1.00 |  1.000 0.022  1.00 |  1.000  1.00
+      IGSTPP-3 |  1.000 0.043  1.00 |  1.000 0.022  1.00 |  1.000  1.00
+           ALL |  0.929 0.121  0.89 |  0.906 0.147  0.86 |  0.917  0.88
+load conditioning (2500 vs 4200 MW peak): mean |dc| = 0.288; expected committed MW rises by [1143, 1550] for load +[1166, 1694] -> PASS
+timing (1 thread): features + forward 293 us, forward only 117 us
+saved models\gnn_milp_L2.pt
+
+===== C-oracle: labels in 15.1 s =====
+trained in 41.6 s: best epoch 5911 of 6000, val BCE 0.2790
+held-out accuracy (threshold 0.5 vs label > 0.5), mean |c - label| and the majority-class baseline accuracy, per block and hour:
+         block | h0 acc   mae  base | h1 acc   mae  base | all acc  base
+       Panipat |  0.710 0.374  0.65 |  0.770 0.353  0.61 |  0.740  0.63
+     Faridabad |  0.900 0.304  0.73 |  0.490 0.448  0.51 |  0.695  0.62
+       RGTPP-1 |  1.000 0.051  1.00 |  1.000 0.023  1.00 |  1.000  1.00
+       RGTPP-2 |  1.000 0.051  1.00 |  1.000 0.023  1.00 |  1.000  1.00
+   Yamunanagar |  0.660 0.384  0.66 |  0.810 0.335  0.54 |  0.735  0.60
+      IGSTPP-1 |  1.000 0.065  1.00 |  1.000 0.039  1.00 |  1.000  1.00
+      IGSTPP-2 |  1.000 0.065  1.00 |  1.000 0.039  1.00 |  1.000  1.00
+      IGSTPP-3 |  1.000 0.065  1.00 |  1.000 0.039  1.00 |  1.000  1.00
+           ALL |  0.909 0.170  0.88 |  0.884 0.163  0.83 |  0.896  0.86
+load conditioning (2500 vs 4200 MW peak): mean |dc| = 0.293; expected committed MW rises by [1214, 1500] for load +[1166, 1694] -> PASS
+timing (1 thread): features + forward 242 us, forward only 92 us
+saved models\gnn_oracle_L2.pt
+
+reference: LP relaxation (arm D) solve 4.21 ms median, build + solve 4.48 ms
+labels: mean |MILP - oracle| on held-out = 0.126; fraction of (block, hour) where they round differently = 0.114

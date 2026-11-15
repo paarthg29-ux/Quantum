@@ -1,0 +1,21 @@
+G5: C-milp (standard L2 GCN, not retrained) OUT OF DISTRIBUTION vs the LP (D) and cold start (A); L2, frozen point, p = 1, eps = 0.1; 20 scenarios x 3 seeds per set; scenario means, 95% t CI over scenarios.
+The LP has no training distribution: its numbers move only because the instances differ.
+
+  set                n | C wrong D wrong |             C P(b1024)             D P(b1024) A P(b1024) |                        C - D, paired
+  in-dist           16 |    0.40    1.30 |   0.986 [0.957, 1.015]   0.883 [0.749, 1.017]      0.537 | +0.103 [-0.019, +0.226] W p=8.4e-02 (13/3/4)
+  high              16 |    0.20    0.40 |   1.000 [1.000, 1.000]   0.999 [0.999, 1.000]      1.000 | +0.001 [+0.000, +0.001] W p=6.8e-02 (4/16/0)
+  low               16 |    2.85    1.45 |   0.723 [0.557, 0.890]   0.861 [0.735, 0.987]      0.151 | -0.138 [-0.317, +0.042] W p=1.8e-01 (6/1/13)
+  out-IGSTPP-1      14 |    0.85    1.00 |   0.947 [0.879, 1.016]   0.923 [0.812, 1.034]      0.755 | +0.025 [-0.113, +0.162] W p=2.6e-01 (5/6/9)
+  out-Yamunanagar   14 |    0.45    0.65 |   0.973 [0.916, 1.030]   0.970 [0.908, 1.032]      0.876 | +0.002 [-0.003, +0.007] W p=6.6e-01 (5/10/5)
+  out-Faridabad     14 |    0.65    1.20 |   0.986 [0.959, 1.014]   0.914 [0.802, 1.026]      0.923 | +0.073 [-0.040, +0.185] W p=9.3e-02 (7/11/2)
+  reversed          16 |    1.10    1.40 |   0.893 [0.785, 1.002]   0.839 [0.709, 0.968]      0.504 | +0.055 [-0.048, +0.157] W p=6.9e-01 (10/3/7)
+  flat              16 |    0.95    1.40 |   0.793 [0.641, 0.945]   0.790 [0.653, 0.928]      0.601 | +0.003 [-0.167, +0.172] W p=8.1e-01 (8/8/4)
+
+C-milp's change from in-distribution (difference of set means; unpaired, different scenarios):
+  high            : P(b1024) +0.014 (Welch p = 0.32); wrong pins -0.20
+  low             : P(b1024) -0.263 (Welch p = 0.004); wrong pins +2.45
+  out-IGSTPP-1    : P(b1024) -0.039 (Welch p = 0.29); wrong pins +0.45
+  out-Yamunanagar : P(b1024) -0.013 (Welch p = 0.66); wrong pins +0.05
+  out-Faridabad   : P(b1024) +0.000 (Welch p = 0.98); wrong pins +0.25
+  reversed        : P(b1024) -0.093 (Welch p = 0.098); wrong pins +0.70
+  flat            : P(b1024) -0.193 (Welch p = 0.016); wrong pins +0.55

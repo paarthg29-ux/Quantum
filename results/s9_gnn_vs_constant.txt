@@ -1,0 +1,4 @@
+GCN (C-milp) vs constant predictor (per-variable training mean), held-out 100 scenarios (seed 9002); train 300 (seed 8001)
+  level   n |  GCN mae const mae |  GCN bce const bce | GCN acc majority acc | label values
+     L2  16 |   0.1343    0.1755 |   0.2065    0.2660 |   0.917        0.877 | [np.float32(0.0), np.float32(0.67), np.float32(1.0)]
+     L4  22 |   0.1218    0.1778 |   0.2410    0.3194 |   0.866        0.888 | [np.float32(0.0), np.float32(0.5), np.float32(1.0)]

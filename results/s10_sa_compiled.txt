@@ -1,0 +1,21 @@
+G17: COMPILED SA (numba) on the identical QUBO, R = 400 replicas per budget; per-scenario means [95% t CI over scenarios]. Same algorithm and schedule as the numpy SA of s9_classical.py.
+
+--- L2: n = 16 qubits, 30 scenarios; compiled throughput 22.4 M flips/s per chain (numpy SA: see s9_classical.txt) ---
+  QAOA C-milp  best of 1024: P(ground) 0.990 [0.972, 1.008], gap 4.84 %, 1.43 s per run (simulated)
+  QAOA D       best of 1024: P(ground) 0.816 [0.695, 0.938], gap 4.77 %, 1.29 s per run (simulated)
+  QAOA A       best of 1024: P(ground) 0.549 [0.435, 0.663], gap 7.56 %, 0.59 s per run (simulated)
+  SA compiled, = QAOA evaluations (1191) : P(ground) 0.273 [0.185, 0.360], gap 10.18 %,     0.07 ms per run
+  SA compiled, 10,000 flips              : P(ground) 0.757 [0.662, 0.852], gap 6.11 %,     0.47 ms per run
+  SA compiled, 100,000 flips             : P(ground) 0.996 [0.992, 0.999], gap 4.83 %,     4.51 ms per run
+  SA compiled, 1,000,000 flips           : P(ground) 1.000 [1.000, 1.000], gap 4.81 %,    44.75 ms per run
+  QAOA wall time (1.43 s) would buy 3.20e+07 compiled flips per run; every ladder budget fits inside it
+
+--- L4: n = 22 qubits, 20 scenarios; compiled throughput 30.0 M flips/s per chain (numpy SA: see s9_classical.txt) ---
+  QAOA C-milp  best of 1024: P(ground) 0.697 [0.545, 0.849], gap 7.05 %, 46.90 s per run (simulated)
+  QAOA D       best of 1024: P(ground) 0.489 [0.274, 0.704], gap 6.61 %, 46.28 s per run (simulated)
+  QAOA A       best of 1024: P(ground) 0.153 [0.034, 0.272], gap 11.41 %, 24.34 s per run (simulated)
+  SA compiled, = QAOA evaluations (1174) : P(ground) 0.061 [0.027, 0.095], gap 12.23 %,     0.06 ms per run
+  SA compiled, 10,000 flips              : P(ground) 0.354 [0.222, 0.486], gap 8.29 %,     0.37 ms per run
+  SA compiled, 100,000 flips             : P(ground) 0.841 [0.735, 0.947], gap 7.47 %,     3.49 ms per run
+  SA compiled, 1,000,000 flips           : P(ground) 0.994 [0.983, 1.005], gap 7.35 %,    33.87 ms per run
+  QAOA wall time (46.90 s) would buy 1.41e+09 compiled flips per run; every ladder budget fits inside it

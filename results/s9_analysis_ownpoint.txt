@@ -1,0 +1,75 @@
+PHASE 3, L4 (22 qubits), p = 1: 420 of 420 runs present; 20 structures (one per signature), covering 34.0% of the demand distribution
+
+ARMS: P(best of 1024 = ground) per structure (mean [95% t CI over structures]) and reweighted to the demand distribution (bootstrap CI)
+       arm   eps |          per structure |             reweighted | P 1-shot | g final | gap K1024 % | wrong pins | log10 ov | evals |  cap
+         A  0.10 |   0.095 [0.018, 0.173] |   0.085 [0.020, 0.197] |   0.0001 |   0.857 |        8.15 |       0.00 |    -6.38 |    83 |   0%
+    C-milp  0.10 |   0.774 [0.639, 0.909] |   0.828 [0.671, 0.936] |   0.0125 |   0.944 |        2.46 |       0.05 |    -3.02 |   158 |   0%
+    C-milp  0.15 |   0.714 [0.567, 0.860] |   0.772 [0.584, 0.905] |   0.0053 |   0.930 |        2.48 |       0.05 |    -3.30 |   144 |   0%
+         D  0.10 |   0.543 [0.326, 0.760] |   0.653 [0.362, 0.862] |   0.0296 |   0.953 |        2.32 |       2.75 |    -3.99 |   149 |   0%
+         D  0.25 |   0.509 [0.314, 0.703] |   0.630 [0.345, 0.833] |   0.0028 |   0.912 |        2.41 |       2.75 |    -4.24 |   116 |   0%
+         F  0.10 |   0.504 [0.298, 0.711] |   0.637 [0.356, 0.832] |   0.0043 |   0.952 |        2.22 |       3.50 |    -4.18 |   162 |   0%
+         F  0.25 |   0.473 [0.293, 0.653] |   0.568 [0.332, 0.731] |   0.0013 |   0.916 |        2.60 |       3.50 |    -4.24 |   127 |   0%
+
+PAIRED over structures (first - second), P(best of 1024 = ground):
+    C-milp@0.1 - D@0.1        : per structure +0.231 [+0.079, +0.384] (boot [+0.095, +0.375]), Wilcoxon p=4.8e-03, +/=/-: 14/1/5 of 20 | reweighted +0.175 [+0.020, +0.404]
+    C-milp@0.15 - D@0.25      : per structure +0.205 [+0.071, +0.339] (boot [+0.087, +0.330]), Wilcoxon p=4.9e-03, +/=/-: 15/0/5 of 20 | reweighted +0.142 [+0.012, +0.347]
+    C-milp@0.1 - F@0.1        : per structure +0.270 [+0.114, +0.426] (boot [+0.132, +0.417]), Wilcoxon p=1.0e-03, +/=/-: 16/0/4 of 20 | reweighted +0.191 [+0.051, +0.424]
+    C-milp@0.15 - F@0.25      : per structure +0.241 [+0.112, +0.369] (boot [+0.130, +0.361]), Wilcoxon p=7.1e-04, +/=/-: 15/0/5 of 20 | reweighted +0.204 [+0.081, +0.377]
+    D@0.25 - F@0.25           : per structure +0.036 [-0.027, +0.099] (boot [-0.020, +0.092]), Wilcoxon p=6.0e-01, +/=/-: 9/1/10 of 20 | reweighted +0.062 [-0.021, +0.125]
+    C-milp@0.1 - A@0.1        : per structure +0.679 [+0.550, +0.808] (boot [+0.561, +0.793]), Wilcoxon p=1.9e-06, +/=/-: 20/0/0 of 20 | reweighted +0.744 [+0.575, +0.876]
+    D@0.1 - A@0.1             : per structure +0.448 [+0.247, +0.649] (boot [+0.263, +0.630]), Wilcoxon p=8.5e-04, +/=/-: 14/0/6 of 20 | reweighted +0.568 [+0.283, +0.793]
+    D@0.25 - D@0.1            : per structure -0.034 [-0.091, +0.022] (boot [-0.089, +0.014]), Wilcoxon p=7.6e-01, +/=/-: 9/0/11 of 20 | reweighted -0.023 [-0.072, +0.015]
+    C-milp@0.15 - C-milp@0.1  : per structure -0.060 [-0.083, -0.037] (boot [-0.081, -0.039]), Wilcoxon p=1.3e-04, +/=/-: 0/1/19 of 20 | reweighted -0.056 [-0.094, -0.026]
+
+PAIRED, other metrics (C-milp@0.1 - D@0.1 and at each arm's Phase-1 best eps):
+     P 1-shot C-milp@0.1 - D@0.1: per structure -0.017 [-0.045, +0.011] (boot [-0.046, +0.003]), Wilcoxon p=4.5e-01, +/=/-: 15/0/5 of 20 | reweighted -0.009 [-0.040, +0.008]
+     P 1-shot C-milp@0.15 - D@0.25: per structure +0.002 [-0.004, +0.009] (boot [-0.002, +0.009]), Wilcoxon p=1.4e-01, +/=/-: 15/0/5 of 20 | reweighted +0.013 [-0.002, +0.031]
+      g final C-milp@0.1 - D@0.1: per structure -0.009 [-0.012, -0.006] (boot [-0.011, -0.006]), Wilcoxon p=5.7e-06, +/=/-: 1/0/19 of 20 | reweighted -0.007 [-0.012, -0.003]
+      g final C-milp@0.15 - D@0.25: per structure +0.018 [+0.015, +0.021] (boot [+0.015, +0.021]), Wilcoxon p=1.9e-06, +/=/-: 20/0/0 of 20 | reweighted +0.022 [+0.015, +0.029]
+    gap K1024 C-milp@0.1 - D@0.1: per structure +0.001 [-0.007, +0.010] (boot [-0.005, +0.009]), Wilcoxon p=7.8e-01, +/=/-: 8/1/11 of 20 | reweighted -0.000 [-0.008, +0.007]
+    gap K1024 C-milp@0.15 - D@0.25: per structure +0.001 [-0.006, +0.007] (boot [-0.005, +0.007]), Wilcoxon p=7.0e-01, +/=/-: 8/0/12 of 20 | reweighted -0.001 [-0.006, +0.005]
+
+MECHANISM AT 22 QUBITS: split by how many bits the LP pins wrongly at THIS operating point (from the runs)
+   D wrong <= 1 ( 7 structures): at best eps C-milp 0.876 vs D 0.924 (diff -0.048); at eps 0.1 C-milp 0.930 vs D 0.999 (diff -0.069)
+   D wrong >= 2 (13 structures): at best eps C-milp 0.626 vs D 0.285 (diff +0.341); at eps 0.1 C-milp 0.690 vs D 0.298 (diff +0.393)
+   D wrong >= 3 ( 9 structures): at best eps C-milp 0.470 vs D 0.087 (diff +0.383); at eps 0.1 C-milp 0.556 vs D 0.057 (diff +0.498)
+  wrong pins per structure: C-milp mean 0.05 vs D 2.75; C-milp pins >= 2 wrong in 0% of structures, D in 65%
+
+PER STRUCTURE (means over 3 seeds): P(best of 1024 = ground)
+  scen weight D wr Cm wr |       A@0.1  C-milp@0.1 C-milp@0.15       D@0.1      D@0.25       F@0.1      F@0.25
+     3  0.013    2   0.0 |       0.225       1.000       0.998       0.989       0.972       0.698       0.801
+    40  0.030    5   0.0 |       0.003       0.979       0.896       0.000       0.006       0.000       0.010
+    43  0.017    4   0.0 |       0.015       0.232       0.167       0.006       0.050       0.008       0.066
+    49  0.010    1   0.0 |       0.004       1.000       1.000       0.991       0.698       0.425       0.353
+    64  0.010    2   0.0 |       0.015       0.998       0.989       0.910       0.643       0.993       0.791
+    68  0.007    3   0.0 |       0.004       0.903       0.801       0.255       0.254       0.064       0.148
+    70  0.003    7   0.0 |       0.024       0.372       0.267       0.000       0.002       0.000       0.005
+    80  0.003    2   0.0 |       0.480       0.976       0.939       0.577       0.693       0.918       0.901
+    81  0.003    5   1.0 |       0.002       0.361       0.352       0.001       0.011       0.004       0.027
+    94  0.027    1   0.0 |       0.557       0.999       0.993       1.000       0.999       1.000       0.999
+   115  0.027    1   0.0 |       0.017       0.694       0.548       1.000       0.811       0.904       0.612
+   128  0.033    3   0.0 |       0.011       0.527       0.394       0.168       0.241       0.419       0.407
+   137  0.017    1   0.0 |       0.289       0.924       0.827       1.000       0.962       0.905       0.816
+   138  0.083    0   0.0 |       0.001       1.000       1.000       1.000       0.995       1.000       0.833
+   144  0.010    6   0.0 |       0.012       0.338       0.247       0.000       0.005       0.000       0.004
+   176  0.010    0   0.0 |       0.029       0.901       0.800       1.000       1.000       0.990       0.835
+   177  0.010    7   0.0 |       0.024       0.347       0.246       0.000       0.002       0.000       0.004
+   183  0.010    3   0.0 |       0.021       0.943       0.864       0.087       0.210       0.066       0.210
+   194  0.013    0   0.0 |       0.155       0.991       0.965       1.000       1.000       1.000       0.995
+   208  0.003    2   0.0 |       0.014       0.997       0.987       0.878       0.620       0.694       0.642
+
+G1: FROZEN (lambda 100, B 250) vs L4's OWN point (lambda 100, B 150), same 20 structures, paired
+       arm   eps | P(b1024) frozen     own           own - frozen
+         A  0.10 |           0.153   0.095 -0.058 [-0.120, +0.005]
+    C-milp  0.10 |           0.697   0.774 +0.077 [-0.114, +0.268]
+    C-milp  0.15 |           0.671   0.714 +0.043 [-0.156, +0.241]
+         D  0.10 |           0.489   0.543 +0.054 [-0.264, +0.372]
+         D  0.25 |           0.494   0.509 +0.015 [-0.241, +0.271]
+         F  0.10 |           0.369   0.504 +0.136 [-0.152, +0.423]
+         F  0.25 |           0.406   0.473 +0.067 [-0.164, +0.298]
+  the advantage at each point, and its change (difference of paired differences, per structure):
+    C-milp@0.1 - D@0.1: frozen +0.208, own +0.231; change +0.023 [-0.220, +0.267]
+    C-milp@0.15 - D@0.25: frozen +0.177, own +0.205; change +0.028 [-0.156, +0.211]
+    C-milp@0.1 - F@0.1: frozen +0.328, own +0.270; change -0.058 [-0.278, +0.161]
+    C-milp@0.1 - A@0.1: frozen +0.544, own +0.679; change +0.135 [-0.062, +0.332]
+  D wrong pins: frozen 2.90 -> own 2.75 per structure; C-milp: 0.40 -> 0.05

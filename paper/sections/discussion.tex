@@ -1,0 +1,49 @@
+% Discussion, limitations, threats to validity, conclusion, artifact availability.
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Wrong pins are the common cause} What carried over from unit commitment to MaxCut is not a fitted curve but a mechanism. A warm start that pins a variable against the optimum pays for it, and the price rises steeply with the number of such pins: on both problem classes one or two are tolerated at moderate regularisation and three or four are not. The pins need not come from a relaxation. Deliberately wrong pins on an otherwise optimal cut, and the wrong pins of Goemans--Williamson cuts, behave alike. This makes the count of wrong pins the quantity to control when building a warm start, and the confidence of a source in its marginal decisions the thing to distrust.
+
+\paragraph{What band share adds on unit commitment} A warm start is usually judged by how close it is to the optimum: its overlap, or the quality of the classical solution it encodes. Earlier work suspected that this is not enough, because good but suboptimal states compete with the optimum~\cite{dehn2023hybrid,bhattacharyya2025qubo}. Our results support that suspicion and quantify it. At fixed overlap, initial mass on near-optimal competitors \emph{lowers} ground-state sampling (coefficient \BSCoefBand\ on $\log_{10}m_5$). QAOA amplifies the low-energy band as a whole, so the ground state receives the share of that amplification it already holds.
+
+A good warm start therefore concentrates the low-energy band on the optimum, rather than simply placing weight near it; a relaxation that confidently commits a few marginal decisions the wrong way does the opposite. We expected this to hold for other QUBO-encoded problems. On 3-regular MaxCut it does not: the curve fitted on unit commitment gives $R^2$ of at most \MCTransferSixteen\ there, and initial overlap alone explains most of the variation ($R^2=\MCOvTwenty$--\MCOvTwelve). The MaxCut spectrum is integer, so a band of \BandFivePct\% of the spectral range holds only the optimum at \MCSizeTwelve\ qubits, where band share is identical to overlap, and one further cut level at \MCSizeSixteen\ and \MCSizeTwenty; on unit commitment it holds thousands of states. But band density is not the explanation: across the \BDInstances\ instances of both classes it correlates with the improvement from the band (rank correlation \BDPooled), and within classes the correlation vanishes (\BDWithin). We therefore claim band share for unit commitment only.
+
+\paragraph{A practical decision rule} Within its training distribution, the learned start is the better choice: it samples the ground state more reliably and is insensitive to the regularisation. Outside it, the relaxation is, because the LP has no training distribution to fall out of. That argues for falling back to the relaxation whenever an instance looks unlike the training data.
+
+\paragraph{Overlap as a selection rule} Initial overlap is a better heuristic than its fit to sampling magnitude suggests: it picks the best source almost every time on both problem classes, and band share does not improve on it. The initial approximation ratio is the poor rule. Where overlap costs something is the choice of $\varepsilon$ for heuristic sources: maximising it favours small $\varepsilon$, which is the wrong direction when pins are wrong.
+
+\paragraph{Why this matters without a quantum advantage} Simulated annealing solves these instances in milliseconds, so nothing here is an argument for running unit commitment on a quantum computer today. The contribution is a statement about QAOA itself: what in the input state decides what the algorithm returns. It informs warm-start design for whatever hardware eventually runs QAOA at scale, and it is falsifiable in simulation now.
+
+\paragraph{Limitations}
+\begin{itemize}
+\item \textbf{One system.} We studied one stylised fleet, with cost coefficients that are assumptions rather than measured data.
+\item \textbf{MaxCut rests on one size.} At \MCSizeTwelve\ and \MCSizeSixteen\ qubits the cold start already returns the optimum with probability \MCColdTwelve\ and \MCColdSixteen, so those sizes are at ceiling. Only \MCSizeTwenty\ qubits discriminates between sources (cold start \MCColdTwenty), and our MaxCut conclusions about predictors rest on it. The dose--response is visible at all three sizes because wrong pins push sampling below the ceiling.
+\item \textbf{The band was not adapted to MaxCut.} We kept the band at \BandFivePct\% of the spectral range, as fixed on unit commitment. A wider band of two cut levels fits MaxCut better, but it was chosen after seeing the data and is a sensitivity check only.
+\item \textbf{Simplified commitment.} Commitment is fixed-block: a committed unit runs at full output, with no economic dispatch. Minimum up and down times are not enforced at all; the encoding offers only a quadratic relaxation, which was switched off, and the exact constraint would need ancillas.
+\item \textbf{Exact simulation.} Circuits were simulated exactly and noise-free. Only finite-shot expectation estimates were modelled; gate and decoherence noise were not.
+\item \textbf{Depth and size.} Depth was $p\leq3$, and only $p=1$ at \NLfour\ qubits, the largest size studied, and on MaxCut. At \NLfour\ qubits each source was run at two values of $\varepsilon$ only, so the cost of choosing $\varepsilon$ there is the cost of a two-way choice. The \NLfour-qubit instances cover \LfourCoverage\% of the demand distribution; we report reweighted estimates, but they apply only to that share.
+\item \textbf{Band share is diagnostic, and specific to unit commitment.} It needs the full spectrum, so it explains why a warm start works but cannot select one at scale, and it did not transfer to MaxCut.
+\item \textbf{The learned start's errors grow.} Its wrong pins grow with problem size, \SlopeRatioMin--\SlopeRatioMax\ times more slowly than the LP's, but they do grow.
+\end{itemize}
+
+\paragraph{Threats to validity} These go beyond the limitations above.
+\begin{itemize}
+\item \textbf{Optimiser.} One stopping rule and one parameter initialisation were used for every arm. A different optimiser could reorder the arms; Nelder--Mead did not.
+\item \textbf{Choosing $\varepsilon$.} Choosing $\varepsilon$ on the evaluation data favours noisy arms, so cross-validated numbers are primary.
+\item \textbf{Clustering.} Scenarios cluster by structure, so every headline comparison is repeated with one value per structural group, where the gap between the LP and C-milp at the LP's in-sample best $\varepsilon$ is borderline.
+\item \textbf{Fitted exponent.} The band-share exponent was fitted on the same data it explains. Held-out arms, held-out groups and the unchanged transfer to \NLfour\ qubits guard against overfitting, but do not replace a pre-registered test.
+\item \textbf{Target.} The ground state is that of the QUBO, not the operational optimum; the encoding gap (Section~\ref{sec:gap}) separates the two.
+\item \textbf{Multiplicity.} Many comparisons are reported, with intervals that are not corrected for multiplicity.
+\end{itemize}
+
+\paragraph{Future work} The most useful next step is a computable proxy for wrong pins, such as the confidence of the learned predictor or the LP's count of near-fractional pins; others are listed in the Supplement.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Wrongly pinned variables predict when warm-started QAOA fails to return the optimum. The dose--response is the same on unit commitment, where the LP relaxation supplies the wrong pins, and on 3-regular MaxCut, where we supplied them or Goemans--Williamson rounding did. On unit commitment a second quantity, the ground state's share of the initial low-energy band, explains the magnitude of ground-state sampling across seven warm-start sources, depths and two system sizes; it does not transfer to MaxCut, where initial overlap suffices.
+
+Wrong pins explain why the LP relaxation, despite a higher approximation ratio, samples the optimum less reliably than a learned start: it pins marginal units wrongly and builds a band of near-misses. The learned start is better in distribution and fails outside it, where the relaxation, which has no distribution, remains the safe choice. A classical sampler solves all of these instances in milliseconds. The finding is about QAOA, not about an advantage.
+
+\section*{Artifact availability}
+The code, run stores, trained models and the scripts that regenerate every number, table and figure in this paper from the stored results are available in the project repository (URL to be added for the camera-ready version), together with a reproducibility guide listing seeds, package versions and regeneration steps.

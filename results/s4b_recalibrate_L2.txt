@@ -1,0 +1,60 @@
+T = 2; selection 100 scenarios (seed 0), test 40 (seed 2026); lambda_D 29 points in [1, 3162]; biases [0, 25, 50, 75, 100, 150, 200, 250, 300, 400] MW
+encoding gap = (C(QUBO ground) - C(MILP)) / C(MILP), C = fuel + start-up, MILP enforces gen >= D;
+gap statistics are over scenarios whose ground state is adequate. =MILP% compares schedules up to
+swapping identical units. dynIsing = max|c| / min nonzero |c| over (h, J), worst scenario.
+
+Brute force, unit model T=2: n = 22 vars, 2^22 = 4,194,304 states: 1.48 s (best of 3; runs 1.48, 2.18, 2.30); with sorted spectrum 2.19 s; energy vector 32 MB
+
+===== L2 model: 8 blocks x 2 h = 16 vars =====
+sweep 9 s (enumeration 0.07 s/scenario); MILP median 25 ms, max 199 ms; cross-check: 20 cells re-solved by full brute force (0.03 s each), all identical
+   bias min lam 100% | best fully adequate cell:     lam gap mean% gap worst% =MILP%  dynIsing
+      0         none | (max adequacy over lambda 25%)
+     25         none | (max adequacy over lambda 55%)
+     50         none | (max adequacy over lambda 76%)
+     75         none | (max adequacy over lambda 85%)
+    100         none | (max adequacy over lambda 90%)
+    150         none | (max adequacy over lambda 97%)
+    200          237 |                               237      5.08      18.27     34   2.4e+03
+    250           75 |                                75      4.39      18.27     31       766
+    300         42.2 |                              42.2      3.54      16.07     35       435
+    400         23.7 |                              23.7      3.84      18.91     33       250
+  lambda sweep at bias 250 MW:
+    lambda  adeq% gap mean% gap worst% =MILP%  dynIsing  degen
+         1      0       -          -        0   1.6e+03      3
+      1.33      0       -          -        0       339      2
+      1.78      0       -          -        0  1.04e+03      2
+      2.37      0       -          -        0  1.07e+03      2
+      3.16      0       -          -        0       418      2
+      4.22      0       -          -        0  1.84e+03      3
+      5.62     13      0.00       0.00     13       322      1
+       7.5     13      0.00       0.00     13      63.9      1
+        10     22      0.00       0.00     22        90      1
+      13.3     39      0.00       0.00     39       125      1
+      17.8     53      0.15       3.97     49       171      1
+      23.7     70      0.23       3.97     62       233      1
+      31.6     85      1.29       7.01     56       315      1
+      42.2     93      1.66       7.01     54       425      3
+      56.2     98      2.76      11.43     42       571      3
+        75    100      4.39      18.27     31       766      3
+       100    100      4.95      18.27     28  1.03e+03      3
+       133    100      5.79      18.27     24  1.37e+03      6
+       178    100      6.63      25.37     20  1.84e+03      6
+       237    100      7.21      25.37     18  2.45e+03      6
+       316    100      7.79      25.37     18  3.28e+03      6
+       422    100      8.78      25.37     14  4.37e+03      6
+       562    100      9.39      25.37     13  5.84e+03      6
+       750    100     10.09      25.37     12  7.79e+03      6
+     1e+03    100     10.62      25.37     11  1.04e+04      6
+  1.33e+03    100     11.93      34.61     10  1.39e+04      6
+  1.78e+03    100     14.76      50.31     10  1.85e+04      6
+  2.37e+03    100     15.46      50.31      9  2.47e+04      6
+  3.16e+03    100     16.51      50.31      7  3.29e+04     12
+  SELECTED [frozen rule, plateau=1]: lambda_D = 100, bias = 250 MW -> adequacy 100%, gap mean 4.95%, worst 18.27%, =MILP 28%, dynIsing 1.03e+03
+    TEST (40 fresh scenarios): adequacy 100%, gap mean 5.66%, worst 20.67%, =MILP 22%, dynIsing 1.04e+03
+  SELECTED [reference, no plateau, plateau=0]: lambda_D = 42.17, bias = 300 MW -> adequacy 100%, gap mean 3.54%, worst 16.07%, =MILP 35%, dynIsing 435
+    TEST (40 fresh scenarios): adequacy 100%, gap mean 3.56%, worst 16.07%, =MILP 30%, dynIsing 441
+
+===== comparison at each model's selected point =====
+     model       rule  vars  lambda  bias | sel adeq  mean%  worst% =MILP% | test adeq  mean%  worst% =MILP% | dynIsing
+        L2  plateau=1    16     100   250 |     100%   4.95   18.27     28 |      100%   5.66   20.67     22 | 1.04e+03
+        L2  plateau=0    16    42.2   300 |     100%   3.54   16.07     35 |      100%   3.56   16.07     30 |      441

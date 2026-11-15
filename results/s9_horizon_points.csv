@@ -1,0 +1,10 @@
+level,T,own_lambda,own_bias,source
+0,1,74.98942093324558,300.0,calibrated (s7 procedure)
+0,2,56.23413251903491,300.0,s7_gap_ladder.csv
+0,3,74.98942093324558,300.0,calibrated (s7 procedure)
+0,4,56.23413251903491,300.0,calibrated (s7 procedure)
+1,1,100.0,250.0,calibrated (s7 procedure)
+1,2,100.0,250.0,s7_gap_ladder.csv
+1,3,74.98942093324558,300.0,calibrated (s7 procedure)
+2,1,100.0,250.0,calibrated (s7 procedure)
+2,2,100.0,250.0,s7_gap_ladder.csv

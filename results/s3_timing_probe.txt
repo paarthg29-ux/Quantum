@@ -1,0 +1,59 @@
+PennyLane 0.45.1; 10 physical / 16 logical cores, 15.6 GB RAM; 1 thread per process
+H_C: unit model T=2 at the frozen point (lambda_D=100, bias=150 MW), normalised
+gradient check n=16 p=2: lightning adjoint vs default.qubit backprop, max |diff| = 1.30e-13 (max |grad| = 1.34e+01)
+running default.qubit / backprop / n=16 ... 22 s
+running default.qubit / backprop / n=18 ... 70 s
+running default.qubit / backprop / n=20 ... 113 s
+running default.qubit / backprop / n=22 ... 194 s
+running lightning.qubit / adjoint / n=16 ... 9 s
+running lightning.qubit / adjoint / n=18 ... 26 s
+running lightning.qubit / adjoint / n=20 ... 98 s
+running lightning.qubit / adjoint / n=22 ... 275 s
+
+=== measured wall-clock per call (s, median; 'est.' = not run, linear-in-p estimate above the 900 s cap; 'OOM' = estimated memory above 9 GB) ===
+  device / diff                n terms  p   energy s     grad s  peak MB
+  default.qubit / backprop    16    80  1      0.250      0.714      398
+  default.qubit / backprop    16    80  2      0.363      1.066      495
+  default.qubit / backprop    16    80  3      0.493      1.514      593
+  default.qubit / backprop    16    80  5      0.696      2.151      790
+  default.qubit / backprop    18    99  1      1.096      3.392     1260
+  default.qubit / backprop    18    99  2      1.636      4.850     1730
+  default.qubit / backprop    18    99  3      2.072      6.212     2201
+  default.qubit / backprop    18    99  5      3.008      9.743     3142
+  default.qubit / backprop    20   120  1      5.028     16.756     5384
+  default.qubit / backprop    20   120  2      7.300 OOM: ~9 GB     5384
+  default.qubit / backprop    20   120  3      9.588 OOM: ~14 GB     5384
+  default.qubit / backprop    20   120  5     14.166 OOM: ~22 GB     5384
+  default.qubit / backprop    22   143  1     23.092 OOM: ~23 GB      395
+  default.qubit / backprop    22   143  2     33.827 OOM: ~44 GB      395
+  default.qubit / backprop    22   143  3     44.220 OOM: ~65 GB      396
+  default.qubit / backprop    22   143  5     66.010 OOM: ~106 GB      396
+  lightning.qubit / adjoint   16    80  1      0.058      0.186      180
+  lightning.qubit / adjoint   16    80  2      0.091      0.301      181
+  lightning.qubit / adjoint   16    80  3      0.118      0.469      181
+  lightning.qubit / adjoint   16    80  5      0.184      0.686      183
+  lightning.qubit / adjoint   18    99  1      0.235      0.799      198
+  lightning.qubit / adjoint   18    99  2      0.374      1.330      199
+  lightning.qubit / adjoint   18    99  3      0.497      1.910      200
+  lightning.qubit / adjoint   18    99  5      0.692      3.011      202
+  lightning.qubit / adjoint   20   120  1      1.362      4.370      271
+  lightning.qubit / adjoint   20   120  2      1.936      7.282      272
+  lightning.qubit / adjoint   20   120  3      2.575      9.942      272
+  lightning.qubit / adjoint   20   120  5      3.643     15.532      275
+  lightning.qubit / adjoint   22   143  1      6.611     20.670      558
+  lightning.qubit / adjoint   22   143  2      9.325     33.667      560
+  lightning.qubit / adjoint   22   143  3     12.167     47.209      561
+  lightning.qubit / adjoint   22   143  5     17.510     73.081      563
+
+=== benchmark extrapolation: 5 arms x 10 scenarios x 20 seeds x p in [1, 2, 3, 5] x 300 iterations ===
+  1,000 runs per p, 1,200,000 iterations in total. One iteration = one gradient call (gradient-based, e.g. Adam) or one energy call (gradient-free, e.g. COBYLA).
+  'wall' = core-hours / 10: 10 single-thread runs in parallel with perfect scaling (optimistic; memory must also fit).
+  device / diff                n | grad-based core-h   wall h | grad-free core-h   wall h
+  default.qubit / backprop    16 |               454     45.4 |              150     15.0
+  default.qubit / backprop    18 |             2,016    201.6 |              651     65.1
+  default.qubit / backprop    20 | not measurable (see above) |            3,007    300.7
+  default.qubit / backprop    22 | not measurable (see above) |           13,929  1,392.9
+  lightning.qubit / adjoint   16 |               137     13.7 |               38      3.8
+  lightning.qubit / adjoint   18 |               587     58.7 |              150     15.0
+  lightning.qubit / adjoint   20 |             3,094    309.4 |              793     79.3
+  lightning.qubit / adjoint   22 |            14,552  1,455.2 |            3,801    380.1

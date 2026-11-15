@@ -1,0 +1,42 @@
+10 physical / 16 logical cores; CPU load before start 68% (other users' jobs included); 1 thread per process; fast simulator group = 4
+
+=== per energy evaluation, single thread (median, s) ===
+  lvl   n  E build | p=1:     c128      c64 | p=2:     c128      c64 | p=3:     c128      c64 | p=5:     c128      c64 | peak MB | c64 ratio err
+  L0   10    0.02s |        0.0001   0.0001 |        0.0002   0.0002 |        0.0003   0.0003 |        0.0005   0.0008 |      78 | 1.0e-07
+  L1   12    0.02s |        0.0002   0.0002 |        0.0004   0.0003 |        0.0006   0.0005 |        0.0009   0.0018 |      79 | 1.3e-07
+  L2   16    0.04s |        0.0035   0.0043 |        0.0103   0.0029 |        0.0091   0.0084 |        0.0175   0.0066 |      92 | 1.9e-07
+  L3   18    0.11s |        0.0200   0.0112 |        0.0418   0.0279 |        0.0506   0.0377 |        0.0952   0.0463 |     104 | 2.1e-07
+  L4   22    1.97s |        0.4038   0.2173 |        0.7694   0.4219 |        0.9577   0.5487 |        1.5730   0.8853 |     479 | 2.6e-07
+
+COBYLA overhead per evaluation (trivial objective): 2 params 0.93 ms, 4 params 0.78 ms, 6 params 1.76 ms, 10 params 2.34 ms
+
+=== parallel throughput: K simultaneous processes, p = 3, complex128 ===
+  L2 n=16:  K=1: 11.6 ms/eval/process (efficiency 78%)  K=4: 15.8 ms/eval/process (efficiency 58%)  K=8: 28.7 ms/eval/process (efficiency 32%)
+  L3 n=18:  K=1: 50.3 ms/eval/process (efficiency 100%)  K=4: 91.7 ms/eval/process (efficiency 55%)  K=8: 161.6 ms/eval/process (efficiency 31%)
+  L4 n=22:  K=1: 966.7 ms/eval/process (efficiency 99%)  K=4: 1738.4 ms/eval/process (efficiency 55%)  K=8: 3182.1 ms/eval/process (efficiency 30%)
+
+=== evaluations per run: arm A (cold start), COBYLA + early stopping, frozen settings ===
+  80 runs in 379 s (4 workers)
+  lvl   n  p runs | evals mean   min   max | early-stop |  ratio init -> best
+  L0   10  1    9 |         67    42   133 |     1/9    | 0.628 -> 0.929
+  L0   10  2    9 |        396   178   600 |     5/9    | 0.848 -> 0.967
+  L0   10  3    9 |        873   717   900 |     2/9    | 0.883 -> 0.972
+  L0   10  5    9 |       1500  1500  1500 |     0/9    | 0.534 -> 0.972
+  L2   16  1    9 |        110    71   141 |     5/9    | 0.703 -> 0.974
+  L2   16  2    9 |        554   378   600 |     2/9    | 0.862 -> 0.984
+  L2   16  3    9 |        880   724   900 |     1/9    | 0.901 -> 0.985
+  L2   16  5    9 |       1500  1500  1500 |     0/9    | 0.540 -> 0.988
+  L3   18  1    2 |         98    90   107 |     0/2    | 0.747 -> 0.977
+  L3   18  2    2 |        392   341   442 |     2/2    | 0.892 -> 0.984
+  L3   18  3    2 |        894   888   900 |     1/2    | 0.885 -> 0.987
+  L3   18  5    2 |       1500  1500  1500 |     0/2    | 0.756 -> 0.991
+
+=== benchmark estimate: 5 arms x 10 scenarios x 10 seeds = 500 runs per p, p in [1, 2, 3, 5] ===
+  evaluations per run = largest arm-A mean over L0/L2/L3: p=1: 110, p=2: 554, p=3: 894, p=5: 1500 -> 1,529,111 evaluations in total
+  time per evaluation = measured single-thread energy time + COBYLA overhead; + one brute-force E build per scenario
+    n | core-h c128 core-h c64 | wall h, 8 procs x measured eff. | wall h, ideal 8
+   10 |         0.9        1.0 |                               - |            0.12
+   12 |         1.1        1.2 |                               - |            0.14
+   16 |         6.4        3.5 |                   2.5 (eff 32%) |            0.80
+   18 |        30.4       17.4 |                  12.2 (eff 31%) |            3.80
+   22 |       512.8      289.1 |                 213.0 (eff 30%) |           64.10

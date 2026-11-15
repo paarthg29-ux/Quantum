@@ -53,3 +53,16 @@ study material/
 
 # Local research papers
 Research_Papers/
+
+# Course lab work and personal copies (never publish)
+lab/
+*.zip
+
+# Old src/quc prototype and its outputs (superseded by qguc/; see results/paper_inventory.md)
+src/quc/
+experiments/
+results/fig1_*
+results/fig2_*
+results/gnn_params.npz
+results/gnn_report.json
+results/lambda_*

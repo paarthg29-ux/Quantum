@@ -1,0 +1,111 @@
+T = 2; selection 100 scenarios (seed 0), test 40 (seed 2026); lambda_D 29 points in [1, 3162]; biases [0, 25, 50, 75, 100, 150, 200, 250, 300, 400] MW
+encoding gap = (C(QUBO ground) - C(MILP)) / C(MILP), C = fuel + start-up, MILP enforces gen >= D;
+gap statistics are over scenarios whose ground state is adequate. =MILP% compares schedules up to
+swapping identical units. dynIsing = max|c| / min nonzero |c| over (h, J), worst scenario.
+
+Brute force, unit model T=2: n = 22 vars, 2^22 = 4,194,304 states: 2.07 s (best of 3; runs 2.07, 2.07, 2.07); with sorted spectrum 2.13 s; energy vector 32 MB
+
+===== station model: 5 blocks x 2 h = 10 vars =====
+sweep 4 s (enumeration 0.00 s/scenario); MILP median 21 ms, max 93 ms; cross-check: 20 cells re-solved by full brute force (0.00 s each), all identical
+   bias min lam 100% | best fully adequate cell:     lam gap mean% gap worst% =MILP%  dynIsing
+      0         none | (max adequacy over lambda 28%)
+     25         none | (max adequacy over lambda 44%)
+     50         none | (max adequacy over lambda 63%)
+     75         none | (max adequacy over lambda 82%)
+    100         none | (max adequacy over lambda 89%)
+    150         none | (max adequacy over lambda 96%)
+    200          237 |                               237      5.74      31.85     38  5.07e+03
+    250          100 |                               100      2.92      11.43     41  2.17e+03
+    300         42.2 |                              42.2      3.15      11.43     40       925
+    400         23.7 |                              23.7      3.63      18.91     40       533
+  lambda sweep at bias 300 MW:
+    lambda  adeq% gap mean% gap worst% =MILP%  dynIsing  degen
+         1      0       -          -        0       406      1
+      1.33      0       -          -        0       566      1
+      1.78      0       -          -        0  5.03e+03      1
+      2.37      0       -          -        0       574      1
+      3.16     13      0.00       0.00     13  1.43e+03      1
+      4.22     13      0.00       0.00     13  5.91e+03      1
+      5.62     13      0.00       0.00     13  1.08e+03      1
+       7.5     13      0.00       0.00     13       145      1
+        10     32      0.00       0.00     32       201      1
+      13.3     47      0.15       3.97     45       276      1
+      17.8     71      0.22       3.97     64       376      1
+      23.7     87      1.16       6.23     60       510      1
+      31.6     95      2.01       7.01     50       687      1
+      42.2    100      3.15      11.43     40       925      1
+      56.2    100      4.29      18.91     33  1.24e+03      1
+        75    100      5.31      18.91     26  1.66e+03      1
+       100    100      5.66      18.91     23  2.22e+03      1
+       133    100      5.96      18.91     22  2.97e+03      1
+       178    100      7.46      40.49     18  3.97e+03      1
+       237    100     10.05      51.31     15  5.31e+03      1
+       316    100     11.61      51.31     11  7.09e+03      1
+       422    100     12.69      51.31     10  9.46e+03      1
+       562    100     14.72      63.05      8  1.26e+04      1
+       750    100     15.55      63.05      6  1.68e+04      1
+     1e+03    100     17.05      63.05      3  2.25e+04      1
+  1.33e+03    100     17.23      63.05      2     3e+04      1
+  1.78e+03    100     17.23      63.05      2     4e+04      1
+  2.37e+03    100     18.10      63.05      2  5.33e+04      1
+  3.16e+03    100     18.10      63.05      2  7.11e+04      1
+  SELECTED [frozen rule, plateau=1]: lambda_D = 56.23, bias = 300 MW -> adequacy 100%, gap mean 4.29%, worst 18.91%, =MILP 33%, dynIsing 1.24e+03
+    TEST (40 fresh scenarios): adequacy 100%, gap mean 4.25%, worst 18.91%, =MILP 32%, dynIsing 1.26e+03
+  SELECTED [reference, no plateau, plateau=0]: lambda_D = 100, bias = 250 MW -> adequacy 100%, gap mean 2.92%, worst 11.43%, =MILP 41%, dynIsing 2.17e+03
+    TEST (40 fresh scenarios): adequacy 100%, gap mean 3.07%, worst 7.30%, =MILP 32%, dynIsing 2.21e+03
+
+===== unit model: 11 blocks x 2 h = 22 vars =====
+sweep 528 s (enumeration 6.59 s/scenario); MILP median 22 ms, max 137 ms; cross-check: 6 cells re-solved by full brute force (1.39 s each), all identical
+   bias min lam 100% | best fully adequate cell:     lam gap mean% gap worst% =MILP%  dynIsing
+      0         none | (max adequacy over lambda 29%)
+     25         none | (max adequacy over lambda 99%)
+     50        1e+03 |                             1e+03      4.59      16.42     12   8.1e+03
+     75          422 |                               422      3.79      16.42     12  3.45e+03
+    100          178 |                               178      2.01      15.20     28  1.47e+03
+    150           75 |                                75      1.59       7.14     27       628
+    200         42.2 |                              42.2      2.23       8.00     20       357
+    250         23.7 |                              23.7      1.90       7.14     26       201
+    300         23.7 |                              23.7      3.50       8.83     12       206
+    400         13.3 |                              13.3      3.21      10.22     17       117
+  lambda sweep at bias 150 MW:
+    lambda  adeq% gap mean% gap worst% =MILP%  dynIsing  degen
+         1      0       -          -        0       981      3
+      1.33      0       -          -        0  3.31e+03      2
+      1.78      0       -          -        0       468      2
+      2.37      0       -          -        0  4.26e+03      2
+      3.16      0       -          -        0  2.33e+03      2
+      4.22      0       -          -        0       389      3
+      5.62      0       -          -        0       850      3
+       7.5      8      0.00       0.00      8       463      3
+        10     13      0.00       0.00     13      74.7      4
+      13.3     13      0.00       0.00     13       103      4
+      17.8     18      0.06       0.70     16       141      4
+      23.7     44      0.22       2.08     35       191      4
+      31.6     75      0.41       2.08     50       259      4
+      42.2     95      0.68       3.23     52       349      4
+      56.2     99      1.02       4.16     40       468      4
+        75    100      1.59       7.14     27       628      4
+       100    100      2.08       8.00     21       841      4
+       133    100      2.61       8.00     18  1.12e+03      4
+       178    100      3.14      13.44     15   1.5e+03      4
+       237    100      3.61      13.44     14  2.01e+03      4
+       316    100      4.16      17.37     14  2.68e+03      8
+       422    100      4.54      17.37     14  3.58e+03     12
+       562    100      5.39      20.43     11  4.78e+03      8
+       750    100      5.96      21.05     10  6.37e+03     12
+     1e+03    100      7.16      21.05      4   8.5e+03     12
+  1.33e+03    100      7.95      21.05      1  1.13e+04     12
+  1.78e+03    100      8.08      22.11      1  1.51e+04     12
+  2.37e+03    100      8.54      22.11      0  2.02e+04     12
+  3.16e+03    100      8.60      22.11      0  2.69e+04     12
+  SELECTED [frozen rule, plateau=1]: lambda_D = 100, bias = 150 MW -> adequacy 100%, gap mean 2.08%, worst 8.00%, =MILP 21%, dynIsing 841
+    TEST (40 fresh scenarios): adequacy 100%, gap mean 2.48%, worst 7.80%, =MILP 20%, dynIsing 853
+  SELECTED [reference, no plateau, plateau=0]: lambda_D = 74.99, bias = 150 MW -> adequacy 100%, gap mean 1.59%, worst 7.14%, =MILP 27%, dynIsing 628
+    TEST (40 fresh scenarios): adequacy 100%, gap mean 1.86%, worst 6.44%, =MILP 28%, dynIsing 637
+
+===== comparison at each model's selected point =====
+     model       rule  vars  lambda  bias | sel adeq  mean%  worst% =MILP% | test adeq  mean%  worst% =MILP% | dynIsing
+   station  plateau=1    10    56.2   300 |     100%   4.29   18.91     33 |      100%   4.25   18.91     32 | 1.26e+03
+   station  plateau=0    10     100   250 |     100%   2.92   11.43     41 |      100%   3.07    7.30     32 | 2.21e+03
+      unit  plateau=1    22     100   150 |     100%   2.08    8.00     21 |      100%   2.48    7.80     20 |      853
+      unit  plateau=0    22      75   150 |     100%   1.59    7.14     27 |      100%   1.86    6.44     28 |      637

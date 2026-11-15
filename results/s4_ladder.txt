@@ -1,0 +1,14 @@
+Frozen point: lambda_D = 100, demand_bias = 250 MW, lambda_switch = 0; T = 2; 100 scenarios (seed 4242), identical demand at every level
+gap = (C(QUBO ground) - C(MILP)) / C(MILP), C = fuel + start-up, over scenarios whose ground state is adequate;
+=MILP: ground state is the MILP schedule up to swapping identical blocks.
+
+  level blocks qubits | adequate | gap mean  median     p90   worst |  =MILP | dynIsing degen |  time
+     L0      5     10 |      99% |    2.53%   0.59%   7.01%   8.69% |    44% |     2205     1 |    2s
+     L1      6     12 |     100% |    3.98%   2.02%   9.30%  19.27% |    37% |     2205     2 |    2s
+     L2      8     16 |     100% |    4.89%   3.79%  13.35%  20.67% |    31% |     1041     3 |    3s
+     L3      9     18 |     100% |    4.78%   5.29%   9.87%  23.57% |    26% |     1041     6 |    8s
+     L4     11     22 |     100% |    6.13%   6.05%   9.63%  11.81% |     4% |      894     4 |  112s
+  L0 inadequate ground states: s018_L0_peak2709_T2
+
+Re-verification rule (L2 adequacy >= 95%): 100% -> PASS
+wrote results\s4_ladder.csv

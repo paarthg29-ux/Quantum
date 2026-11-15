@@ -1,0 +1,23 @@
+\begin{tabular}{llccc}
+\toprule
+System & Method & $P(\text{ground})$ [95\% CI] & Gap\,\% & Time per run \\
+\midrule
+L2 ($n{=}16$) & QAOA C-milp, best of 1024 & 0.990 \ensuremath{[0.972,\,1.008]} & 4.84 & 1.43 s \\
+L2 ($n{=}16$) & QAOA D (LP), best of 1024 & 0.816 \ensuremath{[0.695,\,0.938]} & 4.77 & 1.29 s \\
+L2 ($n{=}16$) & QAOA A (cold), best of 1024 & 0.549 \ensuremath{[0.435,\,0.663]} & 7.56 & 0.59 s \\
+ & SA, $= $ QAOA evaluations (1191 flips) & 0.273 \ensuremath{[0.185,\,0.360]} & 10.18 & 0.07 ms \\
+ & SA, $10^{4}$ flips & 0.757 \ensuremath{[0.662,\,0.852]} & 6.11 & 0.47 ms \\
+ & SA, $10^{5}$ flips & 0.996 \ensuremath{[0.992,\,0.999]} & 4.83 & 4.51 ms \\
+ & SA, $10^{6}$ flips & 1.000 \ensuremath{[1.000,\,1.000]} & 4.81 & 45 ms \\
+ & tabu (restarts), $=$ QAOA wall time & 0.651 \ensuremath{[0.517,\,0.786]} & 6.44 & -- \\
+\midrule
+L4 ($n{=}22$) & QAOA C-milp, best of 1024 & 0.697 \ensuremath{[0.545,\,0.849]} & 7.05 & 46.90 s \\
+L4 ($n{=}22$) & QAOA D (LP), best of 1024 & 0.489 \ensuremath{[0.274,\,0.704]} & 6.61 & 46.28 s \\
+L4 ($n{=}22$) & QAOA A (cold), best of 1024 & 0.153 \ensuremath{[0.034,\,0.272]} & 11.41 & 24.34 s \\
+ & SA, $= $ QAOA evaluations (1174 flips) & 0.061 \ensuremath{[0.027,\,0.095]} & 12.23 & 0.06 ms \\
+ & SA, $10^{4}$ flips & 0.354 \ensuremath{[0.222,\,0.486]} & 8.29 & 0.37 ms \\
+ & SA, $10^{5}$ flips & 0.841 \ensuremath{[0.735,\,0.947]} & 7.47 & 3.49 ms \\
+ & SA, $10^{6}$ flips & 0.994 \ensuremath{[0.983,\,1.005]} & 7.35 & 34 ms \\
+ & tabu (restarts), $=$ QAOA wall time & 0.948 \ensuremath{[0.857,\,1.039]} & 7.65 & -- \\
+\bottomrule
+\end{tabular}
